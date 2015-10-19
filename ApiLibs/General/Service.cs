@@ -97,9 +97,9 @@ namespace ApiLibs
             
         }
 
-        internal async Task<IRestResponse> MakeRequestPost(string authGithub, List<Param> head)
+        internal async Task<IRestResponse> MakeRequestPost(string url, List<Param> head)
         {
-            RestRequest request = new RestRequest(authGithub, Method.POST);
+            RestRequest request = new RestRequest(url, Method.POST);
 
             foreach (Param para in head)
             {
