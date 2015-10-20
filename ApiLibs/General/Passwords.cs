@@ -18,6 +18,11 @@ namespace ApiLibs
         public static string PocketKey { get { return getPassword("PocketKey"); } }
         public static string Pocket_access_token { get { return getPassword("Pocket_access_token"); } }
 
+        public static string GitHub_clientID { get { return getPassword("GitHub_clientID"); } }
+        public static string GitHub_client_secret { get { return getPassword("GitHub_client_secret"); } }
+
+
+
         public static readonly string OutlookKey = "";
 
         public static readonly string OutlookID  = "";
@@ -34,6 +39,8 @@ namespace ApiLibs
             StreamReader reader = new StreamReader(stream);
             passwords = JsonConvert.DeserializeObject<Dictionary<string,string>>(reader.ReadToEnd());
             allread = true;
+            stream.Close();
+            reader.Close();
         }
 
         public static void writePasswords()
@@ -68,6 +75,5 @@ namespace ApiLibs
 
         private static bool allread = false;
         private static Dictionary<string, string> passwords;
-
     }
 }
