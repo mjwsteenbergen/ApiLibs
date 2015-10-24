@@ -15,8 +15,8 @@ namespace ApiLibs.GitHub
 
         public GitHubService(IOAuth authenticator)
         {
+            SetUp("https://github.com/");
             this.authenticator = authenticator;
-            Passwords.readPasswords();
 
             AddStandardParameter(new Param("content-type", "application/json"));
             AddStandardParameter(new Param("content-length", "37"));
@@ -26,36 +26,39 @@ namespace ApiLibs.GitHub
 
         public async Task Connect()
         {
-            SetUp("https://github.com/");
-            string key = await authenticator.ActivateOAuth(new Uri("https://github.com/login/oauth/authorize?redirect_uri=" + authenticator.redirectUrl() + "&client_id=" + Passwords.GitHub_clientID + "&scope=repo,notifications"));
-            List<Param> parameters = new List<Param>();
-            parameters.Add(new Param("client_id", Passwords.GitHub_clientID));
-            parameters.Add(new Param("client_secret", Passwords.GitHub_client_secret));
-            parameters.Add(new Param("code", key.Replace("code=","")));
-
-            IRestResponse resp = await MakeRequestPost("login/oauth/access_token", parameters);
-
-            if (resp.StatusCode.ToString() != "OK")
+            if(Passwords.GitHub_access_token == null)
             {
-                foreach (Parameter p in resp.Headers)
-                {
-                    Console.WriteLine(p.ToString());
-                }
+                string key = await authenticator.ActivateOAuth(new Uri("https://github.com/login/oauth/authorize?redirect_uri=" + authenticator.redirectUrl() + "&client_id=" + Passwords.GitHub_clientID + "&scope=repo,notifications"));
+                List<Param> parameters = new List<Param>();
+                parameters.Add(new Param("client_id", Passwords.GitHub_clientID));
+                parameters.Add(new Param("client_secret", Passwords.GitHub_client_secret));
+                parameters.Add(new Param("code", key.Replace("code=", "")));
 
-                throw new Exception("\n" + "A problem occured in PocketService.Connect() - " +
-                                    resp.StatusCode.ToString() + "\n" + resp.Content);
+                IRestResponse resp = await MakeRequestPost("login/oauth/access_token", parameters);
+
+                Match m = Regex.Match(resp.Content, @"{""access_token"":""(\w+)""");
+                Passwords.addPassword("GitHub_access_token", m.Groups[1].ToString());
+                Passwords.writePasswords();
             }
-            Match m = Regex.Match(resp.Content, @"{""access_token"":""(\w+)""");
-            Passwords.addPassword("GitHub_access_token", m.Groups[1].ToString());
-            Passwords.writePasswords();
+
+            AddStandardHeader(new Param("Authorization", "token " + Passwords.GitHub_access_token));
             setBaseUrl("https://api.github.com/");
+        }
+
+        public async Task<GitHubUser> GetUser(string username)
+        {
+            List<Param> parameters = new List<Param>();
+            return await Convert<GitHubUser>(await MakeRequest("users/newnottakenname", parameters));
+        }
+
+        public async Task<List<Repository>> GetMyRepository()
+        {
+            return await Convert<List<Repository>>(await MakeRequest("user/repos", new List<Param>()));
         }
 
         public async Task<List<NotificationsObject>> GetNotifications()
         {
-            IRestResponse resp = await MakeRequest("notifications", new List<Param>());
-            List<NotificationsObject> r = JsonConvert.DeserializeObject<List<NotificationsObject>>(resp.Content);
-            return r;
+            return await Convert<List<NotificationsObject>>(await MakeRequest("notifications", new List<Param>()));
         }
 
     }

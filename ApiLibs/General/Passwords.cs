@@ -21,6 +21,7 @@ namespace ApiLibs
         public static string GitHub_clientID { get { return getPassword("GitHub_clientID"); } }
         public static string GitHub_client_secret { get { return getPassword("GitHub_client_secret"); } }
 
+        public static string GitHub_access_token { get { return getPassword("GitHub_access_token"); } }
 
 
         public static readonly string OutlookKey = "";
@@ -32,6 +33,7 @@ namespace ApiLibs
         public static readonly string OutlookEmailAdres = "";
 
         public static string GeneralRedirectUrl { get { return getPassword("GeneralRedirectUrl"); } }
+
 
         public static void readPasswords()
         {
