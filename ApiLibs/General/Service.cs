@@ -55,12 +55,34 @@ namespace ApiLibs
             client.Authenticator = new HttpBasicAuthenticator(username, secret);
         }
 
-        internal async Task<IRestResponse> MakeRequest(String url, List<Param> parameters)
-        {
 
+
+        internal async Task<IRestResponse> MakeRequest(string url, List<Param> parameters, object JSonBody)
+        {
             RestRequest request = new RestRequest(url, Method.GET);
+            request.AddJsonBody(JSonBody);
+            return await addParametersAndMakeCall(request, parameters);
+        }
+
+        internal async Task<IRestResponse> MakeRequest(string url, List<Param> parameters)
+        {
+            RestRequest request = new RestRequest(url, Method.GET);
+            return await addParametersAndMakeCall(request, parameters);
+        }
+
+        internal async Task<IRestResponse> MakeRequestPost(string url, List<Param> parameters)
+        {
+            RestRequest request = new RestRequest(url, Method.POST);
+            return await addParametersAndMakeCall(request, parameters);
+        }
+
+
+
+        private async Task<IRestResponse> addParametersAndMakeCall(IRestRequest request, List<Param> parameters)
+        {
             request.RequestFormat = DataFormat.Json;
             request.JsonSerializer.ContentType = "application/json; charset=utf-8";
+
             foreach (Param para in parameters)
             {
                 request.AddParameter(para.name, para.value);
@@ -76,8 +98,12 @@ namespace ApiLibs
                 request.AddHeader(para.name, para.value);
             }
 
-           
 
+            return await performCall(request);
+        }
+
+        private async Task<IRestResponse> performCall(IRestRequest request)
+        {
             Debug.Assert(client != null, "client != null");
             IRestResponse resp = await client.ExecuteTaskAsync(request,
             new CancellationToken());
@@ -88,44 +114,18 @@ namespace ApiLibs
                 {
                     Console.WriteLine(p.ToString());
                 }
-                throw new Exception("A problem occured while trying to access " + url + ". Statuscode: " + resp.StatusCode.ToString() + "\n" + resp.Content);
+                throw new Exception("A problem occured while trying to access " + resp.ResponseUri + ". Statuscode: " + resp.StatusCode.ToString() + "\n" + resp.Content);
 
             }
-
             return resp;
         }
 
-        internal async Task<T> Convert<T>(IRestResponse resp)
+        internal T Convert<T>(IRestResponse resp)
         {
-            return await JsonConvert.DeserializeObjectAsync<T>(resp.Content);
+            return JsonConvert.DeserializeObject<T>(resp.Content);
         }
 
-        internal async Task<IRestResponse> MakeRequestPost(string url, List<Param> head)
-        {
-            RestRequest request = new RestRequest(url, Method.POST);
-
-            foreach (Param para in head)
-            {
-                request.AddParameter(para.name, para.value);
-            }
-
-            foreach (Param para in standardParameter)
-            {
-                request.AddParameter(para.name, para.value);
-            }
-
-            try
-            {
-                Debug.Assert(client != null, "client != null");
-                return await client.ExecuteTaskAsync(request,
-                    new CancellationToken());
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error in:" + this.GetType() + " " + e.Message);
-                return null;
-            }
-        }
+        
 
         internal void Dispose()
         {
