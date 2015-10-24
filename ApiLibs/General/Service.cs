@@ -23,6 +23,7 @@ namespace ApiLibs
         {
             client = new RestClient();
             client.BaseUrl = new Uri(hostUrl);
+            Passwords.readPasswords();
         }
 
         internal void AddStandardParameter(Param p)

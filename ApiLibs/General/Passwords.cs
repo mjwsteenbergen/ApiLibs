@@ -5,12 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ApiLibs.Telegram;
 
 namespace ApiLibs
 {
     class Passwords
     {
-        public static string PasswordPath = @"C:\Users\Martijn\Coding\Zeus\Zeus\bin\Debug\pass";
+        public static string DirectoryPath = @"C:\Users\Martijn\AppData\Roaming\Zeus\";
 
         public static string TodoistKey { get { return getPassword("TodoistKey"); } }
         public static string TodoistUserAgent { get { return getPassword("TodoistUserAgent"); } }
@@ -18,9 +19,11 @@ namespace ApiLibs
         public static string PocketKey { get { return getPassword("PocketKey"); } }
         public static string Pocket_access_token { get { return getPassword("Pocket_access_token"); } }
 
+        public static string Telegram_token { get { return getPassword("Telegram_token"); } }
+
         public static readonly string OutlookKey = "";
 
-        public static readonly string OutlookID  = "";
+        public static readonly string OutlookID = "";
 
         public static string OutlookToken;
 
@@ -30,28 +33,59 @@ namespace ApiLibs
 
         public static void readPasswords()
         {
-            FileStream stream = File.Open(PasswordPath, FileMode.OpenOrCreate);
-            StreamReader reader = new StreamReader(stream);
-            passwords = JsonConvert.DeserializeObject<Dictionary<string,string>>(reader.ReadToEnd());
-            allread = true;
+            passwords = readFile<Dictionary<string,string>>("pass");
         }
 
-        public static void writePasswords()
+        internal static T readFile<T>(string filename) where T:new()
         {
-            FileStream stream = File.Create(PasswordPath);
-            if(passwords == null)
+            string FilePath = DirectoryPath + filename;
+
+            if (!Directory.Exists(DirectoryPath))
             {
-                passwords = new Dictionary<string, string>();
+                Directory.CreateDirectory(DirectoryPath);
             }
+            if (File.Exists(FilePath))
+            {
+                FileStream stream = File.Open(FilePath, FileMode.Open);
+                StreamReader reader = new StreamReader(stream);
+
+                T res = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
+
+                stream.Close();
+                reader.Close();
+
+                return res;
+            }
+            else
+            {
+                T res = new T();
+                //File.Create(FilePath);
+                writeFile(filename, res);
+                return res;
+            }
+        }
+
+        internal static void writeFile(string v, object obj)
+        {
+            FileStream stream = File.Create(DirectoryPath + v);
             StreamWriter writer = new StreamWriter(stream);
-            writer.WriteLine(JsonConvert.SerializeObject(passwords));
+            writer.WriteLine(JsonConvert.SerializeObject(obj));
             writer.Close();
             stream.Close();
         }
 
+        public static void writePasswords()
+        {
+            if (passwords == null)
+            {
+                passwords = new Dictionary<string, string>();
+            }
+            writeFile("pass", passwords);
+        }
+
         public static void addPassword(string key, string value)
         {
-            if(!passwords.Keys.Contains(key))
+            if (!passwords.Keys.Contains(key))
             {
                 passwords.Add(key, value);
             }
@@ -59,7 +93,7 @@ namespace ApiLibs
 
         private static string getPassword(string key)
         {
-            if(passwords.Keys.Contains(key))
+            if (passwords.Keys.Contains(key))
             {
                 return passwords[key];
             }
