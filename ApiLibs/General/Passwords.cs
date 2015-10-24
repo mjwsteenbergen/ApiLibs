@@ -37,7 +37,11 @@ namespace ApiLibs
 
         public static void readPasswords()
         {
-            passwords = readFile<Dictionary<string,string>>("pass");
+            if(!allread)
+            {
+                passwords = readFile<Dictionary<string, string>>("pass");
+                allread = true;
+            }
         }
 
         internal static T readFile<T>(string filename) where T:new()
