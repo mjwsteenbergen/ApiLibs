@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using RestSharp;
 using RestSharp.Authenticators;
 
@@ -92,10 +93,11 @@ namespace ApiLibs
             }
 
             return resp;
-            
-            
+        }
 
-            
+        internal async Task<T> Convert<T>(IRestResponse resp)
+        {
+            return await JsonConvert.DeserializeObjectAsync<T>(resp.Content);
         }
 
         internal async Task<IRestResponse> MakeRequestPost(string url, List<Param> head)

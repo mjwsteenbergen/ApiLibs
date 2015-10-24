@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,8 +21,11 @@ namespace ApiLibs
 
         public static string Telegram_token { get { return getPassword("Telegram_token"); } }
 
-        public static readonly string OutlookKey = "";
+        public static string GitHub_clientID { get { return getPassword("GitHub_clientID"); } }
+        public static string GitHub_client_secret { get { return getPassword("GitHub_client_secret"); } }
+        public static string GitHub_access_token { get { return getPassword("GitHub_access_token"); } }
 
+        public static readonly string OutlookKey = "";
         public static readonly string OutlookID = "";
 
         public static string OutlookToken;
@@ -30,6 +33,7 @@ namespace ApiLibs
         public static readonly string OutlookEmailAdres = "";
 
         public static string GeneralRedirectUrl { get { return getPassword("GeneralRedirectUrl"); } }
+
 
         public static void readPasswords()
         {
@@ -102,6 +106,5 @@ namespace ApiLibs
 
         private static bool allread = false;
         private static Dictionary<string, string> passwords;
-
     }
 }
