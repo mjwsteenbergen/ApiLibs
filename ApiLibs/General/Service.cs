@@ -64,6 +64,12 @@ namespace ApiLibs
             return await addParametersAndMakeCall(request, parameters);
         }
 
+        internal async Task<T> MakeRequest<T>(string url, List<Param> parameters)
+        {
+            RestRequest request = new RestRequest(url, Method.GET);
+            return Convert<T>(await addParametersAndMakeCall(request, parameters));
+        }
+
         internal async Task<IRestResponse> MakeRequest(string url, List<Param> parameters)
         {
             RestRequest request = new RestRequest(url, Method.GET);
