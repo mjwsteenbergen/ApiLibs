@@ -45,20 +45,37 @@ namespace ApiLibs.GitHub
             setBaseUrl("https://api.github.com/");
         }
 
-        public async Task<GitHubUser> GetUser(string username)
+        public async Task<List<Issue>> GetIssues(Repository repo)
         {
-            List<Param> parameters = new List<Param>();
-            return await Convert<GitHubUser>(await MakeRequest("users/newnottakenname", parameters));
+            return (await MakeRequest<List<Issue>>(repo.issues_url.Replace("{/number}", ""), new List<Param>()));
+            //Console.WriteLine((await MakeRequest(repo.issues_url.Replace("{/number}", ""), new List<Param>())).Content);
         }
 
-        public async Task<List<Repository>> GetMyRepository()
+        public async Task<GitHubUser> GetUser(string username)
         {
-            return await Convert<List<Repository>>(await MakeRequest("user/repos", new List<Param>()));
+            return await MakeRequest<GitHubUser>("users/newnottakenname", new List<Param>());
+        }
+
+        public async Task<List<Repository>> GetMyRepositories()
+        {
+            return await MakeRequest<List<Repository>>("user/repos", new List<Param>());
+        }
+
+        public async Task<Repository> GetRepository(string name)
+        {
+            foreach(Repository repo in await GetMyRepositories())
+            {
+                if(repo.name == name)
+                {
+                    return repo;
+                }
+            }
+            throw new KeyNotFoundException("Could not find" + name);
         }
 
         public async Task<List<NotificationsObject>> GetNotifications()
         {
-            return await Convert<List<NotificationsObject>>(await MakeRequest("notifications", new List<Param>()));
+            return await MakeRequest<List<NotificationsObject>>("notifications", new List<Param>());
         }
 
     }
