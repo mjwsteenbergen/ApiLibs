@@ -74,38 +74,15 @@ namespace ApiLibs.Pocket
             Passwords.writePasswords();
         }
 
-        public async void addArticle(string url)
+        public async Task<Item> addArticle(string url)
         {
             List<Param> parameters = new List<Param>();
             parameters.Add(new Param("url", url));
 
-            IRestResponse resp = await MakeRequestPost("add.php", parameters);
-
-            if (resp.StatusCode.ToString() != "OK")
-            {
-                foreach (Parameter p in resp.Headers)
-                {
-                    Console.WriteLine(p.ToString());
-                }
-
-                throw new Exception("\n" + "A problem occured in PocketService.Connect() - " +
-                                    resp.StatusCode.ToString() + "\n" + resp.Content);
-            }
-            else
-            {
-                //so2 = JsonConvert.DeserializeObject<SyncObject>(resp.Content);
-                //UpdateParameterIfExists(new Param("seq_no", so2.seq_no.ToString()));
-                //UpdateParameterIfExists(new Param("seq_no_global", so2.seq_no_global.ToString()));
-
-                Console.WriteLine("Completed" + resp.Content);
-
-            }
-
-            //cachedItems = so2.Items;
-            //return so2.Items;get
+            return (await MakeRequest<AddItemResponse>("add.php", parameters)).item;
         }
 
-        public async void getReadingList(bool simple)
+        public async Task<ReadingList> getReadingList(bool simple)
         {
             List<Param> parameters = new List<Param>();
             parameters.Add(new Param("detailType", simple ? "simple" : "complete"));
@@ -124,7 +101,39 @@ namespace ApiLibs.Pocket
             }
 
             var regexd = Regex.Replace(resp.Content, @"""\d+"":", "").Replace("\"list\":{", "\"list\":[").Replace("}},\"error\"", "}],\"error\"");
-            Rootobject pocket = JsonConvert.DeserializeObject<Rootobject>(regexd);
+            return JsonConvert.DeserializeObject<ReadingList>(regexd);
+        }
+
+        public void delete(List ls)
+        {
+            sendAction(new PocketAction("delete", ls.item_id));
+
+        }
+
+        public void unfavorite(List ls)
+        {
+            sendAction(new PocketAction("unfavorite", ls.item_id));
+        }
+
+        private async void sendAction(PocketAction pa)
+        {
+            List<Param> parameters = new List<Param>();
+            parameters.Add(new Param("actions", JsonConvert.SerializeObject(new List<PocketAction>() { pa })));
+            await MakeRequest("send.php", parameters);
+        }
+
+        private class PocketAction
+        {
+            public string action;
+            public string item_id;
+            public string time;
+
+            public PocketAction(string category, string item_id)
+            {
+                this.action = category;
+                this.item_id = item_id;
+                this.time = DateTime.Now.ToFileTime().ToString();
+            }
         }
     }
 }
