@@ -111,7 +111,7 @@ namespace ApiLibs.GitHub
         public string merges_url { get; set; }
         public string archive_url { get; set; }
         public string downloads_url { get; set; }
-        public string issues_url { get { return real_issue_url.Replace("https://api.github.com/", ""); } set { real_issue_url = value; } }
+        public string issues_url { get { return real_issue_url.Replace("https://api.github.com/", "").Replace("{/number}", ""); } set { real_issue_url = value; } }
 
         private string real_issue_url;
         public string pulls_url { get; set; }
@@ -161,6 +161,11 @@ namespace ApiLibs.GitHub
         public DateTime updated_at { get; set; }
         public object closed_at { get; set; }
         public string body { get; set; }
+
+        public override int GetHashCode()
+        {
+            return id;
+        }
     }
 
     public class User
@@ -252,6 +257,14 @@ namespace ApiLibs.GitHub
         public string color { get; set; }
     }
 
+    public class RequestIssue
+    {
+        public string title { get; set; }
+        public string body { get; set; }
+        public string assignee { get; set; }
+        public int milestone { get; set; }
+        public List<string> labels { get; set; }
 
+    }
 
 }

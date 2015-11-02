@@ -84,6 +84,11 @@ namespace ApiLibs.Pocket
         public object[] videos { get; set; }
         public string resolved_normal_url { get; set; }
         public string given_url { get; set; }
+
+        public override int GetHashCode()
+        {
+            return int.Parse(item_id);
+        }
     }
 
 
