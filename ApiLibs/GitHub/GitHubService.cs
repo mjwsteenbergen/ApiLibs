@@ -47,7 +47,7 @@ namespace ApiLibs.GitHub
 
         public async Task<List<Issue>> GetIssues(Repository repo)
         {
-            return (await MakeRequest<List<Issue>>(repo.issues_url.Replace("{/number}", ""), new List<Param>()));
+            return (await MakeRequest<List<Issue>>(repo.issues_url, new List<Param>()));
             //Console.WriteLine((await MakeRequest(repo.issues_url.Replace("{/number}", ""), new List<Param>())).Content);
         }
 
@@ -73,10 +73,19 @@ namespace ApiLibs.GitHub
             throw new KeyNotFoundException("Could not find" + name);
         }
 
+        public async Task<Issue> addIssue(RequestIssue issue, Repository repo)
+        {
+            List<Param> parameters = new List<Param>();
+            parameters.Add(new Param("title", "test"));
+            return await MakeRequestPost<Issue>(repo.issues_url, parameters);
+        }
+
         public async Task<List<NotificationsObject>> GetNotifications()
         {
             return await MakeRequest<List<NotificationsObject>>("notifications", new List<Param>());
         }
 
     }
+
+    
 }
