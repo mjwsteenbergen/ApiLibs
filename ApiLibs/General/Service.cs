@@ -76,13 +76,29 @@ namespace ApiLibs
             return await addParametersAndMakeCall(request, parameters);
         }
 
+        internal async Task<T> MakeRequestPost<T>(string url, List<Param> parameters, object content)
+        {
+            RestRequest request = new RestRequest(url, Method.POST);
+            return Convert<T>(await addParametersAndMakeCall(AddBody(request, content), parameters));
+        }
+
         internal async Task<IRestResponse> MakeRequestPost(string url, List<Param> parameters)
         {
             RestRequest request = new RestRequest(url, Method.POST);
             return await addParametersAndMakeCall(request, parameters);
         }
 
+        internal async Task<T> MakeRequestPost<T>(string url, List<Param> parameters)
+        {
+            RestRequest request = new RestRequest(url, Method.POST);
+            return Convert<T>(await addParametersAndMakeCall(request, parameters));
+        }
 
+        internal RestRequest AddBody(RestRequest request, object body)
+        {
+            request.AddJsonBody(body);
+            return request;
+        }
 
         private async Task<IRestResponse> addParametersAndMakeCall(IRestRequest request, List<Param> parameters)
         {
