@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+
+// ReSharper disable InconsistentNaming
 
 namespace ApiLibs.Todoist
 {
@@ -98,6 +102,7 @@ namespace ApiLibs.Todoist
         public string date_added { get; set; }
         public int @checked { get; set; }
         public string date_lang { get; set; }
+        [JsonProperty]
         public int id { get; set; }
         public string content { get; set; }
         public int indent { get; set; }
@@ -116,6 +121,12 @@ namespace ApiLibs.Todoist
         {
             return content + "[" + id + "]";
         }
+
+        public override bool Equals(object obj)
+        {
+            return (obj as Item)?.id == this.id;
+        }
+
 
         public List<Label> labelList = new List<Label>();
 
