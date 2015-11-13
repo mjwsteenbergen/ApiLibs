@@ -17,10 +17,7 @@ namespace ApiLibs.GitHub
         {
             SetUp("https://github.com/");
             this.authenticator = authenticator;
-
-            AddStandardParameter(new Param("content-type", "application/json"));
-            AddStandardParameter(new Param("content-length", "37"));
-            AddStandardParameter(new Param("user-agent", "Zeus"));
+            //AddStandardParameter(new Param("user-agent", "Zeus"));
         }
 
 
@@ -45,10 +42,35 @@ namespace ApiLibs.GitHub
             setBaseUrl("https://api.github.com/");
         }
 
+        public async Task<List<Issue>> GetPullRequests(Repository repo)
+        {
+            List<Issue> res = new List<Issue>();
+            foreach (Issue issue in await GetIssuesAndPRs(repo))
+            {
+                if (issue.pull_request != null)
+                {
+                    res.Add(issue);
+                }
+            }
+            return res;
+        }
+
         public async Task<List<Issue>> GetIssues(Repository repo)
         {
-            return (await MakeRequest<List<Issue>>(repo.issues_url, new List<Param>()));
-            //Console.WriteLine((await MakeRequest(repo.issues_url.Replace("{/number}", ""), new List<Param>())).Content);
+            List<Issue> res = new List<Issue>();
+            foreach (Issue issue in await GetIssuesAndPRs(repo))
+            {
+                if (issue.pull_request == null)
+                {
+                    res.Add(issue);
+                }
+            }
+            return res;
+        }
+
+        public async Task<List<Issue>> GetIssuesAndPRs(Repository repo)
+        {
+            return await MakeRequest<List<Issue>>(repo.issues_url, new List<Param>());
         }
 
         public async Task<GitHubUser> GetUser(string username)
@@ -73,18 +95,31 @@ namespace ApiLibs.GitHub
             throw new KeyNotFoundException("Could not find" + name);
         }
 
-        public async Task<Issue> addIssue(RequestIssue issue, Repository repo)
-        {
-            List<Param> parameters = new List<Param>();
-            parameters.Add(new Param("title", "test"));
-            return await MakeRequestPost<Issue>(repo.issues_url, parameters);
+        public async Task<Issue> AddIssue(OpenIssue issue, Repository repo)
+        {   
+            return await MakeRequestPost<Issue>(repo.issues_url, new List<Param>(), issue);
         }
+
+        
 
         public async Task<List<NotificationsObject>> GetNotifications()
         {
             return await MakeRequest<List<NotificationsObject>>("notifications", new List<Param>());
         }
 
+        public async Task<Issue> CloseIssue(Issue it)
+        {
+            ModifyIssue issue = it.ConvertToRequest();
+            issue.state = "closed";
+            return await ModifyIssue(it.url, issue);
+        }
+
+        public async Task<Issue> ModifyIssue(string issueUrl, ModifyIssue it)
+        {
+            return await MakeRequestPatch<Issue>(issueUrl, it);
+        }
+
+        
     }
 
     

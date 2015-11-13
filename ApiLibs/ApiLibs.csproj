@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="General\IOAuth.cs" />
     <Compile Include="General\MessageArgs.cs" />
+    <Compile Include="General\TempService.cs" />
     <Compile Include="GitHub\GitHubService.cs" />
     <Compile Include="GitHub\ReturnClasses.cs" />
     <Compile Include="General\Param.cs" />

@@ -16,7 +16,7 @@ namespace ApiLibs
     public abstract class Service
     {
 
-        private RestClient client;
+        internal RestClient client;
         private List<Param> standardParameter = new List<Param>();
         private List<Param> standardHeader = new List<Param>();
 
@@ -50,6 +50,19 @@ namespace ApiLibs
             }
         }
 
+        internal void UpdateHeaderIfExists(Param p)
+        {
+            foreach (Param para in standardHeader)
+            {
+                if (para.name == p.name)
+                {
+                    Console.WriteLine(para.name + " was: " + para.value + " is: " + p.value);
+                    para.value = p.value;
+
+                }
+            }
+        }
+
         internal void ConnectOAuth(string username, string secret)
         {
             client.Authenticator = new HttpBasicAuthenticator(username, secret);
@@ -79,7 +92,9 @@ namespace ApiLibs
         internal async Task<T> MakeRequestPost<T>(string url, List<Param> parameters, object content)
         {
             RestRequest request = new RestRequest(url, Method.POST);
-            return Convert<T>(await addParametersAndMakeCall(AddBody(request, content), parameters));
+            request.AddParameter("application/json", JsonConvert.SerializeObject(content), ParameterType.RequestBody);
+            request.AddHeader("content-type", "application/json");
+            return await MakeRequest<T>(request, parameters, new List<Param>());
         }
 
         internal async Task<IRestResponse> MakeRequestPost(string url, List<Param> parameters)
@@ -90,21 +105,33 @@ namespace ApiLibs
 
         internal async Task<T> MakeRequestPost<T>(string url, List<Param> parameters)
         {
-            RestRequest request = new RestRequest(url, Method.POST);
-            return Convert<T>(await addParametersAndMakeCall(request, parameters));
+            return await MakeRequest<T>(new RestRequest(url, Method.POST), parameters, new List<Param>());
+            
         }
 
-        internal RestRequest AddBody(RestRequest request, object body)
+        internal async Task<T> MakeRequestPatch<T>(string url, object obj)
         {
-            request.AddJsonBody(body);
-            return request;
+            var request = new RestRequest(url, Method.PATCH);
+            request.AddParameter("application/json", JsonConvert.SerializeObject(obj), ParameterType.RequestBody);
+            request.AddHeader("content-type", "application/json");
+            return await MakeRequest<T>(request, new List<Param>(), new List<Param>());
         }
 
-        private async Task<IRestResponse> addParametersAndMakeCall(IRestRequest request, List<Param> parameters)
+        internal async Task<T> MakeRequest<T>(RestRequest request, List<Param> parameters, List<Param> headers)
         {
-            request.RequestFormat = DataFormat.Json;
-            request.JsonSerializer.ContentType = "application/json; charset=utf-8";
+            return Convert<T>(await MakeRequest(request, parameters, headers));
+        }
 
+        internal async Task<IRestResponse> MakeRequest(RestRequest request, List<Param> parameters, List<Param> headers)
+        {
+            return await addParametersAndMakeCall(request, parameters);
+        }
+
+        internal async Task<IRestResponse> addParametersAndMakeCall(IRestRequest request, List<Param> parameters)
+        {
+//            request.RequestFormat = DataFormat.Json;
+//            request.JsonSerializer.ContentType = "application/json; charset=utf-8";
+//
             foreach (Param para in parameters)
             {
                 request.AddParameter(para.name, para.value);
@@ -114,23 +141,22 @@ namespace ApiLibs
             {
                 request.AddParameter(para.name, para.value);
             }
-
+//
             foreach (Param para in standardHeader)
             {
                 request.AddHeader(para.name, para.value);
             }
 
 
-            return await performCall(request);
+            return await MakeRequest(request);
         }
 
-        private async Task<IRestResponse> performCall(IRestRequest request)
+        internal async Task<IRestResponse> MakeRequest(IRestRequest request)
         {
             Debug.Assert(client != null, "client != null");
-            IRestResponse resp = await client.ExecuteTaskAsync(request,
-            new CancellationToken());
+            IRestResponse resp = client.Execute(request);
 
-            if (resp.StatusCode.ToString() != "OK")
+            if (resp.StatusCode.ToString() != "OK" && resp.StatusCode.ToString() != "Created")
             {
                 foreach (Parameter p in resp.Headers)
                 {

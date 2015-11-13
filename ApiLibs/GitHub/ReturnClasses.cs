@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+// ReSharper disable InconsistentNaming
 
 namespace ApiLibs.GitHub
 {
@@ -142,7 +142,8 @@ namespace ApiLibs.GitHub
 
     public class Issue
     {
-        public string url { get; set; }
+        private string notUrl;
+        public string url { get { return notUrl.Replace("https://api.github.com/",""); } set { notUrl = value; } }
         public string labels_url { get; set; }
         public string comments_url { get; set; }
         public string events_url { get; set; }
@@ -161,10 +162,28 @@ namespace ApiLibs.GitHub
         public DateTime updated_at { get; set; }
         public object closed_at { get; set; }
         public string body { get; set; }
+        public Pull_Request pull_request { get; set; }
+
+        //Added by me
+
+        public override string ToString()
+        {
+            return title + "[" + id + "]";
+        }
+
+        public override bool Equals(object obj)
+        {
+            return (obj as Issue)?.id == id;
+        }
 
         public override int GetHashCode()
         {
             return id;
+        }
+
+        public ModifyIssue ConvertToRequest()
+        {
+            return new ModifyIssue { title = title, body = body, assignee = assignee?.login, milestone = milestone?.number, labels = labels.ToList().ConvertAll((Label input) => input.name) };
         }
     }
 
@@ -187,6 +206,14 @@ namespace ApiLibs.GitHub
         public string received_events_url { get; set; }
         public string type { get; set; }
         public bool site_admin { get; set; }
+    }
+
+    public class Pull_Request
+    {
+        public string url { get; set; }
+        public string html_url { get; set; }
+        public string diff_url { get; set; }
+        public string patch_url { get; set; }
     }
 
     public class Assignee
@@ -257,14 +284,24 @@ namespace ApiLibs.GitHub
         public string color { get; set; }
     }
 
-    public class RequestIssue
+    public class OpenIssue
     {
+        public OpenIssue()
+        {
+            labels = new List<string>();
+        }
+
         public string title { get; set; }
         public string body { get; set; }
         public string assignee { get; set; }
-        public int milestone { get; set; }
+        public int? milestone { get; set; }
         public List<string> labels { get; set; }
 
+    }
+
+    public class ModifyIssue : OpenIssue
+    {
+        public string state { get; set; }
     }
 
 }

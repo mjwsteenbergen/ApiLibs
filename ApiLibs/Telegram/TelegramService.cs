@@ -18,6 +18,11 @@ namespace ApiLibs.Telegram
             readStoredUsernames();
         }
 
+        public void Connect()
+        {
+
+        }
+
         public async void GetMe()
         {
             var request = await MakeRequestPost("/getMe", new List<Param>());
@@ -73,5 +78,7 @@ namespace ApiLibs.Telegram
         {
             contacts = Passwords.readFile<List<From>>("telegram");
         }
+
+        
     }
 }
