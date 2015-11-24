@@ -16,48 +16,49 @@ namespace ApiLibs
     public abstract class Service
     {
 
-        internal RestClient client;
-        private List<Param> standardParameter = new List<Param>();
-        private List<Param> standardHeader = new List<Param>();
+        internal RestClient Client;
+        private readonly List<Param> _standardParameter = new List<Param>();
+        private readonly List<Param> _standardHeader = new List<Param>();
 
         public void SetUp(string hostUrl)
         {
-            client = new RestClient();
-            client.BaseUrl = new Uri(hostUrl);
-            Passwords.readPasswords();
+            Client = new RestClient {BaseUrl = new Uri(hostUrl)};
+            Passwords.ReadPasswords();
         }
 
         internal void AddStandardParameter(Param p)
         {
-            standardParameter.Add(p);
+            _standardParameter.Add(p);
         }
 
         internal void AddStandardHeader(Param p)
         {
-            standardHeader.Add(p);
+            _standardHeader.Add(p);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
         internal void UpdateParameterIfExists(Param p)
         {
-            foreach (Param para in standardParameter)
+            foreach (Param para in _standardParameter)
             {
-                if (para.name == p.name)
+                if (para.Name == p.Name)
                 {
-                    Console.WriteLine(para.name + " was: " + para.value + " is: " + p.value);
-                    para.value = p.value;
+                    Console.WriteLine(para.Name + " was: " + para.Value + " is: " + p.Value);
+                    para.Value = p.Value;
                     
                 }
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
         internal void UpdateHeaderIfExists(Param p)
         {
-            foreach (Param para in standardHeader)
+            foreach (Param para in _standardHeader)
             {
-                if (para.name == p.name)
+                if (para.Name == p.Name)
                 {
-                    Console.WriteLine(para.name + " was: " + para.value + " is: " + p.value);
-                    para.value = p.value;
+                    Console.WriteLine(para.Name + " was: " + para.Value + " is: " + p.Value);
+                    para.Value = p.Value;
 
                 }
             }
@@ -65,28 +66,28 @@ namespace ApiLibs
 
         internal void ConnectOAuth(string username, string secret)
         {
-            client.Authenticator = new HttpBasicAuthenticator(username, secret);
+            Client.Authenticator = new HttpBasicAuthenticator(username, secret);
         }
 
 
 
-        internal async Task<IRestResponse> MakeRequest(string url, List<Param> parameters, object JSonBody)
+        internal async Task<IRestResponse> MakeRequest(string url, List<Param> parameters, object jsonBody)
         {
             RestRequest request = new RestRequest(url, Method.GET);
-            request.AddJsonBody(JSonBody);
-            return await addParametersAndMakeCall(request, parameters);
+            request.AddJsonBody(jsonBody);
+            return await MakeRequest(request, parameters);
         }
 
         internal async Task<T> MakeRequest<T>(string url, List<Param> parameters)
         {
             RestRequest request = new RestRequest(url, Method.GET);
-            return Convert<T>(await addParametersAndMakeCall(request, parameters));
+            return Convert<T>(await MakeRequest(request, parameters));
         }
 
         internal async Task<IRestResponse> MakeRequest(string url, List<Param> parameters)
         {
             RestRequest request = new RestRequest(url, Method.GET);
-            return await addParametersAndMakeCall(request, parameters);
+            return await MakeRequest(request, parameters);
         }
 
         internal async Task<T> MakeRequestPost<T>(string url, List<Param> parameters, object content)
@@ -100,7 +101,7 @@ namespace ApiLibs
         internal async Task<IRestResponse> MakeRequestPost(string url, List<Param> parameters)
         {
             RestRequest request = new RestRequest(url, Method.POST);
-            return await addParametersAndMakeCall(request, parameters);
+            return await MakeRequest(request, parameters);
         }
 
         internal async Task<T> MakeRequestPost<T>(string url, List<Param> parameters)
@@ -124,37 +125,38 @@ namespace ApiLibs
 
         internal async Task<IRestResponse> MakeRequest(RestRequest request, List<Param> parameters, List<Param> headers)
         {
-            return await addParametersAndMakeCall(request, parameters);
+            foreach (Param p in headers)
+            {
+                request.AddHeader(p.Name, p.Value);
+            }
+            return await MakeRequest(request, parameters);
         }
 
-        internal async Task<IRestResponse> addParametersAndMakeCall(IRestRequest request, List<Param> parameters)
+        internal async Task<IRestResponse> MakeRequest(IRestRequest request, List<Param> parameters)
         {
-//            request.RequestFormat = DataFormat.Json;
-//            request.JsonSerializer.ContentType = "application/json; charset=utf-8";
-//
             foreach (Param para in parameters)
             {
-                request.AddParameter(para.name, para.value);
+                request.AddParameter(para.Name, para.Value);
             }
 
-            foreach (Param para in standardParameter)
+            foreach (Param para in _standardParameter)
             {
-                request.AddParameter(para.name, para.value);
-            }
-//
-            foreach (Param para in standardHeader)
-            {
-                request.AddHeader(para.name, para.value);
+                request.AddParameter(para.Name, para.Value);
             }
 
+            foreach (Param para in _standardHeader)
+            {
+                request.AddHeader(para.Name, para.Value);
+            }
 
             return await MakeRequest(request);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
         internal async Task<IRestResponse> MakeRequest(IRestRequest request)
         {
-            Debug.Assert(client != null, "client != null");
-            IRestResponse resp = client.Execute(request);
+            Debug.Assert(Client != null, "Client != null");
+            IRestResponse resp = Client.Execute(request);
 
             if (resp.StatusCode.ToString() != "OK" && resp.StatusCode.ToString() != "Created")
             {
@@ -162,7 +164,7 @@ namespace ApiLibs
                 {
                     Console.WriteLine(p.ToString());
                 }
-                throw new Exception("A problem occured while trying to access " + resp.ResponseUri + ". Statuscode: " + resp.StatusCode.ToString() + "\n" + resp.Content);
+                throw new Exception("A problem occured while trying to access " + resp.ResponseUri + ". Statuscode: " + resp.StatusCode + "\n" + resp.Content);
 
             }
             return resp;
@@ -173,16 +175,9 @@ namespace ApiLibs
             return JsonConvert.DeserializeObject<T>(resp.Content);
         }
 
-        
-
-        internal void Dispose()
+        internal void SetBaseUrl(string baseurl)
         {
-            client = null;
-        }
-
-        internal void setBaseUrl(string baseurl)
-        {
-            client.BaseUrl = new Uri(baseurl);
+            Client.BaseUrl = new Uri(baseurl);
         }
     }
 }

@@ -89,7 +89,9 @@ namespace ApiLibs.Todoist
         public int id { get; set; }
     }
 
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public class Item
+#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
         public string due_date { get; set; }
         public int day_order { get; set; }
@@ -172,8 +174,10 @@ namespace ApiLibs.Todoist
         public List<Project> Projects { get; set; }
         public long LiveNotificationsLastRead { get; set; }
 
+
         //Added by me
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S100:Method name should comply with a naming convention", Justification = "Is returnClass")]
         public Project getProjectById(int id)
         {
             foreach (var proj in Projects)
@@ -186,7 +190,7 @@ namespace ApiLibs.Todoist
             throw new Exception("Project Id not found. Was:" + id);
         }
 
-        internal Label getLabelbyId(int lb)
+        internal Label GetLabelbyId(int lb)
         {
             foreach(Label label in Labels)
             {

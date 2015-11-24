@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+// ReSharper disable InconsistentNaming
+#pragma warning disable 659
 
 namespace ApiLibs.Telegram
 {
@@ -15,12 +17,11 @@ namespace ApiLibs.Telegram
 
         public override bool Equals(object obj)
         {
-            if(obj is From)
-            {
-                From other = (From)obj;
-                return (id == other.id) && (first_name == other.first_name) && (last_name == other.last_name) && (username == other.username);
-            }
-            return false;
+            From other = obj as From;
+            if (other == null) 
+                return false;
+            return (id == other.id) && (first_name == other.first_name) && (last_name == other.last_name) &&
+                   (username == other.username);
         }
     }
 
@@ -85,10 +86,26 @@ namespace ApiLibs.Telegram
         public Chat chat { get; set; }
         public int date { get; set; }
         public string text { get; set; }
+        public User forward_from { get; set; }
+        public int forward_date { get; set; }
+        public Message reply_to_message { get; set; }
         public List<Photo> photo { get; set; }
         public Document document { get; set; }
         public Contact contact { get; set; }
         public Sticker sticker { get; set; }
+
+        public override string ToString()
+        {
+            return from.username + ": " + text;
+        }
+    }
+
+    public class User
+    {
+        public int id { get; set; }
+        public string first_name { get; set; }
+        public string last_name { get; set; }
+        public string username { get; set; }
     }
 
     public class Result

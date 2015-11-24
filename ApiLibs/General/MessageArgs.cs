@@ -7,31 +7,19 @@ namespace ApiLibs
 {
     public class MessageArgs
     {
-        private readonly string _message;
-        private bool _isImportant;
+        private string Message { get; }
 
-        String Message
-        {
-            get
-            {
-                return _message;
-            }
-        }
-
-        Boolean isImportant
-        {
-            get { return _isImportant; }
-        }
+        private bool isImportant { get; }
 
         public MessageArgs(string message)
         {
-            _message = message;
+            Message = message;
         }
 
         public MessageArgs(string message, bool isImportant)
         {
-            _message = message;
-            _isImportant = isImportant;
+            Message = message;
+            this.isImportant = isImportant;
         }
 
 

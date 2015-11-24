@@ -8,29 +8,19 @@ namespace ApiLibs
 {
     public class Param
     {
-        private String _name;
-        private String _value;
-
         public Param(String nm, String val)
         {
-            _name = nm;
-            _value = val;
+            Name = nm;
+            Value = val;
         }
 
-        public String name
-        {
-            get { return _name; }
-        }
+        public string Name { get; }
 
-        public String value
-        {
-            get { return _value; }
-            set { _value = value; }
-        }
+        public string Value { get; set; }
 
         public override string ToString()
         {
-            return "{" + _name + ":" + _value + "}";
+            return "{" + Name + ":" + Value + "}";
         }
 
     }

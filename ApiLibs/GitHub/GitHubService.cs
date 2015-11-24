@@ -11,13 +11,12 @@ namespace ApiLibs.GitHub
 {
     public class GitHubService : Service
     {
-        private IOAuth authenticator;
+        private readonly IOAuth _authenticator;
 
         public GitHubService(IOAuth authenticator)
         {
             SetUp("https://github.com/");
-            this.authenticator = authenticator;
-            //AddStandardParameter(new Param("user-agent", "Zeus"));
+            this._authenticator = authenticator;
         }
 
 
@@ -25,21 +24,24 @@ namespace ApiLibs.GitHub
         {
             if(Passwords.GitHub_access_token == null)
             {
-                string key = await authenticator.ActivateOAuth(new Uri("https://github.com/login/oauth/authorize?redirect_uri=" + authenticator.redirectUrl() + "&client_id=" + Passwords.GitHub_clientID + "&scope=repo,notifications"));
-                List<Param> parameters = new List<Param>();
-                parameters.Add(new Param("client_id", Passwords.GitHub_clientID));
-                parameters.Add(new Param("client_secret", Passwords.GitHub_client_secret));
-                parameters.Add(new Param("code", key.Replace("code=", "")));
+                var url = "https://github.com/login/oauth/authorize?redirect_uri=" + _authenticator.RedirectUrl() + "&client_id=" + Passwords.GitHub_clientID + "&scope=repo,notifications";
+                string key = await _authenticator.ActivateOAuth(new Uri(url));
+                List<Param> parameters = new List<Param>
+                {
+                    new Param("client_id", Passwords.GitHub_clientID),
+                    new Param("client_secret", Passwords.GitHub_client_secret),
+                    new Param("code", key.Replace("code=", ""))
+                };
 
                 IRestResponse resp = await MakeRequestPost("login/oauth/access_token", parameters);
 
                 Match m = Regex.Match(resp.Content, @"{""access_token"":""(\w+)""");
-                Passwords.addPassword("GitHub_access_token", m.Groups[1].ToString());
-                Passwords.writePasswords();
+                Passwords.AddPassword("GitHub_access_token", m.Groups[1].ToString());
+                Passwords.WritePasswords();
             }
 
             AddStandardHeader(new Param("Authorization", "token " + Passwords.GitHub_access_token));
-            setBaseUrl("https://api.github.com/");
+            SetBaseUrl("https://api.github.com/");
         }
 
         public async Task<List<Issue>> GetPullRequests(Repository repo)
@@ -75,7 +77,7 @@ namespace ApiLibs.GitHub
 
         public async Task<GitHubUser> GetUser(string username)
         {
-            return await MakeRequest<GitHubUser>("users/newnottakenname", new List<Param>());
+            return await MakeRequest<GitHubUser>("users/" + username, new List<Param>());
         }
 
         public async Task<List<Repository>> GetMyRepositories()

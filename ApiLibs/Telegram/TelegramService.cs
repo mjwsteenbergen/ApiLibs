@@ -14,18 +14,19 @@ namespace ApiLibs.Telegram
         public TelegramService()
         {
             SetUp("https://api.telegram.org/bot");
-            setBaseUrl("https://api.telegram.org/bot" + Passwords.Telegram_token);
-            readStoredUsernames();
+            SetBaseUrl("https://api.telegram.org/bot" + Passwords.Telegram_token);
+            ReadStoredUsernames();
         }
 
         public void Connect()
         {
-
+            // Telegram Service does not need to connect
         }
 
+        //TODO
         public async void GetMe()
         {
-            var request = await MakeRequestPost("/getMe", new List<Param>());
+            await MakeRequestPost("/getMe", new List<Param>());
         }
 
         public async void SendMessage(int id, string message)
@@ -34,7 +35,7 @@ namespace ApiLibs.Telegram
             param.Add(new Param("chat_id", id.ToString()));
             param.Add(new Param("text", message));
 
-            var request = await MakeRequest("/sendMessage", param);
+            await MakeRequest("/sendMessage", param);
         }
 
         public void SendMessage(string userid, string message)
@@ -49,34 +50,52 @@ namespace ApiLibs.Telegram
             }
         }
 
-        public async Task<TelegramMessageObject> getMessages()
+        public async Task<List<Message>> GetMessages()
         {
-            var request = await MakeRequest("/getUpdates", new List<Param>());
-            TelegramMessageObject messages = await JsonConvert.DeserializeObjectAsync<TelegramMessageObject>(request.Content);
+            TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", new List<Param>());
             foreach(Result message in messages.result)
             {
-                addFrom(message.message.from);
+                AddFrom(message.message.from);
             }
-            return messages;
+
+            List<Message> result = new List<Message>();
+
+            int updateId = Passwords.ReadFile<Result>("data/telegram/lastID").update_id;
+            messages.result.Reverse();
+            foreach (Result message in messages.result)
+            {
+                if (message.update_id == updateId)
+                {
+                    break;
+                }
+                result.Add(message.message);
+            }
+
+            if (result.Count != 0)
+            {
+                Passwords.WriteFile("data/telegram/lastID", messages.result[0]);
+            }
+
+            return result;
         }
 
-        private void addFrom(From from)
+        private void AddFrom(From from)
         {
             if (!contacts.Contains(from))
             {
                 contacts.Add(from);
             }
-            writeUsernames();
+            WriteUsernames();
         }
 
-        private void writeUsernames()
+        private void WriteUsernames()
         {
-            Passwords.writeFile("telegram", contacts);
+            Passwords.WriteFile("data/telegram/usernames", contacts);
         }
 
-        private void readStoredUsernames()
+        private void ReadStoredUsernames()
         {
-            contacts = Passwords.readFile<List<From>>("telegram");
+            contacts = Passwords.ReadFile<List<From>>("data/telegram/usernames");
         }
 
         

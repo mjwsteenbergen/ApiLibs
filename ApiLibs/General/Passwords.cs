@@ -6,45 +6,49 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ApiLibs.Telegram;
+// ReSharper disable InconsistentNaming
 
 namespace ApiLibs
 {
-    class Passwords
+    internal static class Passwords
     {
-        public static string DirectoryPath = @"C:\Users\Martijn\AppData\Roaming\Zeus\";
+        public static readonly string DirectoryPath = @"C:\Users\Martijn\AppData\Roaming\Zeus\";
 
-        public static string TodoistKey { get { return getPassword("TodoistKey"); } }
-        public static string TodoistUserAgent { get { return getPassword("TodoistUserAgent"); } }
+        public static string TodoistKey => GetPassword("TodoistKey");
+        public static string TodoistUserAgent => GetPassword("TodoistUserAgent");
 
-        public static string PocketKey { get { return getPassword("PocketKey"); } }
-        public static string Pocket_access_token { get { return getPassword("Pocket_access_token"); } }
+        public static string PocketKey => GetPassword("PocketKey");
+        public static string Pocket_access_token => GetPassword("Pocket_access_token");
 
-        public static string Telegram_token { get { return getPassword("Telegram_token"); } }
+        public static string Telegram_token => GetPassword("Telegram_token");
 
-        public static string GitHub_clientID { get { return getPassword("GitHub_clientID"); } }
-        public static string GitHub_client_secret { get { return getPassword("GitHub_client_secret"); } }
-        public static string GitHub_access_token { get { return getPassword("GitHub_access_token"); } }
+        public static string GitHub_clientID => GetPassword("GitHub_clientID");
+        public static string GitHub_client_secret => GetPassword("GitHub_client_secret");
+        public static string GitHub_access_token => GetPassword("GitHub_access_token");
 
         public static readonly string OutlookKey = "";
         public static readonly string OutlookID = "";
 
-        public static string OutlookToken;
+        public static string Travis_Token => GetPassword("Travis_Token");
+
+
+//        public static string OutlookToken;
 
         public static readonly string OutlookEmailAdres = "";
 
-        public static string GeneralRedirectUrl { get { return getPassword("GeneralRedirectUrl"); } }
+        public static string GeneralRedirectUrl { get { return GetPassword("GeneralRedirectUrl"); } }
 
 
-        public static void readPasswords()
+        public static void ReadPasswords()
         {
             if(!allread)
             {
-                passwords = readFile<Dictionary<string, string>>("pass");
+                passwords = ReadFile<Dictionary<string, string>>("pass");
                 allread = true;
             }
         }
 
-        internal static T readFile<T>(string filename) where T:new()
+        internal static T ReadFile<T>(string filename) where T:new()
         {
             string FilePath = DirectoryPath + filename;
 
@@ -55,51 +59,55 @@ namespace ApiLibs
             if (File.Exists(FilePath))
             {
                 FileStream stream = File.Open(FilePath, FileMode.Open);
-                StreamReader reader = new StreamReader(stream);
+                T res;
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    res = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
 
-                T res = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
-
-                stream.Close();
-                reader.Close();
+                    stream.Close();
+                    reader.Close();
+                }
 
                 return res;
             }
             else
             {
                 T res = new T();
-                //File.Create(FilePath);
-                writeFile(filename, res);
+                WriteFile(filename, res);
                 return res;
             }
         }
 
-        internal static void writeFile(string v, object obj)
+        internal static void WriteFile(string v, object obj)
         {
             FileStream stream = File.Create(DirectoryPath + v);
-            StreamWriter writer = new StreamWriter(stream);
-            writer.WriteLine(JsonConvert.SerializeObject(obj));
-            writer.Close();
+            using (StreamWriter writer = new StreamWriter(stream))
+            {
+                writer.WriteLine(JsonConvert.SerializeObject(obj));
+                writer.Close();
+            }
             stream.Close();
         }
 
-        public static void writePasswords()
+        public static void WritePasswords()
         {
             if (passwords == null)
             {
                 passwords = new Dictionary<string, string>();
             }
-            writeFile("pass", passwords);
+            WriteFile("pass", passwords);
         }
 
-        public static void addPassword(string key, string value)
+        public static void AddPassword(string key, string value)
         {
             if (!passwords.Keys.Contains(key))
             {
                 passwords.Add(key, value);
+                WritePasswords();
             }
         }
 
-        private static string getPassword(string key)
+        private static string GetPassword(string key)
         {
             if (passwords.Keys.Contains(key))
             {
@@ -110,5 +118,6 @@ namespace ApiLibs
 
         private static bool allread = false;
         private static Dictionary<string, string> passwords;
+        
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+// ReSharper disable InconsistentNaming
 
 namespace ApiLibs.Pocket
 {
@@ -17,6 +18,7 @@ namespace ApiLibs.Pocket
         public int since { get; set; }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S101:Class names should comply with a naming convention", Justification = "ReturnClass")]
     public class Search_Meta
     {
         public string search_type { get; set; }

@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ApiLibs
+namespace ApiLibs.General
 {
-    public interface IOAuth
+    interface IService
     {
-        Task<string> ActivateOAuth(Uri url);
-        string RedirectUrl();
+        Task Connect();
     }
 }

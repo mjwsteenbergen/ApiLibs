@@ -111,7 +111,11 @@ namespace ApiLibs.GitHub
         public string merges_url { get; set; }
         public string archive_url { get; set; }
         public string downloads_url { get; set; }
-        public string issues_url { get { return real_issue_url.Replace("https://api.github.com/", "").Replace("{/number}", ""); } set { real_issue_url = value; } }
+        public string issues_url
+        {
+            get { return real_issue_url.Replace("https://api.github.com/", "").Replace("{/number}", ""); }
+            set { real_issue_url = value; }
+        }
 
         private string real_issue_url;
         public string pulls_url { get; set; }
@@ -208,6 +212,7 @@ namespace ApiLibs.GitHub
         public bool site_admin { get; set; }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S101:Class names should comply with a naming convention", Justification = "ReturnClass")]
     public class Pull_Request
     {
         public string url { get; set; }
