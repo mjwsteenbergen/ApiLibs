@@ -70,21 +70,23 @@ namespace ApiLibs.Pocket
             return JsonConvert.DeserializeObject<ReadingList>(regexd);
         }
 
-        public void Delete(List ls)
+        public async Task Delete(List ls)
         {
-            SendAction(new PocketAction("Delete", ls.item_id));
+            await SendAction(new PocketAction("delete", ls.item_id));
 
         }
 
-        public void Unfavorite(List ls)
+        public async Task Unfavorite(List ls)
         {
-            SendAction(new PocketAction("Unfavorite", ls.item_id));
+            await SendAction(new PocketAction("unfavorite", ls.item_id));
         }
 
-        private async void SendAction(PocketAction pa)
+        private async Task SendAction(PocketAction pa)
         {
-            List<Param> parameters = new List<Param>();
-            parameters.Add(new Param("actions", JsonConvert.SerializeObject(new List<PocketAction>() { pa })));
+            List<Param> parameters = new List<Param>
+            {
+                new Param("actions", JsonConvert.SerializeObject(new List<PocketAction> {pa}))
+            };
             await MakeRequest("send.php", parameters);
         }
 

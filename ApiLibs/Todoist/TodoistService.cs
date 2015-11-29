@@ -127,12 +127,11 @@ namespace ApiLibs.Todoist
 
         public async Task MarkTodoAsDone(Item todo)
         {
-            List<Param> parameters = new List<Param>
-            {
-                new Param("commands",
-                    @"[{""type"": ""item_complete"", ""uuid"": """ + DateTime.Now + @""", ""args"": {""project_id"": " +
-                    todo.project_id + @", ""ids"": [" + todo.id + "]}}]")
-            };
+            List<Param> parameters = new List<Param>();
+            parameters.Add(new Param("commands",
+                "[{\"type\": \"item_close\", \"uuid\": \"" + (new Random()).Next(0,10000) + "\", \"args\": {\"id\": " + todo.id + "}}]"));
+
+                //new Param("commands",@"[{""type"": ""item_complete"", ""uuid"": """ + DateTime.Now + @""", ""args"": {""project_id"": " + todo.project_id + @", ""ids"": [" + todo.id + "]}}]"));
 
             await MakeRequest("sync", parameters);
         }
