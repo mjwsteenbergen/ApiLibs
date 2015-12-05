@@ -8,7 +8,8 @@ namespace ApiLibs
 {
     public interface IOAuth
     {
-        Task<string> ActivateOAuth(Uri url);
+        string ActivateOAuth(Uri url);
+        string ActivateOAuth(Uri url, string redirectUrl);
         string redirectUrl();
     }
 }

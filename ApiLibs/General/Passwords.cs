@@ -33,7 +33,9 @@ namespace ApiLibs
         public static readonly string OutlookEmailAdres = "";
 
         public static string GeneralRedirectUrl { get { return getPassword("GeneralRedirectUrl"); } }
-
+        public static string WunderlistToken => getPassword("WunderlistToken");
+        public static string WunderlistId => getPassword("WunderlistId");
+        public static string WunderlistSecret => getPassword("WunderlistSecret");
 
         public static void readPasswords()
         {

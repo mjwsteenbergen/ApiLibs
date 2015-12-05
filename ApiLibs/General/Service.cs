@@ -15,6 +15,7 @@ namespace ApiLibs
 {
     public abstract class Service
     {
+        //TODO convert POST to argument
 
         internal RestClient client;
         private List<Param> standardParameter = new List<Param>();
@@ -74,19 +75,19 @@ namespace ApiLibs
         {
             RestRequest request = new RestRequest(url, Method.GET);
             request.AddJsonBody(JSonBody);
-            return await addParametersAndMakeCall(request, parameters);
+            return await MakeRequest(request, parameters);
         }
 
         internal async Task<T> MakeRequest<T>(string url, List<Param> parameters)
         {
             RestRequest request = new RestRequest(url, Method.GET);
-            return Convert<T>(await addParametersAndMakeCall(request, parameters));
+            return Convert<T>(await MakeRequest(request, parameters));
         }
 
         internal async Task<IRestResponse> MakeRequest(string url, List<Param> parameters)
         {
             RestRequest request = new RestRequest(url, Method.GET);
-            return await addParametersAndMakeCall(request, parameters);
+            return await MakeRequest(request, parameters);
         }
 
         internal async Task<T> MakeRequestPost<T>(string url, List<Param> parameters, object content)
@@ -100,7 +101,7 @@ namespace ApiLibs
         internal async Task<IRestResponse> MakeRequestPost(string url, List<Param> parameters)
         {
             RestRequest request = new RestRequest(url, Method.POST);
-            return await addParametersAndMakeCall(request, parameters);
+            return await MakeRequest(request, parameters);
         }
 
         internal async Task<T> MakeRequestPost<T>(string url, List<Param> parameters)
@@ -117,6 +118,19 @@ namespace ApiLibs
             return await MakeRequest<T>(request, new List<Param>(), new List<Param>());
         }
 
+        internal async Task<T> MakeRequest<T>(Method method, string url, object obj)
+        {
+            var request = new RestRequest(url, method);
+            request.AddParameter("application/json", JsonConvert.SerializeObject(obj), ParameterType.RequestBody);
+            request.AddHeader("content-type", "application/json");
+            return await MakeRequest<T>(request, new List<Param>(), new List<Param>());
+        }
+
+        internal async Task MakeRequest(Method m, string url, List<Param> parameters)
+        {
+            await MakeRequest(new RestRequest(url, m), parameters, new List<Param>());
+        }
+
         internal async Task<T> MakeRequest<T>(RestRequest request, List<Param> parameters, List<Param> headers)
         {
             return Convert<T>(await MakeRequest(request, parameters, headers));
@@ -124,10 +138,10 @@ namespace ApiLibs
 
         internal async Task<IRestResponse> MakeRequest(RestRequest request, List<Param> parameters, List<Param> headers)
         {
-            return await addParametersAndMakeCall(request, parameters);
+            return await MakeRequest(request, parameters);
         }
 
-        internal async Task<IRestResponse> addParametersAndMakeCall(IRestRequest request, List<Param> parameters)
+        internal async Task<IRestResponse> MakeRequest(IRestRequest request, List<Param> parameters)
         {
 //            request.RequestFormat = DataFormat.Json;
 //            request.JsonSerializer.ContentType = "application/json; charset=utf-8";
@@ -183,6 +197,11 @@ namespace ApiLibs
         internal void setBaseUrl(string baseurl)
         {
             client.BaseUrl = new Uri(baseurl);
+        }
+
+        internal void Print(IRestResponse resp)
+        {
+            Console.WriteLine(resp.Content);
         }
     }
 }

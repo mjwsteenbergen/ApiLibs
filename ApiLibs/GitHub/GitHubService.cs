@@ -25,7 +25,7 @@ namespace ApiLibs.GitHub
         {
             if(Passwords.GitHub_access_token == null)
             {
-                string key = await authenticator.ActivateOAuth(new Uri("https://github.com/login/oauth/authorize?redirect_uri=" + authenticator.redirectUrl() + "&client_id=" + Passwords.GitHub_clientID + "&scope=repo,notifications"));
+                string key = authenticator.ActivateOAuth(new Uri("https://github.com/login/oauth/authorize?redirect_uri=" + authenticator.redirectUrl() + "&client_id=" + Passwords.GitHub_clientID + "&scope=repo,notifications"));
                 List<Param> parameters = new List<Param>();
                 parameters.Add(new Param("client_id", Passwords.GitHub_clientID));
                 parameters.Add(new Param("client_secret", Passwords.GitHub_client_secret));

@@ -48,7 +48,7 @@ namespace ApiLibs.Pocket
             //UpdateParameterIfExists(new Param("seq_no_global", so2.seq_no_global.ToString()));
             string code = resp.Content.ToString().Replace("code=", "");
 
-            await authenticator.ActivateOAuth(new Uri("https://getpocket.com/auth/authorize?request_token=" + code + "&redirect_uri=" + Passwords.GeneralRedirectUrl));
+            authenticator.ActivateOAuth(new Uri("https://getpocket.com/auth/authorize?request_token=" + code + "&redirect_uri=" + Passwords.GeneralRedirectUrl));
 
             parameters = new List<Param>();
             parameters.Add(new Param("consumer_key", Passwords.PocketKey));
