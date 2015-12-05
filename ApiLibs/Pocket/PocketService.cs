@@ -35,7 +35,7 @@ namespace ApiLibs.Pocket
             
             string code = resp.Content.Replace("code=", "");
 
-            await authenticator.ActivateOAuth(new Uri("https://getpocket.com/auth/authorize?request_token=" + code + "&redirect_uri=" + Passwords.GeneralRedirectUrl));
+            authenticator.ActivateOAuth(new Uri("https://getpocket.com/auth/authorize?request_token=" + code + "&redirect_uri=" + Passwords.GeneralRedirectUrl));
 
             parameters = new List<Param>
             {

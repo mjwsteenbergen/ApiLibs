@@ -154,5 +154,16 @@ namespace ApiLibs.Todoist
         }
 
 
+        public async Task<Label> SuggestLabel(string value)
+        {
+            foreach (Label lab in await GetLabels(true))
+            {
+                if (lab.name.StartsWith(value))
+                {
+                    return lab;
+                }
+            }
+            return null;
+        }
     }
 }

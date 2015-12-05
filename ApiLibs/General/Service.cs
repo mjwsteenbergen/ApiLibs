@@ -15,6 +15,7 @@ namespace ApiLibs
 {
     public abstract class Service
     {
+        //TODO convert POST to argument
 
         internal RestClient Client;
         private readonly List<Param> _standardParameter = new List<Param>();
@@ -118,6 +119,19 @@ namespace ApiLibs
             return await MakeRequest<T>(request, new List<Param>(), new List<Param>());
         }
 
+        internal async Task<T> MakeRequest<T>(Method method, string url, object obj)
+        {
+            var request = new RestRequest(url, method);
+            request.AddParameter("application/json", JsonConvert.SerializeObject(obj), ParameterType.RequestBody);
+            request.AddHeader("content-type", "application/json");
+            return await MakeRequest<T>(request, new List<Param>(), new List<Param>());
+        }
+
+        internal async Task MakeRequest(Method m, string url, List<Param> parameters)
+        {
+            await MakeRequest(new RestRequest(url, m), parameters, new List<Param>());
+        }
+
         internal async Task<T> MakeRequest<T>(RestRequest request, List<Param> parameters, List<Param> headers)
         {
             return Convert<T>(await MakeRequest(request, parameters, headers));
@@ -178,6 +192,11 @@ namespace ApiLibs
         internal void SetBaseUrl(string baseurl)
         {
             Client.BaseUrl = new Uri(baseurl);
+        }
+
+        internal void Print(IRestResponse resp)
+        {
+            Console.WriteLine(resp.Content);
         }
     }
 }
