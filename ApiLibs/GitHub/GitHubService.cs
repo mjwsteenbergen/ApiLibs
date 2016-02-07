@@ -33,7 +33,7 @@ namespace ApiLibs.GitHub
                     new Param("code", key.Replace("code=", ""))
                 };
 
-                IRestResponse resp = await MakeRequestPost("login/oauth/access_token", parameters);
+                IRestResponse resp = await MakeRequest("login/oauth/access_token", Call.POST, parameters);
 
                 Match m = Regex.Match(resp.Content, @"{""access_token"":""(\w+)""");
                 Passwords.AddPassword("GitHub_access_token", m.Groups[1].ToString());
@@ -99,7 +99,7 @@ namespace ApiLibs.GitHub
 
         public async Task<Issue> AddIssue(OpenIssue issue, Repository repo)
         {   
-            return await MakeRequestPost<Issue>(repo.issues_url, new List<Param>(), issue);
+            return await MakeRequest<Issue>(repo.issues_url, Call.POST, new List<Param>(), issue);
         }
 
         
@@ -118,7 +118,7 @@ namespace ApiLibs.GitHub
 
         public async Task<Issue> ModifyIssue(string issueUrl, ModifyIssue it)
         {
-            return await MakeRequestPatch<Issue>(issueUrl, it);
+            return await MakeRequest<Issue>(issueUrl, Call.PATCH, it);
         }
 
         

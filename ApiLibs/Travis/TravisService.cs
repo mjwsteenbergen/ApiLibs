@@ -17,11 +17,12 @@ namespace ApiLibs.Travis
         {
             _authenticator = authenticator;
             SetUp("https://api.travis-ci.org");
+            Client.UserAgent = "Travis";
         }
 
         public async Task Connect()
         {
-            await MakeRequest("/", new List<Param>());
+            await MakeRequest("/", Call.GET, new List<Param>());
             AddStandardHeader(new Param("Accept", "application/vnd.travis-ci.2+json"));
             AddStandardHeader(new Param("User-Agent", "Travis"));
             if (Passwords.Travis_Token == null)
@@ -29,7 +30,7 @@ namespace ApiLibs.Travis
                 GitHubService github = new GitHubService(_authenticator);
                 await github.Connect();
 
-                Passwords.AddPassword("Travis_Token", (await MakeRequestPost<Auth>("/auth/github", new List<Param> { new Param("github_token", Passwords.GitHub_access_token) })).access_token);
+                Passwords.AddPassword("Travis_Token", (await MakeRequest<Auth>("/auth/github", Call.POST, new List<Param> { new Param("github_token", Passwords.GitHub_access_token) })).access_token);
             }
 
             AddStandardHeader(new Param("Authorization", "token" + Passwords.Travis_Token));

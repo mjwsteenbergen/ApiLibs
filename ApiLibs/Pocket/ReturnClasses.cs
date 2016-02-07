@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 namespace ApiLibs.Pocket
 {
 
-    public class ReadingList
+
+    public class Rootobject
     {
         public int status { get; set; }
         public int complete { get; set; }
@@ -16,12 +17,6 @@ namespace ApiLibs.Pocket
         public object error { get; set; }
         public Search_Meta search_meta { get; set; }
         public int since { get; set; }
-    }
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S101:Class names should comply with a naming convention", Justification = "ReturnClass")]
-    public class Search_Meta
-    {
-        public string search_type { get; set; }
     }
 
     public class List
@@ -45,8 +40,116 @@ namespace ApiLibs.Pocket
         public string has_video { get; set; }
         public string has_image { get; set; }
         public string word_count { get; set; }
+        public Tags tags { get; set; }
+        public Author[] authors { get; set; }
+        public Image image { get; set; }
+        public Image1[] images { get; set; }
+        public Video1[] videos { get; set; }
         public bool isFavorite { get { return favorite == "1"; } }
     }
+
+    public class Tags
+    {
+        public Ifttt ifttt { get; set; }
+        public Update update { get; set; }
+        public Article article { get; set; }
+        public Reddit reddit { get; set; }
+        public Review review { get; set; }
+        public Video video { get; set; }
+    }
+
+    public class Ifttt
+    {
+        public string item_id { get; set; }
+        public string tag { get; set; }
+    }
+
+    public class Update
+    {
+        public string item_id { get; set; }
+        public string tag { get; set; }
+    }
+
+    public class Article
+    {
+        public string item_id { get; set; }
+        public string tag { get; set; }
+    }
+
+    public class Reddit
+    {
+        public string item_id { get; set; }
+        public string tag { get; set; }
+    }
+
+    public class Review
+    {
+        public string item_id { get; set; }
+        public string tag { get; set; }
+    }
+
+    public class Video
+    {
+        public string item_id { get; set; }
+        public string tag { get; set; }
+    }
+
+    public class Image
+    {
+        public string item_id { get; set; }
+        public string src { get; set; }
+        public string width { get; set; }
+        public string height { get; set; }
+    }
+
+    public class Author
+    {
+        public string item_id { get; set; }
+        public string author_id { get; set; }
+        public string name { get; set; }
+        public string url { get; set; }
+    }
+
+    public class Image1
+    {
+        public string item_id { get; set; }
+        public string image_id { get; set; }
+        public string src { get; set; }
+        public string width { get; set; }
+        public string height { get; set; }
+        public string credit { get; set; }
+        public string caption { get; set; }
+    }
+
+    public class Video1
+    {
+        public string item_id { get; set; }
+        public string video_id { get; set; }
+        public string src { get; set; }
+        public string width { get; set; }
+        public string height { get; set; }
+        public string type { get; set; }
+        public string vid { get; set; }
+    }
+
+
+    public class ReadingList
+    {
+        public int status { get; set; }
+        public int complete { get; set; }
+        public List[] list { get; set; }
+        public object error { get; set; }
+        public Search_Meta search_meta { get; set; }
+        public int since { get; set; }
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S101:Class names should comply with a naming convention", Justification = "ReturnClass")]
+    public class Search_Meta
+    {
+        public string search_type { get; set; }
+    }
+
+    
 
 
     public class AddItemResponse

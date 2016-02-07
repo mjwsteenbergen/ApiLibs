@@ -85,51 +85,26 @@ namespace ApiLibs
             return Convert<T>(await MakeRequest(request, parameters));
         }
 
-        internal async Task<IRestResponse> MakeRequest(string url, List<Param> parameters)
+        internal async Task<T> MakeRequest<T>(string url, Call m, List<Param> parameters, object content)
         {
-            RestRequest request = new RestRequest(url, Method.GET);
-            return await MakeRequest(request, parameters);
-        }
-
-        internal async Task<T> MakeRequestPost<T>(string url, List<Param> parameters, object content)
-        {
-            RestRequest request = new RestRequest(url, Method.POST);
+            RestRequest request = new RestRequest(url, Convert(m));
             request.AddParameter("application/json", JsonConvert.SerializeObject(content), ParameterType.RequestBody);
             request.AddHeader("content-type", "application/json");
             return await MakeRequest<T>(request, parameters, new List<Param>());
         }
 
-        internal async Task<IRestResponse> MakeRequestPost(string url, List<Param> parameters)
+        internal async Task<T> MakeRequest<T>(string url, Call m, object obj)
         {
-            RestRequest request = new RestRequest(url, Method.POST);
+            var request = new RestRequest(url, Convert(m));
+            request.AddParameter("application/json", JsonConvert.SerializeObject(obj), ParameterType.RequestBody);
+            request.AddHeader("content-type", "application/json");
+            return await MakeRequest<T>(request, new List<Param>(), new List<Param>());
+        }
+
+        internal async Task<IRestResponse> MakeRequest(string url, Call m, List<Param> parameters)
+        {
+            RestRequest request = new RestRequest(url, Convert(m));
             return await MakeRequest(request, parameters);
-        }
-
-        internal async Task<T> MakeRequestPost<T>(string url, List<Param> parameters)
-        {
-            return await MakeRequest<T>(new RestRequest(url, Method.POST), parameters, new List<Param>());
-            
-        }
-
-        internal async Task<T> MakeRequestPatch<T>(string url, object obj)
-        {
-            var request = new RestRequest(url, Method.PATCH);
-            request.AddParameter("application/json", JsonConvert.SerializeObject(obj), ParameterType.RequestBody);
-            request.AddHeader("content-type", "application/json");
-            return await MakeRequest<T>(request, new List<Param>(), new List<Param>());
-        }
-
-        internal async Task<T> MakeRequest<T>(Method method, string url, object obj)
-        {
-            var request = new RestRequest(url, method);
-            request.AddParameter("application/json", JsonConvert.SerializeObject(obj), ParameterType.RequestBody);
-            request.AddHeader("content-type", "application/json");
-            return await MakeRequest<T>(request, new List<Param>(), new List<Param>());
-        }
-
-        internal async Task MakeRequest(Method m, string url, List<Param> parameters)
-        {
-            await MakeRequest(new RestRequest(url, m), parameters, new List<Param>());
         }
 
         internal async Task<T> MakeRequest<T>(RestRequest request, List<Param> parameters, List<Param> headers)
@@ -170,7 +145,7 @@ namespace ApiLibs
         internal async Task<IRestResponse> MakeRequest(IRestRequest request)
         {
             Debug.Assert(Client != null, "Client != null");
-            IRestResponse resp = Client.Execute(request);
+            IRestResponse resp = await Client.ExecuteTaskAsync(request);
 
             if (resp.StatusCode.ToString() != "OK" && resp.StatusCode.ToString() != "Created")
             {
@@ -189,6 +164,23 @@ namespace ApiLibs
             return JsonConvert.DeserializeObject<T>(resp.Content);
         }
 
+        private Method Convert(Call m)
+        {
+            switch (m)
+            {
+                case Call.POST:
+                    return Method.POST;
+                case Call.GET:
+                    return Method.GET;
+                case Call.PATCH:
+                    return Method.PATCH;
+                case Call.DELETE:
+                    return Method.DELETE;
+                default:
+                    return Method.GET;
+            }
+        }
+
         internal void SetBaseUrl(string baseurl)
         {
             Client.BaseUrl = new Uri(baseurl);
@@ -199,4 +191,12 @@ namespace ApiLibs
             Console.WriteLine(resp.Content);
         }
     }
+}
+
+enum Call
+{
+    POST,
+    GET,
+    PATCH,
+    DELETE
 }

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using RestSharp;
 
 namespace ApiLibs.Wunderlist
 {
@@ -27,7 +24,7 @@ namespace ApiLibs.Wunderlist
                 string res = _authenticator.ActivateOAuth(new Uri(url), "https://developer.wunderlist.com");
                 string token = Regex.Match(res, "code=(.+)").Groups[1].Value;
 
-                Auth auth = await MakeRequestPost<Auth>("", new List<Param>
+                Auth auth = await MakeRequest<Auth>("", Call.POST, new List<Param>
                 {
                     new Param("client_id", Passwords.WunderlistId),
                     new Param("code", token),
@@ -74,7 +71,7 @@ namespace ApiLibs.Wunderlist
                 throw new ArgumentException("wTask.title was null");
             }
 
-            return await MakeRequest<WTask>(Method.POST, "tasks", wTask);
+            return await MakeRequest<WTask>("tasks", Call.POST, wTask);
         }
 
         public async Task RemoveTask(WTask it)
@@ -86,7 +83,7 @@ namespace ApiLibs.Wunderlist
 
             try
             {
-                await MakeRequest(Method.DELETE, "tasks/" + it.id, new List<Param>
+                await MakeRequest("tasks/" + it.id, Call.DELETE, new List<Param>
                 {
                     new Param("revision", it.revision.ToString())
                 });

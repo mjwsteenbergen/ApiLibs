@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ApiLibs.Telegram
@@ -10,6 +11,9 @@ namespace ApiLibs.Telegram
     public class TelegramService : Service
     {
         private List<From> contacts;
+
+        public event MessageHandler MessageRecieved;
+        public delegate void MessageHandler(Message m, EventArgs e);
 
         public TelegramService()
         {
@@ -26,7 +30,7 @@ namespace ApiLibs.Telegram
         //TODO
         public async void GetMe()
         {
-            await MakeRequestPost("/getMe", new List<Param>());
+            await MakeRequest("/getMe", Call.POST, new List<Param>());
         }
 
         public async void SendMessage(int id, string message)
@@ -35,7 +39,7 @@ namespace ApiLibs.Telegram
             param.Add(new Param("chat_id", id.ToString()));
             param.Add(new Param("text", message));
 
-            await MakeRequest("/sendMessage", param);
+            await MakeRequest("/sendMessage", Call.GET, param);
         }
 
         public void SendMessage(string userid, string message)
@@ -50,9 +54,56 @@ namespace ApiLibs.Telegram
             }
         }
 
+        public void LookForMessages()
+        {
+            Thread t = new Thread(async () =>
+            {
+                while (true)
+                {
+                    List<Message> mList = await WaitForNextMessage();
+                    foreach (Message m in mList)
+                    {
+                        MessageRecieved.Invoke(m, EventArgs.Empty);
+                    }
+                }
+            });
+        }
+
+        private async Task<List<Message>> WaitForNextMessage()
+        {
+            int updateId = Passwords.ReadFile<Result>("data/telegram/lastID").update_id;
+
+            TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", new List<Param> { new Param("timeout", "100"), new Param("offset", updateId.ToString()) });
+            foreach (Result message in messages.result)
+            {
+                AddFrom(message.message.from);
+            }
+
+            List<Message> result = new List<Message>();
+
+            messages.result.Reverse();
+            foreach (Result message in messages.result)
+            {
+                if (message.update_id == updateId)
+                {
+                    break;
+                }
+                result.Add(message.message);
+            }
+
+            if (result.Count != 0)
+            {
+                Passwords.WriteFile("data/telegram/lastID", messages.result[0]);
+            }
+
+            return result;
+        }
+
         public async Task<List<Message>> GetMessages()
         {
-            TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", new List<Param>());
+            int updateId = Passwords.ReadFile<Result>("data/telegram/lastID").update_id;
+
+            TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", new List<Param> { new Param("offset",updateId.ToString()) });
             foreach(Result message in messages.result)
             {
                 AddFrom(message.message.from);
@@ -60,8 +111,8 @@ namespace ApiLibs.Telegram
 
             List<Message> result = new List<Message>();
 
-            int updateId = Passwords.ReadFile<Result>("data/telegram/lastID").update_id;
             messages.result.Reverse();
+
             foreach (Result message in messages.result)
             {
                 if (message.update_id == updateId)

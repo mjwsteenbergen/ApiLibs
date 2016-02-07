@@ -133,7 +133,7 @@ namespace ApiLibs.Todoist
 
                 //new Param("commands",@"[{""type"": ""item_complete"", ""uuid"": """ + DateTime.Now + @""", ""args"": {""project_id"": " + todo.project_id + @", ""ids"": [" + todo.id + "]}}]"));
 
-            await MakeRequest("sync", parameters);
+            await MakeRequest("sync", Call.GET, parameters);
         }
 
         public Task<Item> AddTodo(string name, Project project)
