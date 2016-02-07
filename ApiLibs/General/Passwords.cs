@@ -12,7 +12,7 @@ namespace ApiLibs
 {
     internal static class Passwords
     {
-        public static readonly string DirectoryPath = @"C:\Users\Martijn\AppData\Roaming\Zeus\";
+        public static readonly string DirectoryPath = @"C:\Users\TOSH\AppData\Roaming\Zeus\";
 
         public static string TodoistKey => GetPassword("TodoistKey");
         public static string TodoistUserAgent => GetPassword("TodoistUserAgent");
