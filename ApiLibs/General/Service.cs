@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using RestSharp;
@@ -176,6 +171,8 @@ namespace ApiLibs
                     return Method.PATCH;
                 case Call.DELETE:
                     return Method.DELETE;
+                case Call.PUT:
+                    return Method.PUT;
                 default:
                     return Method.GET;
             }
@@ -198,5 +195,6 @@ enum Call
     POST,
     GET,
     PATCH,
-    DELETE
+    DELETE,
+    PUT
 }

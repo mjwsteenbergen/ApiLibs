@@ -121,7 +121,11 @@ namespace ApiLibs.GitHub
             return await MakeRequest<Issue>(issueUrl, Call.PATCH, it);
         }
 
-        
+
+        public async void MarkNotificationsRead()
+        {
+            await MakeRequest("/notifications", Call.PUT, new List<Param>());
+        }
     }
 
     

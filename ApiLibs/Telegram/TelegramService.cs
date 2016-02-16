@@ -67,6 +67,7 @@ namespace ApiLibs.Telegram
                     }
                 }
             });
+            t.Start();
         }
 
         private async Task<List<Message>> WaitForNextMessage()
