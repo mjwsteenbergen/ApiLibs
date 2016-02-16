@@ -70,13 +70,13 @@ namespace ApiLibs.Pocket
             return JsonConvert.DeserializeObject<ReadingList>(regexd);
         }
 
-        public async Task Delete(List ls)
+        public async Task Delete(PocketList ls)
         {
             await SendAction(new PocketAction("delete", ls.item_id));
 
         }
 
-        public async Task Unfavorite(List ls)
+        public async Task Unfavorite(PocketList ls)
         {
             await SendAction(new PocketAction("unfavorite", ls.item_id));
         }

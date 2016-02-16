@@ -13,13 +13,13 @@ namespace ApiLibs.Pocket
     {
         public int status { get; set; }
         public int complete { get; set; }
-        public List[] list { get; set; }
+        public PocketList[] PocketList { get; set; }
         public object error { get; set; }
         public Search_Meta search_meta { get; set; }
         public int since { get; set; }
     }
 
-    public class List
+    public class PocketList
     {
         public string item_id { get; set; }
         public string resolved_id { get; set; }
@@ -137,7 +137,7 @@ namespace ApiLibs.Pocket
     {
         public int status { get; set; }
         public int complete { get; set; }
-        public List[] list { get; set; }
+        public PocketList[] PocketList { get; set; }
         public object error { get; set; }
         public Search_Meta search_meta { get; set; }
         public int since { get; set; }

@@ -61,7 +61,7 @@ namespace ApiLibs.Wunderlist
                 }
             }
 
-            throw new KeyNotFoundException("The list with name:" + listName + " could not be found.");
+            throw new KeyNotFoundException("The PocketList with name:" + listName + " could not be found.");
         }
 
         public async Task<WTask> AddTask(WRequestTask wTask)
