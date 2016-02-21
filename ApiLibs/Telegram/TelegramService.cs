@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,20 +36,41 @@ namespace ApiLibs.Telegram
 
         public async void SendMessage(int id, string message)
         {
-            List<Param> param = new List<Param>();
-            param.Add(new Param("chat_id", id.ToString()));
-            param.Add(new Param("text", message));
+            SendMessage(id, message, ParseMode.None);
+        }
+
+        public void SendMessage(string userid, string message)
+        {
+            SendMessage(userid, message, ParseMode.None);
+        }
+
+        public async void SendMessage(int id, string message, ParseMode mode)
+        {
+            List<Param> param = new List<Param>
+            {
+                new Param("chat_id", id.ToString()),
+                new Param("text", message),
+            };
+            switch (mode)
+            {
+                case ParseMode.HTML:
+                    param.Add(new Param("parse_mode","HTML"));
+                    break;
+                case ParseMode.Markdown:
+                    param.Add(new Param("parse_mode", "Markdown"));
+                    break;
+            }
 
             await MakeRequest("/sendMessage", Call.GET, param);
         }
 
-        public void SendMessage(string userid, string message)
+        public void SendMessage(string userid, string message, ParseMode mode)
         {
             foreach(From contact in contacts)
             {
                 if(contact.username == userid)
                 {
-                    SendMessage(contact.id, message);
+                    SendMessage(contact.id, message, mode);
                     return;
                 }
             }
@@ -151,5 +173,10 @@ namespace ApiLibs.Telegram
         }
 
         
+    }
+
+    public enum ParseMode
+    {
+        None, Markdown, HTML
     }
 }
