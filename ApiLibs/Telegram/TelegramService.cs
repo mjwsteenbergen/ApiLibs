@@ -29,27 +29,39 @@ namespace ApiLibs.Telegram
         }
 
         //TODO
-        public async void GetMe()
+        public async Task GetMe()
         {
             await MakeRequest("/getMe", Call.POST, new List<Param>());
         }
 
-        public async void SendMessage(int id, string message)
+
+        public void SendMessage(int id, string message)
         {
-            SendMessage(id, message, ParseMode.None);
+            SendMessage(id, message, ParseMode.None, true);
         }
 
-        public void SendMessage(string userid, string message)
+        public void SendMessage(string username, string message)
         {
-            SendMessage(userid, message, ParseMode.None);
+            SendMessage(username, message, ParseMode.None);
         }
 
-        public async void SendMessage(int id, string message, ParseMode mode)
+        public void SendMessage(string username, string message, ParseMode mode)
+        {
+            SendMessage(username, message, mode, true);
+        }
+
+        public void SendMessage(string username, string message, ParseMode mode, bool webPreview)
+        {
+            SendMessage(ConvertFromUsernameToID(username), message, mode, webPreview);
+        }
+
+        public async void SendMessage(int id, string message, ParseMode mode, bool webPreview)
         {
             List<Param> param = new List<Param>
             {
                 new Param("chat_id", id.ToString()),
                 new Param("text", message),
+                new Param("disable_web_page_preview", (!webPreview).ToString()),
             };
             switch (mode)
             {
@@ -64,16 +76,16 @@ namespace ApiLibs.Telegram
             await MakeRequest("/sendMessage", Call.GET, param);
         }
 
-        public void SendMessage(string userid, string message, ParseMode mode)
+        public int ConvertFromUsernameToID(string userid)
         {
             foreach(From contact in contacts)
             {
                 if(contact.username == userid)
                 {
-                    SendMessage(contact.id, message, mode);
-                    return;
+                    return contact.id;
                 }
             }
+            throw new KeyNotFoundException(userid + "was not found. Did you type it correctly?");
         }
 
         public void LookForMessages()
