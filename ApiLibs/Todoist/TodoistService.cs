@@ -46,7 +46,7 @@ namespace ApiLibs.Todoist
 
         public async Task<List<Item>> GetItems(bool cached)
         {
-            if(cached && CachedItems != null)
+            if (cached && CachedItems != null)
             {
                 return CachedItems;
             }
@@ -62,6 +62,18 @@ namespace ApiLibs.Todoist
             }
             await SyncAllItems();
             return CachedLabels;
+        }
+
+        public async Task<Label> GetLabel(string name)
+        {
+            foreach (Label label in await GetLabels(false))
+            {
+                if (label.name == name)
+                {
+                    return label;
+                }
+            }
+            throw new KeyNotFoundException("Label: " + name + " was not found. Try something else");
         }
 
         public async Task SyncAllItems()
@@ -101,7 +113,7 @@ namespace ApiLibs.Todoist
             };
 
             List<RootObject> obj = await MakeRequest<List<RootObject>>("query", parameters);
-            
+
             return obj[0] ?? new RootObject();
         }
 
@@ -110,11 +122,11 @@ namespace ApiLibs.Todoist
             foreach (Item it in sync.Items)
             {
                 sync.getProjectById(it.project_id).AddItem(it);
-                foreach(int lb in it.labels)
+                foreach (int lb in it.labels)
                 {
                     it.labelList.Add(sync.GetLabelbyId(lb));
                 }
-                
+
             }
 
             sync.SortProjects();
@@ -129,41 +141,78 @@ namespace ApiLibs.Todoist
         {
             List<Param> parameters = new List<Param>();
             parameters.Add(new Param("commands",
-                "[{\"type\": \"item_close\", \"uuid\": \"" + (new Random()).Next(0,10000) + "\", \"args\": {\"id\": " + todo.id + "}}]"));
+                "[{\"type\": \"item_close\", \"uuid\": \"" + (new Random()).Next(0, 10000) + "\", \"args\": {\"id\": " +
+                todo.id + "}}]"));
 
-                //new Param("commands",@"[{""type"": ""item_complete"", ""uuid"": """ + DateTime.Now + @""", ""args"": {""project_id"": " + todo.project_id + @", ""ids"": [" + todo.id + "]}}]"));
+            //new Param("commands",@"[{""type"": ""item_complete"", ""uuid"": """ + DateTime.Now + @""", ""args"": {""project_id"": " + todo.project_id + @", ""ids"": [" + todo.id + "]}}]"));
 
             await MakeRequest("sync", Call.GET, parameters);
         }
 
-        public Task<Item> AddTodo(string name, Project project)
+//        public async Task<Item> AddTodo(string name, Project project, List<string> labels)
+//        {
+//            
+//        }
+
+        public async Task<Item> AddTodo(string name, Project project)
         {
-            return AddTodo(name, project.id);
+            return await AddTodo(name, project, new List<Label>());
         }
 
-        public async Task<Item> AddTodo(string name, int project)
+        public async Task<Item> AddTodo(string name, int id)
         {
-            List<Param> parameters = new List<Param> {new Param("content", name), new Param("project_id", project.ToString())};
-            return await MakeRequest<Item>("add_item", parameters);
+            return await AddTodo(name, id, new List<Label>());
         }
 
         public async Task<Item> AddTodo(string name)
         {
-            List<Param> parameters = new List<Param> { new Param("content", name) };
+            List<Param> parameters = new List<Param> {new Param("content", name)};
             return await MakeRequest<Item>("add_item", parameters);
         }
 
-
-        public async Task<Label> SuggestLabel(string value)
+        public async Task<Item> AddTodo(string name, Project project, List<Label> labels)
         {
-            foreach (Label lab in await GetLabels(true))
+            int id = project?.id ?? -1;
+            return await AddTodo(name, id, labels);
+        }
+
+        public async Task<Item> AddTodo(string name, int id, List<Label> labels)
+        {
+            return await AddTodo(name, id, labels, null);
+        }
+
+        public async Task<Item> AddTodo(string name, Project project, List<Label> labels, string date)
+        {
+            int id = project?.id ?? -1;
+            return await AddTodo(name, id, labels, date);
+        }
+
+        public async Task<Item> AddTodo(string name, int id, List<Label> labels, string date)
+        {
+            List<Param> parameters = new List<Param>
             {
-                if (lab.name.StartsWith(value))
-                {
-                    return lab;
-                }
+                new Param("content", name),
+            };
+            if (id != -1)
+            {
+                parameters.Add(new Param("project_id", id.ToString()));
             }
-            return null;
+            if (labels.Count != 0)
+            {
+                string labelParameter = "[";
+                foreach (Label label in labels)
+                {
+                    labelParameter += label.id + ",";
+                }
+                labelParameter = labelParameter.Substring(0, labelParameter.Length - 1);
+                labelParameter += "]";
+                parameters.Add(new Param("labels", labelParameter));
+            }
+            if (date != null)
+            {
+                parameters.Add(new Param("date_string", date));
+            }
+            return await MakeRequest<Item>("add_item", parameters);
         }
     }
 }
