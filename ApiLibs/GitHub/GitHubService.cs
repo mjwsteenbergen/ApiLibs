@@ -121,10 +121,27 @@ namespace ApiLibs.GitHub
             return await MakeRequest<Issue>(issueUrl, Call.PATCH, it);
         }
 
-
-        public async void MarkNotificationsRead()
+        public void MarkNotificationRead(NotificationsObject notification)
         {
-            await MakeRequest("/notifications", Call.PUT, new List<Param>());
+            //await MakeRequest("")
+        }
+
+        /// <summary>
+        /// WARNING: DOES NOT WORK
+        /// </summary>
+        /// <returns></returns>
+        public async Task MarkNotificationsReadRepo(NotificationsObject notification)
+        {
+            await MakeRequest<NotificationsObject>(notification.repository.notifications_url, Call.PUT, new List<Param>());
+        }
+
+        /// <summary>
+        /// WARNING: DOES NOT WORK
+        /// </summary>
+        /// <returns></returns>
+        public async Task MarkNotificationsRead(NotificationsObject notification)
+        {
+            await MakeRequest<NotificationsObject>(notification.url, Call.PATCH, new List<Param>());
         }
     }
 

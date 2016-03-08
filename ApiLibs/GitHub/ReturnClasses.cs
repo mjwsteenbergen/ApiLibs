@@ -120,7 +120,11 @@ namespace ApiLibs.GitHub
         private string real_issue_url;
         public string pulls_url { get; set; }
         public string milestones_url { get; set; }
-        public string notifications_url { get; set; }
+        private string _notifications_url;
+        public string notifications_url { get { return _notifications_url.Replace("https://api.github.com/", "").Replace("{?since,all,participating}",""); } set
+        {
+            _notifications_url = value;
+        } }
         public string labels_url { get; set; }
         public string releases_url { get; set; }
     }
@@ -134,7 +138,8 @@ namespace ApiLibs.GitHub
         public string last_read_at { get; set; }
         public Subject subject { get; set; }
         public Repository repository { get; set; }
-        public string url { get; set; }
+        private string _url;
+        public string url { get { return _url.Replace("https://api.github.com/", ""); } set { _url = value; } }
         public string subscription_url { get; set; }
     }
 
