@@ -31,12 +31,9 @@ namespace ApiLibs
 
         public static string Travis_Token => GetPassword("Travis_Token");
 
-
-//        public static string OutlookToken;
-
         public static readonly string OutlookEmailAdres = "";
 
-        public static string GeneralRedirectUrl { get { return GetPassword("GeneralRedirectUrl"); } }
+        public static string GeneralRedirectUrl => GetPassword("GeneralRedirectUrl");
         public static string WunderlistToken => GetPassword("WunderlistToken");
         public static string WunderlistId => GetPassword("WunderlistId");
         public static string WunderlistSecret => GetPassword("WunderlistSecret");

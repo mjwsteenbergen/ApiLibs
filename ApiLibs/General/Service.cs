@@ -142,7 +142,7 @@ namespace ApiLibs
             Debug.Assert(Client != null, "Client != null");
             IRestResponse resp = await Client.ExecuteTaskAsync(request);
 
-            if (resp.StatusCode.ToString() != "OK" && resp.StatusCode.ToString() != "Created")
+            if (resp.StatusCode.ToString() != "OK" && resp.StatusCode.ToString() != "Created" && resp.StatusCode.ToString() != "ResetContent")
             {
                 foreach (Parameter p in resp.Headers)
                 {
@@ -165,8 +165,6 @@ namespace ApiLibs
             {
                 case Call.POST:
                     return Method.POST;
-                case Call.GET:
-                    return Method.GET;
                 case Call.PATCH:
                     return Method.PATCH;
                 case Call.DELETE:

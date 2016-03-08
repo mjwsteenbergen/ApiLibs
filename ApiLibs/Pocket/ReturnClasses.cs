@@ -137,7 +137,7 @@ namespace ApiLibs.Pocket
     {
         public int status { get; set; }
         public int complete { get; set; }
-        public PocketList[] PocketList { get; set; }
+        public PocketList[] list { get; set; }
         public object error { get; set; }
         public Search_Meta search_meta { get; set; }
         public int since { get; set; }
