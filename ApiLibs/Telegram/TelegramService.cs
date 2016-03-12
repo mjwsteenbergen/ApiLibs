@@ -106,7 +106,7 @@ namespace ApiLibs.Telegram
 
         private async Task<List<Message>> WaitForNextMessage()
         {
-            int updateId = Passwords.ReadFile<Result>("data/telegram/lastID").update_id;
+            int updateId = (await Passwords.ReadFile<Result>("data/telegram/lastID")).update_id;
 
             TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", new List<Param> { new Param("timeout", "100"), new Param("offset", updateId.ToString()) });
             foreach (Result message in messages.result)
@@ -136,7 +136,7 @@ namespace ApiLibs.Telegram
 
         public async Task<List<Message>> GetMessages()
         {
-            int updateId = Passwords.ReadFile<Result>("data/telegram/lastID").update_id;
+            int updateId = (await Passwords.ReadFile<Result>("data/telegram/lastID")).update_id;
 
             TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", new List<Param> { new Param("offset",updateId.ToString()) });
             foreach(Result message in messages.result)
@@ -179,9 +179,9 @@ namespace ApiLibs.Telegram
             Passwords.WriteFile("data/telegram/usernames", contacts);
         }
 
-        private void ReadStoredUsernames()
+        private async void ReadStoredUsernames()
         {
-            contacts = Passwords.ReadFile<List<From>>("data/telegram/usernames");
+            contacts = await Passwords.ReadFile<List<From>>("data/telegram/usernames");
         }
 
         

@@ -12,8 +12,6 @@ namespace ApiLibs
 {
     internal static class Passwords
     {
-        public static readonly string DirectoryPath = @"C:\Users\TOSH\AppData\Roaming\Zeus\";
-
         public static string TodoistKey => GetPassword("TodoistKey");
         public static string TodoistUserAgent => GetPassword("TodoistUserAgent");
 
@@ -38,54 +36,43 @@ namespace ApiLibs
         public static string WunderlistId => GetPassword("WunderlistId");
         public static string WunderlistSecret => GetPassword("WunderlistSecret");
 
-        public static void ReadPasswords()
+        public static IStorage store;
+
+        public static async Task ReadPasswords()
         {
             if(!allread)
             {
-                passwords = ReadFile<Dictionary<string, string>>("pass");
+                passwords = await ReadFile<Dictionary<string, string>>("pass");
                 allread = true;
             }
         }
 
-        internal static T ReadFile<T>(string filename) where T:new()
+        internal static async Task<T> ReadFile<T>(string filename) where T:new()
         {
-            string FilePath = DirectoryPath + filename;
-
-            if (!Directory.Exists(DirectoryPath))
+            if (store == null)
             {
-                Directory.CreateDirectory(DirectoryPath);
+                throw new NullReferenceException(
+                    "You have not declared an StorageClass please define it, or disable the storage by calling disable storage");
             }
-            if (File.Exists(FilePath))
+
+            string readFile = await store.Read(filename);
+
+            T res;
+            if (readFile != "")
             {
-                FileStream stream = File.Open(FilePath, FileMode.Open);
-                T res;
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    res = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
-
-                    stream.Close();
-                    reader.Close();
-                }
-
-                return res;
+                res = JsonConvert.DeserializeObject<T>(readFile);
             }
             else
             {
-                T res = new T();
+                res = new T();
                 WriteFile(filename, res);
-                return res;
             }
+            return res;
         }
 
         internal static void WriteFile(string v, object obj)
         {
-            FileStream stream = File.Create(DirectoryPath + v);
-            using (StreamWriter writer = new StreamWriter(stream))
-            {
-                writer.WriteLine(JsonConvert.SerializeObject(obj));
-                writer.Close();
-            }
-            stream.Close();
+            store.Write(v, JsonConvert.SerializeObject(obj));
         }
 
         public static void WritePasswords()
@@ -118,5 +105,11 @@ namespace ApiLibs
         private static bool allread = false;
         private static Dictionary<string, string> passwords;
         
+    }
+
+    public interface IStorage
+    {
+        Task<string> Read(string fileName);
+        void Write(string fileName, object obj);
     }
 }
