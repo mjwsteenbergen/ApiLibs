@@ -19,7 +19,11 @@ namespace ApiLibs
         public void SetUp(string hostUrl)
         {
             Client = new RestClient {BaseUrl = new Uri(hostUrl)};
-            Passwords.ReadPasswords();
+        }
+
+        public async Task Connect()
+        {
+            await Passwords.ReadPasswords();
         }
 
         internal void AddStandardParameter(Param p)
@@ -185,6 +189,8 @@ namespace ApiLibs
         {
             Console.WriteLine(resp.Content);
         }
+
+        
     }
 }
 

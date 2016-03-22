@@ -23,11 +23,6 @@ namespace ApiLibs.Telegram
             ReadStoredUsernames();
         }
 
-        public void Connect()
-        {
-            // Telegram Service does not need to connect
-        }
-
         //TODO
         public async Task GetMe()
         {
@@ -37,7 +32,7 @@ namespace ApiLibs.Telegram
 
         public void SendMessage(int id, string message)
         {
-            SendMessage(id, message, ParseMode.None, true);
+            SendMessage(id, message, ParseMode.None, true, -1);
         }
 
         public void SendMessage(string username, string message)
@@ -52,10 +47,15 @@ namespace ApiLibs.Telegram
 
         public void SendMessage(string username, string message, ParseMode mode, bool webPreview)
         {
-            SendMessage(ConvertFromUsernameToID(username), message, mode, webPreview);
+            SendMessage(username, message, mode, webPreview, -1);
         }
 
-        public async void SendMessage(int id, string message, ParseMode mode, bool webPreview)
+        public void SendMessage(string username, string message, ParseMode mode, bool webPreview, int reply_to_message_id)
+        {
+            SendMessage(ConvertFromUsernameToID(username), message, mode, webPreview, reply_to_message_id);
+        }
+        
+        public async void SendMessage(int id, string message, ParseMode mode, bool webPreview, int reply_to_message_id)
         {
             List<Param> param = new List<Param>
             {
@@ -71,6 +71,11 @@ namespace ApiLibs.Telegram
                 case ParseMode.Markdown:
                     param.Add(new Param("parse_mode", "Markdown"));
                     break;
+            }
+
+            if (reply_to_message_id != -1)
+            {
+                param.Add(new Param("reply_to_message_id", reply_to_message_id.ToString()));
             }
 
             await MakeRequest("/sendMessage", Call.GET, param);

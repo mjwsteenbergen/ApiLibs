@@ -24,12 +24,6 @@ namespace ApiLibs.Todoist
             AddStandardParameter(new Param("seq_no_global", "0"));
         }
 
-
-        public void Connect()
-        {
-            // Todoist does not need to connect.
-        }
-
         public async Task<List<Project>> GetProjects(bool cached)
         {
 

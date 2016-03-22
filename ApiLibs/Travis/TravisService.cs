@@ -22,6 +22,7 @@ namespace ApiLibs.Travis
 
         public async Task Connect()
         {
+            await base.Connect();
             await MakeRequest("/", Call.GET, new List<Param>());
             AddStandardHeader(new Param("Accept", "application/vnd.travis-ci.2+json"));
             AddStandardHeader(new Param("User-Agent", "Travis"));

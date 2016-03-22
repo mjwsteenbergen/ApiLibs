@@ -22,6 +22,7 @@ namespace ApiLibs.GitHub
 
         public async Task Connect()
         {
+            await base.Connect();
             if(Passwords.GitHub_access_token == null)
             {
                 var url = "https://github.com/login/oauth/authorize?redirect_uri=" + _authenticator.RedirectUrl() + "&client_id=" + Passwords.GitHub_clientID + "&scope=repo,notifications";

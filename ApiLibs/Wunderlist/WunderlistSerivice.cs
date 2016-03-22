@@ -17,6 +17,7 @@ namespace ApiLibs.Wunderlist
 
         public async Task Connect()
         {
+            await base.Connect();
             if (Passwords.WunderlistToken == null)
             {
 

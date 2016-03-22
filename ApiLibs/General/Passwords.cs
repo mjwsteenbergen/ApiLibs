@@ -10,33 +10,38 @@ using ApiLibs.Telegram;
 
 namespace ApiLibs
 {
-    internal static class Passwords
+    public class Passwords
     {
-        public static string TodoistKey => GetPassword("TodoistKey");
-        public static string TodoistUserAgent => GetPassword("TodoistUserAgent");
+        public Passwords(IStorage storage)
+        {
+            store = storage;
+        }
 
-        public static string PocketKey => GetPassword("PocketKey");
-        public static string Pocket_access_token => GetPassword("Pocket_access_token");
+        internal static string TodoistKey => GetPassword("TodoistKey");
+        internal static string TodoistUserAgent => GetPassword("TodoistUserAgent");
 
-        public static string Telegram_token => GetPassword("Telegram_token");
+        internal static string PocketKey => GetPassword("PocketKey");
+        internal static string Pocket_access_token => GetPassword("Pocket_access_token");
 
-        public static string GitHub_clientID => GetPassword("GitHub_clientID");
-        public static string GitHub_client_secret => GetPassword("GitHub_client_secret");
-        public static string GitHub_access_token => GetPassword("GitHub_access_token");
+        internal static string Telegram_token => GetPassword("Telegram_token");
 
-        public static readonly string OutlookKey = "";
-        public static readonly string OutlookID = "";
+        internal static string GitHub_clientID => GetPassword("GitHub_clientID");
+        internal static string GitHub_client_secret => GetPassword("GitHub_client_secret");
+        internal static string GitHub_access_token => GetPassword("GitHub_access_token");
 
-        public static string Travis_Token => GetPassword("Travis_Token");
+        internal static readonly string OutlookKey = "";
+        internal static readonly string OutlookID = "";
 
-        public static readonly string OutlookEmailAdres = "";
+        internal static string Travis_Token => GetPassword("Travis_Token");
 
-        public static string GeneralRedirectUrl => GetPassword("GeneralRedirectUrl");
-        public static string WunderlistToken => GetPassword("WunderlistToken");
-        public static string WunderlistId => GetPassword("WunderlistId");
-        public static string WunderlistSecret => GetPassword("WunderlistSecret");
+        internal static readonly string OutlookEmailAdres = "";
 
-        public static IStorage store;
+        internal static string GeneralRedirectUrl => GetPassword("GeneralRedirectUrl");
+        internal static string WunderlistToken => GetPassword("WunderlistToken");
+        internal static string WunderlistId => GetPassword("WunderlistId");
+        internal static string WunderlistSecret => GetPassword("WunderlistSecret");
+
+        internal static IStorage store;
 
         public static async Task ReadPasswords()
         {
@@ -72,11 +77,16 @@ namespace ApiLibs
 
         internal static void WriteFile(string v, object obj)
         {
-            store.Write(v, JsonConvert.SerializeObject(obj));
+            store.Write(v, obj);
         }
 
-        public static void WritePasswords()
+        internal static void WritePasswords()
         {
+            if (!allread)
+            {
+                throw new OperationCanceledException(
+                    "This is not allowed until the passwords have been read with ReadPasswords()");
+            }
             if (passwords == null)
             {
                 passwords = new Dictionary<string, string>();
@@ -84,8 +94,13 @@ namespace ApiLibs
             WriteFile("pass", passwords);
         }
 
-        public static void AddPassword(string key, string value)
+        internal static void AddPassword(string key, string value)
         {
+            if (!allread)
+            {
+                throw new OperationCanceledException(
+                    "This is not allowed until the passwords have been read with ReadPasswords()");
+            }
             if (!passwords.Keys.Contains(key))
             {
                 passwords.Add(key, value);
@@ -95,6 +110,11 @@ namespace ApiLibs
 
         private static string GetPassword(string key)
         {
+            if (!allread)
+            {
+                throw new OperationCanceledException(
+                    "This is not allowed until the passwords have been read with ReadPasswords()");
+            }
             if (passwords.Keys.Contains(key))
             {
                 return passwords[key];
@@ -109,6 +129,7 @@ namespace ApiLibs
 
     public interface IStorage
     {
+        Task<T> Read<T>(string fileName);
         Task<string> Read(string fileName);
         void Write(string fileName, object obj);
     }
