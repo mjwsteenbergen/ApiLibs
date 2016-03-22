@@ -8,38 +8,50 @@ namespace ApiLibs.Wunderlist
     public class WunderlistService : Service
     {
         private readonly IOAuth _authenticator;
+        private string WunderlistToken;
+        private readonly string WunderlistId;
+        private readonly string WunderlistSecret;
 
-        public WunderlistService(IOAuth authenticator)
+        public WunderlistService(IOAuth authenticator, Passwords pass)
         {
             _authenticator = authenticator;
-            SetUp("https://www.wunderlist.com/oauth/access_token");
+            WunderlistId = pass.WunderlistId;
+            WunderlistSecret = pass.WunderlistSecret;
+            WunderlistToken = pass.WunderlistToken;
+
         }
 
-        public async Task Connect()
+        public async Task Connect(Passwords pass)
         {
-            await base.Connect();
-            if (Passwords.WunderlistToken == null)
+            pass.AddPassword("WunderlistToken", await Connect());
+        }
+
+        public async Task<string> Connect()
+        {
+            SetUp("https://www.wunderlist.com/oauth/access_token");
+            if (WunderlistToken == null)
             {
 
-                string url = "https://www.wunderlist.com/oauth/authorize?client_id=" + Passwords.WunderlistId + "&redirect_uri=" + "https://developer.wunderlist.com" + "&state=PleasCopyThis";
+                string url = "https://www.wunderlist.com/oauth/authorize?client_id=" + WunderlistId + "&redirect_uri=" + "https://developer.wunderlist.com" + "&state=PleasCopyThis";
                 string res = _authenticator.ActivateOAuth(new Uri(url), "https://developer.wunderlist.com");
                 string token = Regex.Match(res, "code=(.+)").Groups[1].Value;
 
                 Auth auth = await MakeRequest<Auth>("", Call.POST, new List<Param>
                 {
-                    new Param("client_id", Passwords.WunderlistId),
+                    new Param("client_id", WunderlistId),
                     new Param("code", token),
-                    new Param("client_secret", Passwords.WunderlistSecret)
+                    new Param("client_secret", WunderlistSecret)
                 });
 
-                Passwords.AddPassword("WunderlistToken", auth.access_token);
-                Passwords.WritePasswords();
+                WunderlistToken = auth.access_token;
             }
 
             SetBaseUrl("https://a.wunderlist.com/api/v1/");
 
-            AddStandardHeader(new Param("X-Access-Token", Passwords.WunderlistToken));
-            AddStandardHeader(new Param("X-Client-ID", Passwords.WunderlistId));
+            AddStandardHeader(new Param("X-Access-Token", WunderlistToken));
+            AddStandardHeader(new Param("X-Client-ID", WunderlistId));
+
+            return WunderlistToken;
         }
 
         public async Task<List<WList>> GetLists()

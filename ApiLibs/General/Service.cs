@@ -21,11 +21,6 @@ namespace ApiLibs
             Client = new RestClient {BaseUrl = new Uri(hostUrl)};
         }
 
-        public async Task Connect()
-        {
-            await Passwords.ReadPasswords();
-        }
-
         internal void AddStandardParameter(Param p)
         {
             _standardParameter.Add(p);

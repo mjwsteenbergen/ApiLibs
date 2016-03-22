@@ -12,34 +12,48 @@ namespace ApiLibs.Pocket
 {
     public class PocketService : Service
     {
-        public PocketService()
+        private string Pocket_access_token;
+        private string PocketKey;
+        private string GeneralRedirectUrl;
+
+
+        public PocketService(Passwords pass)
         {
-            SetUp("https://getpocket.com/v3/");
-            Passwords.ReadPasswords();
-            AddStandardParameter(new Param("access_token", Passwords.Pocket_access_token));
-            AddStandardParameter(new Param("consumer_key", Passwords.PocketKey));
+            Pocket_access_token = pass.Pocket_access_token;
+            PocketKey = pass.PocketKey;
+            GeneralRedirectUrl = pass.GeneralRedirectUrl;
         }
 
-        public async Task Connect(IOAuth authenticator)
+        public async Task Connect(IOAuth authenticator, Passwords pass)
         {
-            if (Passwords.Pocket_access_token != null)
+            pass.AddPassword("Pocket_access_token", await Connect(authenticator));
+        }
+
+        public async Task<string> Connect(IOAuth authenticator)
+        {
+            SetUp("https://getpocket.com/v3/");
+            if (Pocket_access_token != null)
             {
-                return;
+                AddStandardParameter(new Param("access_token", Pocket_access_token));
+                AddStandardParameter(new Param("consumer_key", PocketKey));
+                return Pocket_access_token;
             }
 
-            List<Param> parameters = new List<Param>();
-            parameters.Add(new Param("consumer_key", Passwords.PocketKey));
-            parameters.Add(new Param("redirect_uri", "zeus://"));
+            List<Param> parameters = new List<Param>
+            {
+                new Param("consumer_key", PocketKey),
+                new Param("redirect_uri", "zeus://")
+            };
 
             IRestResponse resp = await MakeRequest("oauth/request.php", Call.POST, parameters);
             
             string code = resp.Content.Replace("code=", "");
 
-            authenticator.ActivateOAuth(new Uri("https://getpocket.com/auth/authorize?request_token=" + code + "&redirect_uri=" + Passwords.GeneralRedirectUrl));
+            authenticator.ActivateOAuth(new Uri("https://getpocket.com/auth/authorize?request_token=" + code + "&redirect_uri=" + GeneralRedirectUrl));
 
             parameters = new List<Param>
             {
-                new Param("consumer_key", Passwords.PocketKey),
+                new Param("consumer_key", PocketKey),
                 new Param("code", code)
             };
 
@@ -48,7 +62,7 @@ namespace ApiLibs.Pocket
             var noAccessToken = resp.Content.Replace("access_token=", "");
             string accessToken = noAccessToken.Remove(30, resp.Content.Length - 13 - 30);
 
-            Passwords.AddPassword("Pocket_access_token", accessToken);
+            return accessToken;
         }
 
         public async Task<Item> AddArticle(string url)

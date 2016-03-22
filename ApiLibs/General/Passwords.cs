@@ -17,33 +17,33 @@ namespace ApiLibs
             store = storage;
         }
 
-        internal static string TodoistKey => GetPassword("TodoistKey");
-        internal static string TodoistUserAgent => GetPassword("TodoistUserAgent");
+        internal string TodoistKey => GetPassword("TodoistKey");
+        internal string TodoistUserAgent => GetPassword("TodoistUserAgent");
 
-        internal static string PocketKey => GetPassword("PocketKey");
-        internal static string Pocket_access_token => GetPassword("Pocket_access_token");
+        internal string PocketKey => GetPassword("PocketKey");
+        internal string Pocket_access_token => GetPassword("Pocket_access_token");
 
-        internal static string Telegram_token => GetPassword("Telegram_token");
+        internal string Telegram_token => GetPassword("Telegram_token");
 
-        internal static string GitHub_clientID => GetPassword("GitHub_clientID");
-        internal static string GitHub_client_secret => GetPassword("GitHub_client_secret");
-        internal static string GitHub_access_token => GetPassword("GitHub_access_token");
+        internal string GitHub_clientID => GetPassword("GitHub_clientID");
+        internal string GitHub_client_secret => GetPassword("GitHub_client_secret");
+        internal string GitHub_access_token => GetPassword("GitHub_access_token");
 
-        internal static readonly string OutlookKey = "";
-        internal static readonly string OutlookID = "";
+        internal readonly string OutlookKey = "";
+        internal readonly string OutlookID = "";
 
-        internal static string Travis_Token => GetPassword("Travis_Token");
+        internal string Travis_Token => GetPassword("Travis_Token");
 
-        internal static readonly string OutlookEmailAdres = "";
+        internal readonly string OutlookEmailAdres = "";
 
-        internal static string GeneralRedirectUrl => GetPassword("GeneralRedirectUrl");
-        internal static string WunderlistToken => GetPassword("WunderlistToken");
-        internal static string WunderlistId => GetPassword("WunderlistId");
-        internal static string WunderlistSecret => GetPassword("WunderlistSecret");
+        internal string GeneralRedirectUrl => GetPassword("GeneralRedirectUrl");
+        internal string WunderlistToken => GetPassword("WunderlistToken");
+        internal string WunderlistId => GetPassword("WunderlistId");
+        internal string WunderlistSecret => GetPassword("WunderlistSecret");
 
-        internal static IStorage store;
+        internal readonly IStorage store;
 
-        public static async Task ReadPasswords()
+        public async Task ReadPasswords()
         {
             if(!allread)
             {
@@ -52,8 +52,9 @@ namespace ApiLibs
             }
         }
 
-        internal static async Task<T> ReadFile<T>(string filename) where T:new()
+        internal async Task<T> ReadFile<T>(string filename) where T:new()
         {
+            
             if (store == null)
             {
                 throw new NullReferenceException(
@@ -75,12 +76,12 @@ namespace ApiLibs
             return res;
         }
 
-        internal static void WriteFile(string v, object obj)
+        internal void WriteFile(string v, object obj)
         {
             store.Write(v, obj);
         }
 
-        internal static void WritePasswords()
+        internal void WritePasswords()
         {
             if (!allread)
             {
@@ -94,7 +95,7 @@ namespace ApiLibs
             WriteFile("pass", passwords);
         }
 
-        internal static void AddPassword(string key, string value)
+        public void AddPassword(string key, string value)
         {
             if (!allread)
             {

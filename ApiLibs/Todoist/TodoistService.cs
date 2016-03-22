@@ -15,11 +15,20 @@ namespace ApiLibs.Todoist
         public List<Item> CachedItems { get; private set; }
         public List<Label> CachedLabels { get; private set; }
 
-        public TodoistService()
+        private string TodoistUserAgent;
+        private string TodoistKey;
+
+        public TodoistService(Passwords pass)
+        {
+            TodoistKey = pass.TodoistKey;
+            TodoistUserAgent = pass.TodoistUserAgent;
+        }
+
+        public void Connect()
         {
             SetUp("https://todoist.com/API/v6/");
-            AddStandardParameter(new Param("user-agent", Passwords.TodoistUserAgent));
-            AddStandardParameter(new Param("token", Passwords.TodoistKey));
+            AddStandardParameter(new Param("user-agent", TodoistUserAgent));
+            AddStandardParameter(new Param("token", TodoistKey));
             AddStandardParameter(new Param("seq_no", "0"));
             AddStandardParameter(new Param("seq_no_global", "0"));
         }

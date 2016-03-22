@@ -11,16 +11,28 @@ namespace ApiLibs.Telegram
 {
     public class TelegramService : Service
     {
+        private readonly IStorage _storage;
         private List<From> contacts;
 
         public event MessageHandler MessageRecieved;
         public delegate void MessageHandler(Message m, EventArgs e);
 
-        public TelegramService()
+        public string Telegram_token;
+
+        public TelegramService(Passwords pass, IStorage storage)
         {
-            SetUp("https://api.telegram.org/bot");
-            SetBaseUrl("https://api.telegram.org/bot" + Passwords.Telegram_token);
-            ReadStoredUsernames();
+            _storage = storage;
+            Telegram_token = pass.Telegram_token;
+        }
+
+        public TelegramService(string token)
+        {
+            Telegram_token = token;
+        }
+
+        public void Connect()
+        {
+            SetUp("https://api.telegram.org/bot" + Telegram_token);
         }
 
         //TODO
@@ -111,7 +123,7 @@ namespace ApiLibs.Telegram
 
         private async Task<List<Message>> WaitForNextMessage()
         {
-            int updateId = (await Passwords.ReadFile<Result>("data/telegram/lastID")).update_id;
+            int updateId = (await _storage.Read<Result>("data/telegram/lastID")).update_id;
 
             TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", new List<Param> { new Param("timeout", "100"), new Param("offset", updateId.ToString()) });
             foreach (Result message in messages.result)
@@ -133,7 +145,7 @@ namespace ApiLibs.Telegram
 
             if (result.Count != 0)
             {
-                Passwords.WriteFile("data/telegram/lastID", messages.result[0]);
+                _storage.Write("data/telegram/lastID", messages.result[0]);
             }
 
             return result;
@@ -141,7 +153,7 @@ namespace ApiLibs.Telegram
 
         public async Task<List<Message>> GetMessages()
         {
-            int updateId = (await Passwords.ReadFile<Result>("data/telegram/lastID")).update_id;
+            int updateId = (await _storage.Read<Result>("data/telegram/lastID")).update_id;
 
             TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", new List<Param> { new Param("offset",updateId.ToString()) });
             foreach(Result message in messages.result)
@@ -164,7 +176,7 @@ namespace ApiLibs.Telegram
 
             if (result.Count != 0)
             {
-                Passwords.WriteFile("data/telegram/lastID", messages.result[0]);
+                _storage.Write("data/telegram/lastID", messages.result[0]);
             }
 
             return result;
@@ -181,12 +193,12 @@ namespace ApiLibs.Telegram
 
         private void WriteUsernames()
         {
-            Passwords.WriteFile("data/telegram/usernames", contacts);
+            _storage.Write("data/telegram/usernames", contacts);
         }
 
         private async void ReadStoredUsernames()
         {
-            contacts = await Passwords.ReadFile<List<From>>("data/telegram/usernames");
+            contacts = await _storage.Read<List<From>>("data/telegram/usernames");
         }
 
         
