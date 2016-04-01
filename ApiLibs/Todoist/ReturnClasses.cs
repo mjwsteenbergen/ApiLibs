@@ -33,7 +33,7 @@ namespace ApiLibs.Todoist
         public string colorHex => TodoistLabelColor.Convert(color);
         public Brush brush
         {
-            get { return (Brush) new BrushConverter().ConvertFrom(colorHex); }
+            get { return (Brush)new BrushConverter().ConvertFrom(colorHex); }
         }
     }
 
@@ -158,7 +158,7 @@ namespace ApiLibs.Todoist
         public string date_lang { get; set; }
     }
 
-    
+
 
     public class SyncObject
     {
@@ -199,9 +199,9 @@ namespace ApiLibs.Todoist
 
         internal Label GetLabelbyId(int lb)
         {
-            foreach(Label label in Labels)
+            foreach (Label label in Labels)
             {
-                if(label.id == lb)
+                if (label.id == lb)
                 {
                     return label;
                 }
@@ -257,16 +257,16 @@ namespace ApiLibs.Todoist
             {
                 if (tasks.Count == 0)
                 {
-                    return new Item(){content = ""};
+                    return new Item() { content = "" };
                 }
 
                 Item returnTask = new Item { indent = -1 };
 
-                foreach(Item task in tasks)
+                foreach (Item task in tasks)
                 {
                     if (task.@checked == 1)
                         continue;
-                    if(task.indent > returnTask.indent)
+                    if (task.indent > returnTask.indent)
                     {
                         returnTask = task;
                     }
@@ -378,41 +378,66 @@ namespace ApiLibs.Todoist
     }
 
     public static class TodoistLabelColor
+    {
+        public static string Convert(int color)
         {
-            public static string Convert(int color)
+            switch (color)
             {
-                switch (color)
-                {
-                    case 0:
-                        return "#019412";
-                    case 1:
-                        return "#a39d01";
-                    case 2:
-                        return "#e73d02";
-                    case 3:
-                        return "#e702a4";
-                    case 4:
-                        return "#9902e7";
-                    case 5:
-                        return "#1d02e7";
-                    case 6:
-                        return "#0082c5";
-                    case 7:
-                        return "#555555";
-                    case 8:
-                        return "#008299";
-                    case 9:
-                        return "#03b3b2";
-                    case 10:
-                        return "#ac193d";
-                    case 11:
-                        return "#82ba00";
-                    case 12:
-                        return "#111111";
-                    default:
-                        return "#000000";
-                
+                case 0:
+                    return "#019412";
+                case 1:
+                    return "#a39d01";
+                case 2:
+                    return "#e73d02";
+                case 3:
+                    return "#e702a4";
+                case 4:
+                    return "#9902e7";
+                case 5:
+                    return "#1d02e7";
+                case 6:
+                    return "#0082c5";
+                case 7:
+                    return "#555555";
+                case 8:
+                    return "#008299";
+                case 9:
+                    return "#03b3b2";
+                case 10:
+                    return "#ac193d";
+                case 11:
+                    return "#82ba00";
+                case 12:
+                    return "#111111";
+                default:
+                    return "#000000";
+
             }
         }
     }
+
+
+    public class TodoistError
+    {
+        public string error_tag { get; set; }
+        public int error_code { get; set; }
+        public Error_Extra error_extra { get; set; }
+        public string error { get; set; }
+    }
+
+    public class Error_Extra
+    {
+    }
+
+    public class TodoistException : Exception
+    {
+        public TodoistError Error { private set; get; }
+
+        public TodoistException(TodoistError error, RequestException requestException)
+            : base(requestException.Message, requestException)
+        {
+            Error = error;
+        }
+    }
+
 }

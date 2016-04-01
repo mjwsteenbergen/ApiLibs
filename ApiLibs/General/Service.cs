@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using RestSharp;
@@ -147,7 +148,18 @@ namespace ApiLibs
                 {
                     Console.WriteLine(p.ToString());
                 }
-                throw new Exception("A problem occured while trying to access " + resp.ResponseUri + ". Statuscode: " + resp.StatusCode + "\n" + resp.Content);
+                if (resp.ErrorException != null)
+                {
+                    if (resp.ErrorException is System.Net.WebException)
+                    {
+                        throw new NoInternetException(resp.ErrorException);
+                    }
+
+                    throw resp.ErrorException;
+                }
+                throw new RequestException(resp.ResponseUri.ToString(), resp.StatusCode, resp.Content);
+
+
 
             }
             return resp;
@@ -155,7 +167,12 @@ namespace ApiLibs
 
         internal T Convert<T>(IRestResponse resp)
         {
-            return JsonConvert.DeserializeObject<T>(resp.Content);
+            return Convert<T>(resp.Content);
+        }
+
+        internal T Convert<T>(string text)
+        {
+            return JsonConvert.DeserializeObject<T>(text);
         }
 
         private Method Convert(Call m)
@@ -186,6 +203,28 @@ namespace ApiLibs
         }
 
         
+    }
+}
+
+public class NoInternetException : InvalidOperationException
+{
+    public NoInternetException(Exception inner) : base(inner.Message, inner)
+    {
+        
+    }
+}
+
+public class RequestException : InvalidOperationException
+{
+    public readonly string ResponseUri;
+    public readonly HttpStatusCode StatusCode;
+    public readonly string Content;
+
+    public RequestException(string responseUri, HttpStatusCode statusCode, string content) : base("A problem occured while trying to access " + responseUri + ". Statuscode: " + statusCode + "\n" + content)
+    {
+        ResponseUri = responseUri;
+        StatusCode = statusCode;
+        Content = content;
     }
 }
 

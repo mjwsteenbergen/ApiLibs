@@ -109,7 +109,7 @@ namespace ApiLibs
             }
         }
 
-        private static string GetPassword(string key)
+        private string GetPassword(string key)
         {
             if (!allread)
             {

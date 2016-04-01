@@ -215,7 +215,31 @@ namespace ApiLibs.Todoist
             {
                 parameters.Add(new Param("date_string", date));
             }
-            return await MakeRequest<Item>("add_item", parameters);
+            try
+            {
+                return await MakeRequest<Item>("add_item", parameters);
+            }
+            catch(RequestException e)
+            {
+                if (e.Content != "")
+                {
+                    try
+                    {
+                        TodoistError error = Convert<TodoistError>(e.Content);
+                        throw new TodoistException(error, e);
+                    }
+                    catch (JsonSerializationException notused)
+                    {
+                        throw e;
+                    }
+                }
+                throw e;
+            }
+        }
+
+        public void HandleException(RequestException e)
+        {
+            
         }
     }
 }
