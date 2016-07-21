@@ -16,13 +16,17 @@ namespace ApiLibs.GitHub
         internal readonly string GitHub_clientID;
         internal readonly string GitHub_client_secret;
 
-        public GitHubService(IOAuth authenticator, Passwords pass)
+        public GitHubService(IOAuth authenticator, Passwords pass) : this()
         {
-            SetUp("https://github.com/");
             this._authenticator = authenticator;
             GitHub_access_token = pass.GitHub_access_token;
             GitHub_clientID = pass.GitHub_clientID;
             GitHub_client_secret = pass.GitHub_client_secret;
+        }
+
+        public GitHubService()
+        {
+            SetUp("https://github.com/");
         }
 
         public async Task Connect(Passwords password)
@@ -43,7 +47,7 @@ namespace ApiLibs.GitHub
                     new Param("code", key.Replace("code=", ""))
                 };
 
-                IRestResponse resp = await MakeRequest("login/oauth/access_token", Call.POST, parameters);
+                IRestResponse resp = await MakeRequest("login/oauth/access_token", Call.POST, parameters: parameters);
 
                 Match m = Regex.Match(resp.Content, @"{""access_token"":""(\w+)""");
                 GitHub_access_token = m.Groups[1].ToString();
@@ -95,6 +99,11 @@ namespace ApiLibs.GitHub
             return await MakeRequest<List<Repository>>("user/repos", new List<Param>());
         }
 
+        public async Task<Repository> GetRepository(string user, string repository)
+        {
+            return await MakeRequest<Repository>("repos/" + user + "/" + repository, Call.GET);
+        }
+
         public async Task<Repository> GetRepository(string name)
         {
             foreach(Repository repo in await GetMyRepositories())
@@ -109,14 +118,14 @@ namespace ApiLibs.GitHub
 
         public async Task<Issue> AddIssue(OpenIssue issue, Repository repo)
         {   
-            return await MakeRequest<Issue>(repo.issues_url, Call.POST, new List<Param>(), issue);
+            return await MakeRequest<Issue>(repo.issues_url, Call.POST, new List<Param>(), content: issue);
         }
 
         
 
         public async Task<List<NotificationsObject>> GetNotifications()
         {
-            return await MakeRequest<List<NotificationsObject>>("notifications", new List<Param>());
+            return await MakeRequest<List<NotificationsObject>>("notifications", Call.GET);
         }
 
         public async Task<Issue> CloseIssue(Issue it)
@@ -128,9 +137,18 @@ namespace ApiLibs.GitHub
 
         public async Task<Issue> ModifyIssue(string issueUrl, ModifyIssue it)
         {
-            return await MakeRequest<Issue>(issueUrl, Call.PATCH, it);
+            return await MakeRequest<Issue>(issueUrl, Call.PATCH, content: it);
         }
 
+        public async Task<List<Release>> GetReleases(string owner, string repo)
+        {
+            return (await MakeRequest<ReleaseRootobject>("repo/" + owner + "/" + repo + "/releases", Call.GET)).ReleaseList.ToList();
+        }
+
+        /// <summary>
+        /// WARNING: DOES NOT WORK
+        /// </summary>
+        /// <param name="notification"></param>
         public void MarkNotificationRead(NotificationsObject notification)
         {
             //await MakeRequest("")

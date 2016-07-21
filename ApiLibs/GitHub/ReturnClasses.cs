@@ -121,10 +121,14 @@ namespace ApiLibs.GitHub
         public string pulls_url { get; set; }
         public string milestones_url { get; set; }
         private string _notifications_url;
-        public string notifications_url { get { return _notifications_url.Replace("https://api.github.com/", "").Replace("{?since,all,participating}",""); } set
+        public string notifications_url
         {
-            _notifications_url = value;
-        } }
+            get { return _notifications_url.Replace("https://api.github.com/", "").Replace("{?since,all,participating}", ""); }
+            set
+            {
+                _notifications_url = value;
+            }
+        }
         public string labels_url { get; set; }
         public string releases_url { get; set; }
     }
@@ -152,7 +156,7 @@ namespace ApiLibs.GitHub
     public class Issue
     {
         private string notUrl;
-        public string url { get { return notUrl.Replace("https://api.github.com/",""); } set { notUrl = value; } }
+        public string url { get { return notUrl.Replace("https://api.github.com/", ""); } set { notUrl = value; } }
         public string labels_url { get; set; }
         public string comments_url { get; set; }
         public string events_url { get; set; }
@@ -313,5 +317,54 @@ namespace ApiLibs.GitHub
     {
         public string state { get; set; }
     }
+
+
+    public class ReleaseRootobject
+    {
+        public Release[] ReleaseList { get; set; }
+    }
+
+    public class Release
+    {
+        public string url { get; set; }
+        public string assets_url { get; set; }
+        public string upload_url { get; set; }
+        public string html_url { get; set; }
+        public int id { get; set; }
+        public string tag_name { get; set; }
+        public string target_commitish { get; set; }
+        public string name { get; set; }
+        public bool draft { get; set; }
+        public Author author { get; set; }
+        public bool prerelease { get; set; }
+        public DateTime created_at { get; set; }
+        public DateTime published_at { get; set; }
+        public object[] assets { get; set; }
+        public string tarball_url { get; set; }
+        public string zipball_url { get; set; }
+        public string body { get; set; }
+    }
+
+    public class Author
+    {
+        public string login { get; set; }
+        public int id { get; set; }
+        public string avatar_url { get; set; }
+        public string gravatar_id { get; set; }
+        public string url { get; set; }
+        public string html_url { get; set; }
+        public string followers_url { get; set; }
+        public string following_url { get; set; }
+        public string gists_url { get; set; }
+        public string starred_url { get; set; }
+        public string subscriptions_url { get; set; }
+        public string organizations_url { get; set; }
+        public string repos_url { get; set; }
+        public string events_url { get; set; }
+        public string received_events_url { get; set; }
+        public string type { get; set; }
+        public bool site_admin { get; set; }
+    }
+
 
 }
