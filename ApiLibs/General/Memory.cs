@@ -39,7 +39,7 @@ namespace ApiLibs.General
         {
             string filePath = DirectoryPath + filename;
 
-            Match m = Regex.Match(filePath, "((.+)\\)");
+            Match m = Regex.Match(filePath, @"((.+)\\)");
             if (!m.Success)
             {
                 throw new Exception("Well this is weird. Your directory does not contain a slash...");
@@ -52,7 +52,7 @@ namespace ApiLibs.General
                 Directory.CreateDirectory(FileDirectoryPath);
             }
 
-            FileStream stream = File.Open(filePath, FileMode.Open);
+            FileStream stream = File.Open(filePath, FileMode.OpenOrCreate);
             string text;
             using (StreamReader reader = new StreamReader(stream))
             {
