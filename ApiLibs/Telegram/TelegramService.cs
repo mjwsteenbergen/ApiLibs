@@ -38,7 +38,7 @@ namespace ApiLibs.Telegram
         //TODO
         public async Task GetMe()
         {
-            await MakeRequest("/getMe", Call.POST, new List<Param>());
+            await HandleRequest("/getMe", Call.POST, new List<Param>());
         }
 
 
@@ -90,7 +90,7 @@ namespace ApiLibs.Telegram
                 param.Add(new Param("reply_to_message_id", reply_to_message_id.ToString()));
             }
 
-            await MakeRequest("/sendMessage", Call.GET, param);
+            await HandleRequest("/sendMessage", Call.GET, param);
         }
 
         public int ConvertFromUsernameToID(string userid)
@@ -125,7 +125,7 @@ namespace ApiLibs.Telegram
         {
             int updateId = (await _storage.Read<Result>("data/telegram/lastID")).update_id;
 
-            TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", new List<Param> { new Param("timeout", "100"), new Param("offset", updateId.ToString()) });
+            TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", parameters: new List <Param> { new Param("timeout", "100"), new Param("offset", updateId.ToString()) });
             foreach (Result message in messages.result)
             {
                 AddFrom(message.message.from);
@@ -155,7 +155,7 @@ namespace ApiLibs.Telegram
         {
             int updateId = (await _storage.Read<Result>("data/telegram/lastID")).update_id;
 
-            TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", new List<Param> { new Param("offset",updateId.ToString()) });
+            TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", parameters: new List <Param> { new Param("offset",updateId.ToString()) });
             foreach(Result message in messages.result)
             {
                 AddFrom(message.message.from);

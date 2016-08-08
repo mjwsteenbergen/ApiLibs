@@ -64,63 +64,58 @@ namespace ApiLibs
         {
             Client.Authenticator = new HttpBasicAuthenticator(username, secret);
         }
+        
 
-
-
-        internal async Task<IRestResponse> MakeRequest(string url, List<Param> parameters, object jsonBody)
-        {
-            RestRequest request = new RestRequest(url, Method.GET);
-            request.AddJsonBody(jsonBody);
-            return await MakeRequest(request, parameters);
-        }
-
-        internal async Task<T> MakeRequest<T>(string url, List<Param> parameters)
-        {
-            RestRequest request = new RestRequest(url, Method.GET);
-            return Convert<T>(await MakeRequest(request, parameters));
-        }
-
-        internal async Task<T> MakeRequest<T>(string url, Call m, List<Param> parameters, object content)
-        {
-            RestRequest request = new RestRequest(url, Convert(m));
-            request.AddParameter("application/json", JsonConvert.SerializeObject(content), ParameterType.RequestBody);
-            request.AddHeader("content-type", "application/json");
-            return await MakeRequest<T>(request, parameters, new List<Param>());
-        }
-
-        internal async Task<T> MakeRequest<T>(string url, Call m, object obj)
+        internal async Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null)
         {
             var request = new RestRequest(url, Convert(m));
-            request.AddParameter("application/json", JsonConvert.SerializeObject(obj), ParameterType.RequestBody);
-            request.AddHeader("content-type", "application/json");
-            return await MakeRequest<T>(request, new List<Param>(), new List<Param>());
-        }
 
-        internal async Task<IRestResponse> MakeRequest(string url, Call m, List<Param> parameters)
-        {
-            RestRequest request = new RestRequest(url, Convert(m));
-            return await MakeRequest(request, parameters);
-        }
 
-        internal async Task<T> MakeRequest<T>(RestRequest request, List<Param> parameters, List<Param> headers)
-        {
-            return Convert<T>(await MakeRequest(request, parameters, headers));
-        }
+            var rParameters = parameters ?? new List<Param>();
 
-        internal async Task<IRestResponse> MakeRequest(RestRequest request, List<Param> parameters, List<Param> headers)
-        {
-            foreach (Param p in headers)
+            var rHeaders = header ?? new List<Param>();
+
+
+            if (content != null)
             {
-                request.AddHeader(p.Name, p.Value);
+                request.AddParameter("application/json", JsonConvert.SerializeObject(content), ParameterType.RequestBody);
+                request.AddHeader("content-type", "application/json");
             }
-            return await MakeRequest(request, parameters);
+
+            IRestResponse response = await HandleRequest(request, rParameters, rHeaders);
+
+            var typeOfT = typeof(T);
+
+            if (typeOfT == typeof(IRestResponse))
+            {
+                return (T)response;
+            }
+
+            return Convert<T>(response);
         }
 
-        internal async Task<IRestResponse> MakeRequest(IRestRequest request, List<Param> parameters)
+        internal async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null)
         {
-            foreach (Param para in parameters)
+            RestRequest request = new RestRequest(url, Convert(call));
+            return await HandleRequest(request, parameters, headers);
+        }
+
+        internal async Task<IRestResponse> HandleRequest(IRestRequest request, List <Param> parameters = null, List<Param> headers = null)
+        {
+            if (headers != null)
             {
-                request.AddParameter(para.Name, para.Value);
+                foreach (Param p in headers)
+                {
+                    request.AddHeader(p.Name, p.Value);
+                }
+            }
+
+            if (parameters != null)
+            {
+                foreach (Param para in parameters)
+                {
+                    request.AddParameter(para.Name, para.Value);
+                }
             }
 
             foreach (Param para in _standardParameter)
@@ -133,11 +128,11 @@ namespace ApiLibs
                 request.AddHeader(para.Name, para.Value);
             }
 
-            return await MakeRequest(request);
+            return await ExcecuteRequest(request);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
-        internal async Task<IRestResponse> MakeRequest(IRestRequest request)
+        internal async Task<IRestResponse> ExcecuteRequest(IRestRequest request)
         {
             Debug.Assert(Client != null, "Client != null");
             IRestResponse resp = await Client.ExecuteTaskAsync(request);

@@ -82,7 +82,7 @@ namespace ApiLibs.Todoist
         public async Task SyncAllItems()
         {
             List<Param> parameters = new List<Param> {new Param("resource_types", @"[""all""]")};
-            SyncObject syncobject = await MakeRequest<SyncObject>("sync", parameters);
+            SyncObject syncobject = await MakeRequest<SyncObject>("sync", parameters: parameters);
 
             SortSyncObject(syncobject);
 
@@ -115,7 +115,7 @@ namespace ApiLibs.Todoist
                 new Param("queries", s)
             };
 
-            List<RootObject> obj = await MakeRequest<List<RootObject>>("query", parameters);
+            List<RootObject> obj = await MakeRequest<List<RootObject>>("query", parameters: parameters);
 
             return obj[0] ?? new RootObject();
         }
@@ -149,7 +149,7 @@ namespace ApiLibs.Todoist
 
             //new Param("commands",@"[{""type"": ""item_complete"", ""uuid"": """ + DateTime.Now + @""", ""args"": {""project_id"": " + todo.project_id + @", ""ids"": [" + todo.id + "]}}]"));
 
-            await MakeRequest("sync", Call.GET, parameters);
+            await HandleRequest("sync", Call.GET, parameters);
         }
 
 //        public async Task<Item> AddTodo(string name, Project project, List<string> labels)
@@ -170,7 +170,7 @@ namespace ApiLibs.Todoist
         public async Task<Item> AddTodo(string name)
         {
             List<Param> parameters = new List<Param> {new Param("content", name)};
-            return await MakeRequest<Item>("add_item", parameters);
+            return await MakeRequest<Item>("add_item", parameters:parameters);
         }
 
         public async Task<Item> AddTodo(string name, Project project, List<Label> labels)
@@ -217,7 +217,7 @@ namespace ApiLibs.Todoist
             }
             try
             {
-                return await MakeRequest<Item>("add_item", parameters);
+                return await MakeRequest<Item>("add_item", parameters: parameters);
             }
             catch(RequestException e)
             {

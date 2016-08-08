@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ApiLibs.General;
 
 namespace ApiLibs.GitHub
 {
@@ -16,17 +17,16 @@ namespace ApiLibs.GitHub
         internal readonly string GitHub_clientID;
         internal readonly string GitHub_client_secret;
 
-        public GitHubService(IOAuth authenticator, Passwords pass) : this()
+        public GitHubService(string gitHub_access_token, string gitHub_clientID, string gitHub_client_secret): this()
         {
-            this._authenticator = authenticator;
-            GitHub_access_token = pass.GitHub_access_token;
-            GitHub_clientID = pass.GitHub_clientID;
-            GitHub_client_secret = pass.GitHub_client_secret;
+            GitHub_access_token = gitHub_access_token;
+            GitHub_clientID = gitHub_clientID;
+            GitHub_client_secret = gitHub_client_secret;
         }
 
         public GitHubService()
         {
-            SetUp("https://github.com/");
+            SetUp("https://api.github.com/");
         }
 
         public async Task Connect(Passwords password)
@@ -47,7 +47,8 @@ namespace ApiLibs.GitHub
                     new Param("code", key.Replace("code=", ""))
                 };
 
-                IRestResponse resp = await MakeRequest("login/oauth/access_token", Call.POST, parameters: parameters);
+                SetBaseUrl("https://github.com/");
+                IRestResponse resp = await HandleRequest("login/oauth/access_token", Call.POST, parameters: parameters);
 
                 Match m = Regex.Match(resp.Content, @"{""access_token"":""(\w+)""");
                 GitHub_access_token = m.Groups[1].ToString();
@@ -86,22 +87,22 @@ namespace ApiLibs.GitHub
 
         public async Task<List<Issue>> GetIssuesAndPRs(Repository repo)
         {
-            return await MakeRequest<List<Issue>>(repo.issues_url, new List<Param>());
+            return await MakeRequest<List<Issue>>(repo.issues_url);
         }
 
         public async Task<GitHubUser> GetUser(string username)
         {
-            return await MakeRequest<GitHubUser>("users/" + username, new List<Param>());
+            return await MakeRequest<GitHubUser>("users/" + username);
         }
 
         public async Task<List<Repository>> GetMyRepositories()
         {
-            return await MakeRequest<List<Repository>>("user/repos", new List<Param>());
+            return await MakeRequest<List<Repository>>("user/repos");
         }
 
         public async Task<Repository> GetRepository(string user, string repository)
         {
-            return await MakeRequest<Repository>("repos/" + user + "/" + repository, Call.GET);
+            return await MakeRequest<Repository>("repos/" + user + "/" + repository);
         }
 
         public async Task<Repository> GetRepository(string name)
@@ -142,7 +143,7 @@ namespace ApiLibs.GitHub
 
         public async Task<List<Release>> GetReleases(string owner, string repo)
         {
-            return (await MakeRequest<ReleaseRootobject>("repo/" + owner + "/" + repo + "/releases", Call.GET)).ReleaseList.ToList();
+            return (await MakeRequest<Release[]>("repos/" + owner + "/" + repo + "/releases")).ToList();
         }
 
         /// <summary>

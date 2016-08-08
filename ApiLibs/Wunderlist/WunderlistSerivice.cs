@@ -56,12 +56,12 @@ namespace ApiLibs.Wunderlist
 
         public async Task<List<WList>> GetLists()
         {
-            return await MakeRequest<List<WList>>("lists", new List<Param>());
+            return await MakeRequest<List<WList>>("lists");
         }
 
         public async Task<List<WTask>> GetTasks(int id)
         {
-            return await MakeRequest<List<WTask>>("tasks", new List<Param> {new Param("list_id", id.ToString())});
+            return await MakeRequest<List<WTask>>("tasks", parameters: new List <Param> {new Param("list_id", id.ToString())});
         }
 
         public async Task<WList> GetList(string listName)
@@ -84,7 +84,7 @@ namespace ApiLibs.Wunderlist
                 throw new ArgumentException("wTask.title was null");
             }
 
-            return await MakeRequest<WTask>("tasks", Call.POST, wTask);
+            return await MakeRequest<WTask>("tasks", Call.POST, content: wTask);
         }
 
         public async Task RemoveTask(WTask it)
@@ -96,7 +96,7 @@ namespace ApiLibs.Wunderlist
 
             try
             {
-                await MakeRequest("tasks/" + it.id, Call.DELETE, new List<Param>
+                await HandleRequest("tasks/" + it.id, Call.DELETE, new List<Param>
                 {
                     new Param("revision", it.revision.ToString())
                 });
@@ -109,7 +109,7 @@ namespace ApiLibs.Wunderlist
 
         public async Task<IEnumerable<WTask>> GetCompleted(string listName)
         {
-            return await MakeRequest<List<WTask>>("tasks", new List<Param>
+            return await MakeRequest<List<WTask>>("tasks", parameters: new List<Param>
             {
                 new Param("completed", "true"),
                 new Param("list_id", (await GetList(listName)).id.ToString())

@@ -47,7 +47,7 @@ namespace ApiLibs.Travis
 
         public async Task<BuildList> GetLatestBuilds(string repository)
         {
-            return await MakeRequest<BuildList>(repository, new List<Param>());
+            return await MakeRequest<BuildList>(repository);
         }
     }
 }

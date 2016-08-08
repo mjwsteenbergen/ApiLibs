@@ -45,7 +45,7 @@ namespace ApiLibs.Pocket
                 new Param("redirect_uri", "zeus://")
             };
 
-            IRestResponse resp = await MakeRequest("oauth/request.php", Call.POST, parameters);
+            IRestResponse resp = await HandleRequest("oauth/request.php", Call.POST, parameters: parameters);
             
             string code = resp.Content.Replace("code=", "");
 
@@ -57,7 +57,7 @@ namespace ApiLibs.Pocket
                 new Param("code", code)
             };
 
-            resp = await MakeRequest("oauth/authorize.php", Call.POST, parameters);
+            resp = await HandleRequest("oauth/authorize.php", Call.POST, parameters: parameters);
 
             var noAccessToken = resp.Content.Replace("access_token=", "");
             string accessToken = noAccessToken.Remove(30, resp.Content.Length - 13 - 30);
@@ -70,7 +70,7 @@ namespace ApiLibs.Pocket
             List<Param> parameters = new List<Param>();
             parameters.Add(new Param("url", url));
 
-            return (await MakeRequest<AddItemResponse>("add.php", parameters)).item;
+            return (await MakeRequest<AddItemResponse>("add.php", parameters: parameters)).item;
         }
 
         public async Task<ReadingList> GetReadingList(bool simple)
@@ -78,7 +78,7 @@ namespace ApiLibs.Pocket
             List<Param> parameters = new List<Param>();
             parameters.Add(new Param("detailType", simple ? "simple" : "complete"));
 
-            IRestResponse resp = await MakeRequest("get.php", Call.POST, parameters);
+            IRestResponse resp = await HandleRequest("get.php", Call.POST, parameters);
 
             var regexd = Regex.Replace(Regex.Replace(resp.Content, @"""\d+"":", "").Replace("\"list\":{", "\"list\":[").Replace("}},\"error\"", "}],\"error\""), "{{(([^{}]|{[^{}]+}|)+)}(([^{}]|{[^{}]+}|)+)}", "[{$1}$3]");
             return JsonConvert.DeserializeObject<ReadingList>(regexd);
@@ -101,7 +101,7 @@ namespace ApiLibs.Pocket
             {
                 new Param("actions", JsonConvert.SerializeObject(new List<PocketAction> {pa}))
             };
-            await MakeRequest("send.php", Call.GET, parameters);
+            await HandleRequest("send.php", parameters: parameters);
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]

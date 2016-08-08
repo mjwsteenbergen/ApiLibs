@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Windows.Media;
+//using System.Windows.Media;
 using Newtonsoft.Json;
 
 // ReSharper disable InconsistentNaming
@@ -31,10 +31,10 @@ namespace ApiLibs.Todoist
         public int uid { get; set; }
 
         public string colorHex => TodoistLabelColor.Convert(color);
-        public Brush brush
-        {
-            get { return (Brush)new BrushConverter().ConvertFrom(colorHex); }
-        }
+//        public Brush brush
+//        {
+//            get { return (Brush)new BrushConverter().ConvertFrom(colorHex); }
+//        }
     }
 
     public class LiveNotification
@@ -235,10 +235,10 @@ namespace ApiLibs.Todoist
         //Added by me
 
         public string colorHex => TodoistProjectColor.Convert(color);
-        public Brush brush
-        {
-            get { return (Brush)new BrushConverter().ConvertFrom(colorHex); }
-        }
+//        public Brush brush
+//        {
+//            get { return (Brush)new BrushConverter().ConvertFrom(colorHex); }
+//        }
 
         public List<Item> tasks = new List<Item>();
         public void AddItem(Item it)
