@@ -1,3 +1,4 @@
+
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -5,16 +6,15 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ApiLibs.Telegram;
 // ReSharper disable InconsistentNaming
 
-namespace ApiLibs
+namespace ApiLibs.General
 {
     public class Passwords
     {
-        public Passwords(IStorage storage)
+        public Passwords(string baseUrl)
         {
-            store = storage;
+            mem = new Memory(baseUrl);
         }
 
         internal string TodoistKey => GetPassword("TodoistKey");
@@ -41,27 +41,21 @@ namespace ApiLibs
         internal string WunderlistId => GetPassword("WunderlistId");
         internal string WunderlistSecret => GetPassword("WunderlistSecret");
 
-        internal readonly IStorage store;
+        internal Memory mem;
 
-        public async Task ReadPasswords()
+        public void ReadPasswords()
         {
             if(!allread)
             {
-                passwords = await ReadFile<Dictionary<string, string>>("pass");
+                passwords = mem.ReadFile<Dictionary<string, string>>("KeyFile.pass");
                 allread = true;
             }
         }
 
-        internal async Task<T> ReadFile<T>(string filename) where T:new()
+        internal T ReadFile<T>(string filename) where T:new()
         {
-            
-            if (store == null)
-            {
-                throw new NullReferenceException(
-                    "You have not declared an StorageClass please define it, or disable the storage by calling disable storage");
-            }
 
-            string readFile = await store.Read(filename);
+            string readFile = mem.ReadFile(filename);
 
             T res;
             if (readFile != "")
@@ -78,7 +72,7 @@ namespace ApiLibs
 
         internal void WriteFile(string v, object obj)
         {
-            store.Write(v, obj);
+            mem.WriteFile(v, obj);
         }
 
         internal void WritePasswords()
