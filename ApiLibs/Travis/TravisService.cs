@@ -23,6 +23,11 @@ namespace ApiLibs.Travis
         public TravisService(string travis_Token)
         {
             Travis_Token = travis_Token;
+            SetUp("https://api.travis-ci.org");
+            Client.UserAgent = "Travis";
+            AddStandardHeader(new Param("Accept", "application/vnd.travis-ci.2+json"));
+            AddStandardHeader(new Param("User-Agent", "Travis"));
+            AddStandardHeader(new Param("Authorization", "token" + Travis_Token));
         }
 
         public async Task<string> Connect(string GitHub_access_token)

@@ -20,19 +20,11 @@ namespace ApiLibs.Telegram
 
         public string Telegram_token;
 
-        public TelegramService(Passwords pass)
-        {
-            Telegram_token = pass.Telegram_token;
-        }
-
         public TelegramService(string token)
         {
             Telegram_token = token;
-        }
-
-        public void Connect()
-        {
             SetUp("https://api.telegram.org/bot" + Telegram_token);
+
         }
 
         //TODO

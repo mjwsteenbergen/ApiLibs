@@ -11,11 +11,29 @@ namespace ApiLibs.Wunderlist
         private readonly string WunderlistId;
         private readonly string WunderlistSecret;
 
-        public WunderlistService(string wunderlistId, string wunderlistSecret, string wunderlistToken)
+        /// <summary>
+        /// Use this constructor if you don't have a wunderlist token
+        /// </summary>
+        /// <param name="wunderlistId"></param>
+        /// <param name="wunderlistSecret"></param>
+        /// <param name="NoToken">Ignore this. Is so that we have 2 constructors</param>
+        public WunderlistService(string wunderlistId, string wunderlistSecret, bool NoToken)
         {
             WunderlistId = wunderlistId;
             WunderlistSecret = wunderlistSecret;
-            WunderlistToken = wunderlistToken;
+        }
+
+        /// <summary>
+        /// Use this constructor if you already have a wunderlist token
+        /// </summary>
+        /// <param name="wunderlistId"></param>
+        /// <param name="wunderlistToken"></param>
+        public WunderlistService(string wunderlistId, string wunderlistToken)
+        {
+            SetBaseUrl("https://a.wunderlist.com/api/v1/");
+
+            AddStandardHeader(new Param("X-Access-Token", WunderlistToken));
+            AddStandardHeader(new Param("X-Client-ID", WunderlistId));
         }
 
         public async Task<string> Connect(IOAuth _authenticator)

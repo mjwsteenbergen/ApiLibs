@@ -12,16 +12,28 @@ namespace ApiLibs.GitHub
 {
     public class GitHubService : Service
     {
-        private readonly IOAuth _authenticator;
         internal string GitHub_access_token;
         internal readonly string GitHub_clientID;
         internal readonly string GitHub_client_secret;
 
-        public GitHubService(string gitHub_access_token, string gitHub_clientID, string gitHub_client_secret): this()
+        /// <summary>
+        /// Use this constructor if you do not have an access token yet
+        /// </summary>
+        /// <param name="gitHub_clientID"></param>
+        /// <param name="gitHub_client_secret"></param>
+        public GitHubService(string gitHub_clientID, string gitHub_client_secret): this()
         {
-            GitHub_access_token = gitHub_access_token;
             GitHub_clientID = gitHub_clientID;
             GitHub_client_secret = gitHub_client_secret;
+        }
+
+        /// <summary>
+        /// Use this constructor if you have gotten an access token
+        /// </summary>
+        /// <param name="gitHub_access_token"></param>
+        public GitHubService(string gitHub_access_token) : this()
+        {
+            GitHub_access_token = gitHub_access_token;
         }
 
         public GitHubService()
@@ -29,7 +41,7 @@ namespace ApiLibs.GitHub
             SetUp("https://api.github.com/");
         }
 
-        public async Task<string> Connect()
+        public async Task<string> Connect(IOAuth _authenticator)
         {
             if(GitHub_access_token == null)
             {

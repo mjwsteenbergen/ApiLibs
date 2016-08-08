@@ -15,7 +15,21 @@ namespace ApiLibs.Pocket
         private string Pocket_access_token;
         private string PocketKey;
 
+        /// <summary>
+        /// Use this method if you do not have an access token yet.
+        /// Call Connect() to continue
+        /// </summary>
+        /// <param name="pocketKey"></param>
+        public PocketService(string pocketKey)
+        {
+            PocketKey = pocketKey;
+        }
 
+        /// <summary>
+        /// Call this constructor if you already have an access token
+        /// </summary>
+        /// <param name="pocket_access_token"></param>
+        /// <param name="pocketKey"></param>
         public PocketService(string pocket_access_token, string pocketKey)
         {
             Pocket_access_token = pocket_access_token;

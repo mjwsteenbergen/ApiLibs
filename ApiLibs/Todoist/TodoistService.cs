@@ -18,14 +18,15 @@ namespace ApiLibs.Todoist
         private string TodoistUserAgent;
         private string TodoistKey;
 
+        /// <summary>
+        /// Get an access token by going to https://todoist.com/Users/viewPrefs?page=account
+        /// </summary>
+        /// <param name="todoistKey"></param>
+        /// <param name="todoistUserAgent"></param>
         public TodoistService(string todoistKey, string todoistUserAgent)
         {
             TodoistKey = todoistKey;
             TodoistUserAgent = todoistUserAgent;
-        }
-
-        public void Connect()
-        {
             SetUp("https://todoist.com/API/v6/");
             AddStandardParameter(new Param("user-agent", TodoistUserAgent));
             AddStandardParameter(new Param("token", TodoistKey));

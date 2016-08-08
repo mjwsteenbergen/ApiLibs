@@ -40,7 +40,7 @@ namespace ApiLibs.Pocket
         public string has_video { get; set; }
         public string has_image { get; set; }
         public string word_count { get; set; }
-        public Tags tags { get; set; }
+        public Dictionary<string,Tag> tags { get; set; }
         public Author[] authors { get; set; }
         public Image image { get; set; }
         public Image1[] images { get; set; }
@@ -48,47 +48,7 @@ namespace ApiLibs.Pocket
         public bool isFavorite { get { return favorite == "1"; } }
     }
 
-    public class Tags
-    {
-        public Ifttt ifttt { get; set; }
-        public Update update { get; set; }
-        public Article article { get; set; }
-        public Reddit reddit { get; set; }
-        public Review review { get; set; }
-        public Video video { get; set; }
-    }
-
-    public class Ifttt
-    {
-        public string item_id { get; set; }
-        public string tag { get; set; }
-    }
-
-    public class Update
-    {
-        public string item_id { get; set; }
-        public string tag { get; set; }
-    }
-
-    public class Article
-    {
-        public string item_id { get; set; }
-        public string tag { get; set; }
-    }
-
-    public class Reddit
-    {
-        public string item_id { get; set; }
-        public string tag { get; set; }
-    }
-
-    public class Review
-    {
-        public string item_id { get; set; }
-        public string tag { get; set; }
-    }
-
-    public class Video
+    public class Tag
     {
         public string item_id { get; set; }
         public string tag { get; set; }
