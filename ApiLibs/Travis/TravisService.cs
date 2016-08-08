@@ -10,23 +10,19 @@ namespace ApiLibs.Travis
 {
     public class TravisService : Service
     {
-        private readonly IOAuth _authenticator;
         private string Travis_Token;
 
-        public TravisService(IOAuth authenticator, Passwords pass)
+        /// <summary>
+        /// WARNING: Only to be used when you don't have an access token and are about to call Connect.
+        /// </summary>
+        public TravisService()
         {
-            _authenticator = authenticator;
-            Travis_Token = pass.Travis_Token;
+
         }
 
-        public async Task Connect(IOAuth authenticator, Passwords pass)
+        public TravisService(string travis_Token)
         {
-            if (pass.GitHub_access_token == null)
-            {
-                GitHubService g_serv = new GitHubService(authenticator, pass);
-                await g_serv.Connect(pass);
-            }
-            pass.AddPassword("Travis_Token", await Connect(pass.GitHub_access_token));
+            Travis_Token = travis_Token;
         }
 
         public async Task<string> Connect(string GitHub_access_token)

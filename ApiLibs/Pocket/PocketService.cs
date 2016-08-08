@@ -14,22 +14,15 @@ namespace ApiLibs.Pocket
     {
         private string Pocket_access_token;
         private string PocketKey;
-        private string GeneralRedirectUrl;
 
 
-        public PocketService(Passwords pass)
+        public PocketService(string pocket_access_token, string pocketKey)
         {
-            Pocket_access_token = pass.Pocket_access_token;
-            PocketKey = pass.PocketKey;
-            GeneralRedirectUrl = pass.GeneralRedirectUrl;
+            Pocket_access_token = pocket_access_token;
+            PocketKey = pocketKey;
         }
 
-        public async Task Connect(IOAuth authenticator, Passwords pass)
-        {
-            pass.AddPassword("Pocket_access_token", await Connect(authenticator));
-        }
-
-        public async Task<string> Connect(IOAuth authenticator)
+        public async Task<string> Connect(IOAuth authenticator, string GeneralRedirectUrl)
         {
             SetUp("https://getpocket.com/v3/");
             if (Pocket_access_token != null)

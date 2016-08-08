@@ -7,26 +7,18 @@ namespace ApiLibs.Wunderlist
 {
     public class WunderlistService : Service
     {
-        private readonly IOAuth _authenticator;
         private string WunderlistToken;
         private readonly string WunderlistId;
         private readonly string WunderlistSecret;
 
-        public WunderlistService(IOAuth authenticator, Passwords pass)
+        public WunderlistService(string wunderlistId, string wunderlistSecret, string wunderlistToken)
         {
-            _authenticator = authenticator;
-            WunderlistId = pass.WunderlistId;
-            WunderlistSecret = pass.WunderlistSecret;
-            WunderlistToken = pass.WunderlistToken;
-
+            WunderlistId = wunderlistId;
+            WunderlistSecret = wunderlistSecret;
+            WunderlistToken = wunderlistToken;
         }
 
-        public async Task Connect(Passwords pass)
-        {
-            pass.AddPassword("WunderlistToken", await Connect());
-        }
-
-        public async Task<string> Connect()
+        public async Task<string> Connect(IOAuth _authenticator)
         {
             SetUp("https://www.wunderlist.com/oauth/access_token");
             if (WunderlistToken == null)

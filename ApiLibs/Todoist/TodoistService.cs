@@ -18,10 +18,10 @@ namespace ApiLibs.Todoist
         private string TodoistUserAgent;
         private string TodoistKey;
 
-        public TodoistService(Passwords pass)
+        public TodoistService(string todoistKey, string todoistUserAgent)
         {
-            TodoistKey = pass.TodoistKey;
-            TodoistUserAgent = pass.TodoistUserAgent;
+            TodoistKey = todoistKey;
+            TodoistUserAgent = todoistUserAgent;
         }
 
         public void Connect()

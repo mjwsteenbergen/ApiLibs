@@ -29,11 +29,6 @@ namespace ApiLibs.GitHub
             SetUp("https://api.github.com/");
         }
 
-        public async Task Connect(Passwords password)
-        {
-            password.AddPassword("GitHub_access_token", await Connect());
-        }
-
         public async Task<string> Connect()
         {
             if(GitHub_access_token == null)

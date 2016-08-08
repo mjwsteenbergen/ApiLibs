@@ -12,120 +12,44 @@ namespace ApiLibs.General
 {
     public class Passwords
     {
-        public Passwords(string baseUrl)
-        {
-            mem = new Memory(baseUrl);
-        }
+        public string TodoistKey { get; set; }
+        public string TodoistUserAgent { get; set; }
 
-        internal string TodoistKey => GetPassword("TodoistKey");
-        internal string TodoistUserAgent => GetPassword("TodoistUserAgent");
+        public string PocketKey { get; set; }
+        public string Pocket_access_token { get; set; }
 
-        internal string PocketKey => GetPassword("PocketKey");
-        internal string Pocket_access_token => GetPassword("Pocket_access_token");
+        public string Telegram_token { get; set; }
 
-        internal string Telegram_token => GetPassword("Telegram_token");
+        public string GitHub_clientID { get; set; }
+        public string GitHub_client_secret { get; set; }
+        public string GitHub_access_token { get; set; }
 
-        internal string GitHub_clientID => GetPassword("GitHub_clientID");
-        internal string GitHub_client_secret => GetPassword("GitHub_client_secret");
-        internal string GitHub_access_token => GetPassword("GitHub_access_token");
+        public string OutlookKey { get; set; }
+        public string OutlookID { get; set; }
 
-        internal readonly string OutlookKey = "";
-        internal readonly string OutlookID = "";
+        public string Travis_Token { get; set; }
 
-        internal string Travis_Token => GetPassword("Travis_Token");
+        public string OutlookEmailAdres { get; set; }
 
-        internal readonly string OutlookEmailAdres = "";
-
-        internal string GeneralRedirectUrl => GetPassword("GeneralRedirectUrl");
-        internal string WunderlistToken => GetPassword("WunderlistToken");
-        internal string WunderlistId => GetPassword("WunderlistId");
-        internal string WunderlistSecret => GetPassword("WunderlistSecret");
+        public string GeneralRedirectUrl { get; set; }
+        public string WunderlistToken { get; set; }
+        public string WunderlistId { get; set; }
+        public string WunderlistSecret { get; set; }
 
         internal Memory mem;
 
-        public void ReadPasswords()
+        public static Passwords ReadPasswords(string baseUrl)
         {
-            if(!allread)
-            {
-                passwords = mem.ReadFile<Dictionary<string, string>>("KeyFile.pass");
-                allread = true;
-            }
+            Memory mem = new Memory(baseUrl);
+            return mem.ReadFile<Passwords>("KeyFile.pass");
         }
 
-        internal T ReadFile<T>(string filename) where T:new()
-        {
-
-            string readFile = mem.ReadFile(filename);
-
-            T res;
-            if (readFile != "")
-            {
-                res = JsonConvert.DeserializeObject<T>(readFile);
-            }
-            else
-            {
-                res = new T();
-                WriteFile(filename, res);
-            }
-            return res;
-        }
-
-        internal void WriteFile(string v, object obj)
-        {
-            mem.WriteFile(v, obj);
-        }
-
-        internal void WritePasswords()
-        {
-            if (!allread)
-            {
-                throw new OperationCanceledException(
-                    "This is not allowed until the passwords have been read with ReadPasswords()");
-            }
-            if (passwords == null)
-            {
-                passwords = new Dictionary<string, string>();
-            }
-            WriteFile("pass", passwords);
-        }
-
-        public void AddPassword(string key, string value)
-        {
-            if (!allread)
-            {
-                throw new OperationCanceledException(
-                    "This is not allowed until the passwords have been read with ReadPasswords()");
-            }
-            if (!passwords.Keys.Contains(key))
-            {
-                passwords.Add(key, value);
-                WritePasswords();
-            }
-        }
-
-        private string GetPassword(string key)
-        {
-            if (!allread)
-            {
-                throw new OperationCanceledException(
-                    "This is not allowed until the passwords have been read with ReadPasswords()");
-            }
-            if (passwords.Keys.Contains(key))
-            {
-                return passwords[key];
-            }
-            return null;
-        }
-
-        private static bool allread = false;
-        private static Dictionary<string, string> passwords;
         
-    }
-
-    public interface IStorage
-    {
-        Task<T> Read<T>(string fileName);
-        Task<string> Read(string fileName);
-        void Write(string fileName, object obj);
+        public static void WritePasswords(Passwords pass, string baseUrl)
+        {
+            Memory mem = new Memory(baseUrl);
+            mem.WriteFile("KeyFile.pass", pass);
+        }
+        
     }
 }
