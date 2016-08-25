@@ -131,6 +131,11 @@ namespace ApiLibs.GitHub
         }
         public string labels_url { get; set; }
         public string releases_url { get; set; }
+
+        public override string ToString()
+        {
+            return "Repository:" + owner.login + "/" + name;
+        }
     }
 
     public class NotificationsObject
@@ -260,7 +265,7 @@ namespace ApiLibs.GitHub
         public int number { get; set; }
         public string title { get; set; }
         public string description { get; set; }
-        public Creator creator { get; set; }
+        public User creator { get; set; }
         public int open_issues { get; set; }
         public int closed_issues { get; set; }
         public string state { get; set; }
@@ -268,27 +273,6 @@ namespace ApiLibs.GitHub
         public DateTime updated_at { get; set; }
         public object due_on { get; set; }
         public object closed_at { get; set; }
-    }
-
-    public class Creator
-    {
-        public string login { get; set; }
-        public int id { get; set; }
-        public string avatar_url { get; set; }
-        public string gravatar_id { get; set; }
-        public string url { get; set; }
-        public string html_url { get; set; }
-        public string followers_url { get; set; }
-        public string following_url { get; set; }
-        public string gists_url { get; set; }
-        public string starred_url { get; set; }
-        public string subscriptions_url { get; set; }
-        public string organizations_url { get; set; }
-        public string repos_url { get; set; }
-        public string events_url { get; set; }
-        public string received_events_url { get; set; }
-        public string type { get; set; }
-        public bool site_admin { get; set; }
     }
 
     public class Label
@@ -335,36 +319,32 @@ namespace ApiLibs.GitHub
         public string target_commitish { get; set; }
         public string name { get; set; }
         public bool draft { get; set; }
-        public Author author { get; set; }
+        public User author { get; set; }
         public bool prerelease { get; set; }
         public DateTime created_at { get; set; }
         public DateTime published_at { get; set; }
-        public object[] assets { get; set; }
+        public Asset[] assets { get; set; }
         public string tarball_url { get; set; }
         public string zipball_url { get; set; }
         public string body { get; set; }
     }
 
-    public class Author
+    public class Asset
     {
-        public string login { get; set; }
-        public int id { get; set; }
-        public string avatar_url { get; set; }
-        public string gravatar_id { get; set; }
         public string url { get; set; }
-        public string html_url { get; set; }
-        public string followers_url { get; set; }
-        public string following_url { get; set; }
-        public string gists_url { get; set; }
-        public string starred_url { get; set; }
-        public string subscriptions_url { get; set; }
-        public string organizations_url { get; set; }
-        public string repos_url { get; set; }
-        public string events_url { get; set; }
-        public string received_events_url { get; set; }
-        public string type { get; set; }
-        public bool site_admin { get; set; }
+        public int id { get; set; }
+        public string name { get; set; }
+        public object label { get; set; }
+        public User uploader { get; set; }
+        public string content_type { get; set; }
+        public string state { get; set; }
+        public int size { get; set; }
+        public int download_count { get; set; }
+        public DateTime created_at { get; set; }
+        public DateTime updated_at { get; set; }
+        public string browser_download_url { get; set; }
     }
 
-
 }
+
+

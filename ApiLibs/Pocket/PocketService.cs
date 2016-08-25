@@ -80,10 +80,22 @@ namespace ApiLibs.Pocket
             return (await MakeRequest<AddItemResponse>("add.php", parameters: parameters)).item;
         }
 
-        public async Task<ReadingList> GetReadingList(bool simple)
+        public async Task<ReadingList> GetReadingList(ListState state = ListState.Unread, bool onlyFavorites = false, string tagname = "", ContentType content = ContentType.All, SortOn sort = SortOn.Newest, DetailType detail = DetailType.Simple)
         {
             List<Param> parameters = new List<Param>();
-            parameters.Add(new Param("detailType", simple ? "simple" : "complete"));
+            parameters.Add(new Param("state",state.ToString().ToLower()));
+            parameters.Add(new Param("favorite", onlyFavorites ? "1" : "0"));
+            if (tagname != "")
+            {
+                parameters.Add(new Param("tag", tagname));
+            }
+            if (content != ContentType.All)
+            {
+                parameters.Add(new Param("contentType", content.ToString().ToLower()));
+            }
+            parameters.Add(new Param("sort", sort.ToString().ToLower()));
+            parameters.Add(new Param("detailType", detail.ToString().ToLower()));
+
 
             IRestResponse resp = await HandleRequest("get.php", Call.POST, parameters);
 
@@ -124,6 +136,27 @@ namespace ApiLibs.Pocket
                 this.item_id = itemId;
                 this.time = DateTime.Now.ToFileTime().ToString();
             }
+        }
+
+        public enum ListState
+        {
+            
+            All, Unread, Archive
+        }
+
+        public enum DetailType
+        {
+            Simple, Complete
+        }
+
+        public enum ContentType
+        {
+            Article, Video, Image, All
+        }
+
+        public enum SortOn
+        {
+            Newest, Oldest, Title, Site
         }
     }
 }

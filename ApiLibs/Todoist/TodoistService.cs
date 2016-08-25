@@ -153,45 +153,13 @@ namespace ApiLibs.Todoist
             await HandleRequest("sync", Call.GET, parameters);
         }
 
-//        public async Task<Item> AddTodo(string name, Project project, List<string> labels)
-//        {
-//            
-//        }
-
-        public async Task<Item> AddTodo(string name, Project project)
-        {
-            return await AddTodo(name, project, new List<Label>());
-        }
-
-        public async Task<Item> AddTodo(string name, int id)
-        {
-            return await AddTodo(name, id, new List<Label>());
-        }
-
-        public async Task<Item> AddTodo(string name)
-        {
-            List<Param> parameters = new List<Param> {new Param("content", name)};
-            return await MakeRequest<Item>("add_item", parameters:parameters);
-        }
-
-        public async Task<Item> AddTodo(string name, Project project, List<Label> labels)
-        {
-            int id = project?.id ?? -1;
-            return await AddTodo(name, id, labels);
-        }
-
-        public async Task<Item> AddTodo(string name, int id, List<Label> labels)
-        {
-            return await AddTodo(name, id, labels, null);
-        }
-
-        public async Task<Item> AddTodo(string name, Project project, List<Label> labels, string date)
+        public async Task<Item> AddTodo(string name, Project project = null, List<Label> labels = null, string date =null)
         {
             int id = project?.id ?? -1;
             return await AddTodo(name, id, labels, date);
         }
 
-        public async Task<Item> AddTodo(string name, int id, List<Label> labels, string date)
+        public async Task<Item> AddTodo(string name, int id, List<Label> labels = null, string date = null)
         {
             List<Param> parameters = new List<Param>
             {
@@ -201,7 +169,7 @@ namespace ApiLibs.Todoist
             {
                 parameters.Add(new Param("project_id", id.ToString()));
             }
-            if (labels.Count != 0)
+            if (labels != null && labels.Count > 0)
             {
                 string labelParameter = "[";
                 foreach (Label label in labels)

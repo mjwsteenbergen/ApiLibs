@@ -34,6 +34,7 @@ namespace ApiLibs.GitHub
         public GitHubService(string gitHub_access_token) : this()
         {
             GitHub_access_token = gitHub_access_token;
+            AddStandardHeader(new Param("Authorization", "token " + GitHub_access_token));
         }
 
         public GitHubService()
@@ -41,26 +42,27 @@ namespace ApiLibs.GitHub
             SetUp("https://api.github.com/");
         }
 
-        public async Task<string> Connect(IOAuth _authenticator)
+        public void Connect(IOAuth _authenticator)
         {
-            if(GitHub_access_token == null)
+            var url = "https://github.com/login/oauth/authorize?redirect_uri=" + _authenticator.RedirectUrl() + "&client_id=" + GitHub_clientID + "&scope=repo,notifications,admin:org";
+            _authenticator.ActivateOAuth(new Uri(url));
+        }
+
+        public async Task<string> ConvertToToken(string returnValue)
+        {
+            
+            List<Param> parameters = new List<Param>
             {
-                var url = "https://github.com/login/oauth/authorize?redirect_uri=" + _authenticator.RedirectUrl() + "&client_id=" + GitHub_clientID + "&scope=repo,notifications";
-                string key = _authenticator.ActivateOAuth(new Uri(url));
-                List<Param> parameters = new List<Param>
-                {
-                    new Param("client_id", GitHub_clientID),
-                    new Param("client_secret", GitHub_client_secret),
-                    new Param("code", key.Replace("code=", ""))
-                };
+                new Param("client_id", GitHub_clientID),
+                new Param("client_secret", GitHub_client_secret),
+                new Param("code", returnValue.Replace("code=", ""))
+            };
 
-                SetBaseUrl("https://github.com/");
-                IRestResponse resp = await HandleRequest("login/oauth/access_token", Call.POST, parameters: parameters);
+            SetBaseUrl("https://github.com/");
+            IRestResponse resp = await HandleRequest("login/oauth/access_token", Call.POST, parameters: parameters);
 
-                Match m = Regex.Match(resp.Content, @"{""access_token"":""(\w+)""");
-                GitHub_access_token = m.Groups[1].ToString();
-            }
-
+            Match m = Regex.Match(resp.Content, @"{""access_token"":""(\w+)""");
+            GitHub_access_token = m.Groups[1].ToString();
             AddStandardHeader(new Param("Authorization", "token " + GitHub_access_token));
             SetBaseUrl("https://api.github.com/");
             return GitHub_access_token;
@@ -133,7 +135,9 @@ namespace ApiLibs.GitHub
 
         public async Task<List<NotificationsObject>> GetNotifications()
         {
-            return await MakeRequest<List<NotificationsObject>>("notifications", Call.GET);
+            //new Param("all","true") //TODO
+            var parameters = new List<Param> {  };
+            return await MakeRequest<List<NotificationsObject>>("notifications", parameters:parameters);
         }
 
         public async Task<Issue> CloseIssue(Issue it)
@@ -146,6 +150,17 @@ namespace ApiLibs.GitHub
         public async Task<Issue> ModifyIssue(string issueUrl, ModifyIssue it)
         {
             return await MakeRequest<Issue>(issueUrl, Call.PATCH, content: it);
+        }
+
+        /// <summary>
+        /// Returns the specific release
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <param name="repo"></param>
+        /// <param name="id"></param>
+        public async Task<Release> GetRelease(string owner, string repo, string id)
+        {
+            return await MakeRequest<Release>("repos/" + owner + "/" + repo + "/releases/tags/" + id);
         }
 
         public async Task<List<Release>> GetReleases(string owner, string repo)
@@ -179,6 +194,8 @@ namespace ApiLibs.GitHub
         {
             await MakeRequest<NotificationsObject>(notification.url, Call.PATCH, new List<Param>());
         }
+
+        
     }
 
     

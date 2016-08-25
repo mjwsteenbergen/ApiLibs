@@ -46,6 +46,20 @@ namespace ApiLibs.Pocket
         public Image1[] images { get; set; }
         public Video1[] videos { get; set; }
         public bool isFavorite { get { return favorite == "1"; } }
+        public ReadingStatus ReadingStatus { get {
+            switch (status)
+            {
+                    case "0": return ReadingStatus.Unread;
+                    case "1": return ReadingStatus.Read;
+                    case "2": return ReadingStatus.Deleted;
+                    default: throw new Exception("status should be 0, 1 or 2");
+            }
+        } }
+    }
+
+    public enum ReadingStatus
+    {
+        Unread, Read, Deleted
     }
 
     public class Tag

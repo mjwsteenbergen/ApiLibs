@@ -11,8 +11,6 @@ namespace ApiLibs
 {
     public abstract class Service
     {
-        //TODO convert POST to argument
-
         internal RestClient Client;
         private readonly List<Param> _standardParameter = new List<Param>();
         private readonly List<Param> _standardHeader = new List<Param>();
