@@ -39,7 +39,7 @@ namespace ApiLibs.General
         {
             string filePath = DirectoryPath + filename;
 
-            Match m = Regex.Match(filePath, @"((.+)\\)");
+            Match m = Regex.Match(filePath, @"((.+)" + Path.DirectorySeparatorChar + ")");
             if (!m.Success)
             {
                 throw new Exception("Well this is weird. Your directory does not contain a slash...");
