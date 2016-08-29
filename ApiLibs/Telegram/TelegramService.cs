@@ -34,33 +34,12 @@ namespace ApiLibs.Telegram
             await HandleRequest("/getMe", Call.POST, new List<Param>());
         }
 
-
-        public void SendMessage(int id, string message)
+        public async Task SendMessage(string username, string message, ParseMode mode = ParseMode.None, bool webPreview = true, int reply_to_message_id = -1)
         {
-            SendMessage(id, message, ParseMode.None, true, -1);
-        }
-
-        public void SendMessage(string username, string message)
-        {
-            SendMessage(username, message, ParseMode.None);
-        }
-
-        public void SendMessage(string username, string message, ParseMode mode)
-        {
-            SendMessage(username, message, mode, true);
-        }
-
-        public void SendMessage(string username, string message, ParseMode mode, bool webPreview)
-        {
-            SendMessage(username, message, mode, webPreview, -1);
-        }
-
-        public void SendMessage(string username, string message, ParseMode mode, bool webPreview, int reply_to_message_id)
-        {
-            SendMessage(ConvertFromUsernameToID(username), message, mode, webPreview, reply_to_message_id);
+            await SendMessage(ConvertFromUsernameToID(username), message, mode, webPreview, reply_to_message_id);
         }
         
-        public async void SendMessage(int id, string message, ParseMode mode, bool webPreview, int reply_to_message_id)
+        public async Task SendMessage(int id, string message, ParseMode mode = ParseMode.None, bool webPreview = true, int reply_to_message_id = -1)
         {
             List<Param> param = new List<Param>
             {
@@ -147,8 +126,12 @@ namespace ApiLibs.Telegram
         public async Task<List<Message>> GetMessages()
         {
             int updateId = mem.ReadFile<Result>("data/telegram/lastID").update_id;
-
-            TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", parameters: new List <Param> { new Param("offset",updateId.ToString()) });
+            List<Param> parameters = new List<Param>();
+            if (updateId != -1)
+            {
+                parameters.Add(new Param("offset", updateId.ToString()));
+            }
+            TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", parameters: parameters);
             foreach(Result message in messages.result)
             {
                 AddFrom(message.message.from);

@@ -33,6 +33,10 @@ namespace ApiLibs.GitHub
         /// <param name="gitHub_access_token"></param>
         public GitHubService(string gitHub_access_token) : this()
         {
+            if (gitHub_access_token == null)
+            {
+                throw new ArgumentNullException(nameof(gitHub_access_token));
+            }
             GitHub_access_token = gitHub_access_token;
             AddStandardHeader(new Param("Authorization", "token " + GitHub_access_token));
         }

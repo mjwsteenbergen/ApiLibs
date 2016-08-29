@@ -112,7 +112,7 @@ namespace ApiLibs.Telegram
     {
         public Result()
         {
-            update_id = -Int32.MaxValue;
+            update_id = -1;
         }
 
         public int update_id { get; set; }
