@@ -20,11 +20,12 @@ namespace ApiLibs.Telegram
 
         public string Telegram_token;
 
-        public TelegramService(string token)
+        public TelegramService(string token, string applicationDirectory)
         {
             Telegram_token = token;
             SetUp("https://api.telegram.org/bot" + Telegram_token);
-
+            mem = new Memory(applicationDirectory);
+            ReadStoredUsernames();
         }
 
         //TODO
@@ -145,7 +146,7 @@ namespace ApiLibs.Telegram
 
         public async Task<List<Message>> GetMessages()
         {
-            int updateId = (mem.ReadFile<Result>("data/telegram/lastID")).update_id;
+            int updateId = mem.ReadFile<Result>("data/telegram/lastID").update_id;
 
             TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", parameters: new List <Param> { new Param("offset",updateId.ToString()) });
             foreach(Result message in messages.result)
@@ -188,7 +189,7 @@ namespace ApiLibs.Telegram
             mem.WriteFile("data/telegram/usernames", contacts);
         }
 
-        private async void ReadStoredUsernames()
+        private void ReadStoredUsernames()
         {
             contacts = mem.ReadFile<List<From>>("data/telegram/usernames");
         }

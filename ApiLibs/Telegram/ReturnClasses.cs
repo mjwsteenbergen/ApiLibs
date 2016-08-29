@@ -110,6 +110,11 @@ namespace ApiLibs.Telegram
 
     public class Result
     {
+        public Result()
+        {
+            update_id = -Int32.MaxValue;
+        }
+
         public int update_id { get; set; }
         public Message message { get; set; }
     }
