@@ -51,6 +51,7 @@
     <Compile Include="General\IOAuth.cs" />
     <Compile Include="General\Memory.cs" />
     <Compile Include="General\MessageArgs.cs" />
+    <Compile Include="General\ObjectSearcher.cs" />
     <Compile Include="GitHub\GitHubService.cs" />
     <Compile Include="GitHub\ReturnClasses.cs" />
     <Compile Include="General\Param.cs" />

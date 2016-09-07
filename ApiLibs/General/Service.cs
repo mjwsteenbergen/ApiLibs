@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
+using ApiLibs.General;
 using Newtonsoft.Json;
 using RestSharp;
 using RestSharp.Authenticators;
@@ -82,13 +83,6 @@ namespace ApiLibs
 
             IRestResponse response = await HandleRequest(request, rParameters, rHeaders);
 
-            var typeOfT = typeof(T);
-
-            if (typeOfT == typeof(IRestResponse))
-            {
-                return (T)response;
-            }
-
             return Convert<T>(response);
         }
 
@@ -165,7 +159,13 @@ namespace ApiLibs
 
         internal T Convert<T>(string text)
         {
-            return JsonConvert.DeserializeObject<T>(text);
+            T returnObj = JsonConvert.DeserializeObject<T>(text);
+            if (returnObj is ObjectSearcher)
+            {
+                //Enable better OOP
+                (returnObj as ObjectSearcher).Search(this);
+            }
+            return returnObj;
         }
 
         private Method Convert(Call m)
