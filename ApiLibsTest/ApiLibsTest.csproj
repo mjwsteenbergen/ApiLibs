@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="9292\9292test.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="NS\NSServiceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,7 +70,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+    <ProjectReference Include="..\ApiLibs\ApiLibs.csproj">
+      <Project>{752662FE-4ADF-4AE2-818A-E464B4ABE5BA}</Project>
+      <Name>ApiLibs</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

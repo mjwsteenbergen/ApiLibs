@@ -48,6 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="9292\9292.cs" />
+    <Compile Include="9292\ReturnClasses.cs" />
     <Compile Include="General\IOAuth.cs" />
     <Compile Include="General\Memory.cs" />
     <Compile Include="General\MessageArgs.cs" />

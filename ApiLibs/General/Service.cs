@@ -26,6 +26,11 @@ namespace ApiLibs
             _standardParameter.Add(p);
         }
 
+        internal void AddStandardParameter(string name, string value)
+        {
+            AddStandardParameter(new Param(name, value));
+        }
+
         internal void AddStandardHeader(Param p)
         {
             _standardHeader.Add(p);
