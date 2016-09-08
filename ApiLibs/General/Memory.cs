@@ -63,7 +63,10 @@ namespace ApiLibs.General
             FileStream stream = File.Create(DirectoryPath + v);
             using (StreamWriter writer = new StreamWriter(stream))
             {
-                writer.WriteLine(JsonConvert.SerializeObject(obj, Formatting.Indented));
+                string toWrite;
+                var s = obj as string;
+                toWrite = s ?? JsonConvert.SerializeObject(obj, Formatting.Indented);
+                writer.WriteLine(toWrite);
                 writer.Close();
             }
             stream.Close();
