@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
@@ -34,12 +35,12 @@ namespace ApiLibs.Telegram
             await HandleRequest("/getMe", Call.POST, new List<Param>());
         }
 
-        public async Task SendMessage(string username, string message, ParseMode mode = ParseMode.None, bool webPreview = true, int reply_to_message_id = -1)
+        public async Task SendMessage(string username, string message, ParseMode mode = ParseMode.None, bool webPreview = true, int replyToMessageId = -1)
         {
-            await SendMessage(ConvertFromUsernameToID(username), message, mode, webPreview, reply_to_message_id);
+            await SendMessage(ConvertFromUsernameToID(username), message, mode, webPreview, replyToMessageId);
         }
         
-        public async Task SendMessage(int id, string message, ParseMode mode = ParseMode.None, bool webPreview = true, int reply_to_message_id = -1)
+        public async Task SendMessage(int id, string message, ParseMode mode = ParseMode.None, bool webPreview = true, int replyToMessageId = -1, object replyMarkup = null)
         {
             List<Param> param = new List<Param>
             {
@@ -57,12 +58,16 @@ namespace ApiLibs.Telegram
                     break;
             }
 
-            if (reply_to_message_id != -1)
+            if (replyToMessageId != -1)
             {
-                param.Add(new Param("reply_to_message_id", reply_to_message_id.ToString()));
+                param.Add(new Param("reply_to_message_id", replyToMessageId.ToString()));
+            }
+            if (replyMarkup != null)
+            {
+                param.Add(new Param("reply_markup", JsonConvert.SerializeObject(replyMarkup)));
             }
 
-            await HandleRequest("/sendMessage", Call.GET, param);
+            Message m = await MakeRequest<Message>("/sendMessage", Call.GET, param);
         }
 
         public int ConvertFromUsernameToID(string userid)
@@ -95,9 +100,9 @@ namespace ApiLibs.Telegram
 
         private async Task<List<Message>> WaitForNextMessage()
         {
-            int updateId = (mem.ReadFile<Result>("data/telegram/lastID")).update_id;
+            int updateId = (mem.ReadFile<Result>("data/telegram/lastID")).update_id + 1;
 
-            TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", parameters: new List <Param> { new Param("timeout", "100"), new Param("offset", updateId.ToString()) });
+            TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", parameters: new List <Param> { new Param("timeout", "10000"), new Param("offset", updateId.ToString()) });
             foreach (Result message in messages.result)
             {
                 AddFrom(message.message.from);
@@ -108,7 +113,7 @@ namespace ApiLibs.Telegram
             messages.result.Reverse();
             foreach (Result message in messages.result)
             {
-                if (message.update_id == updateId)
+                if (message.update_id == updateId - 1)
                 {
                     break;
                 }
@@ -178,6 +183,23 @@ namespace ApiLibs.Telegram
         }
 
         
+    }
+
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    public class ReplyKeyboardMarkup
+    {
+        public KeyboardButton[][] keyboard { get; set; }
+        public bool resize_keyboard { get; set; }
+        public bool one_time_keyboard { get; set; }
+        public bool selective { get; set; }
+    }
+
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    public class KeyboardButton
+    {
+        public string text { get; set; }
+        public bool request_contact { get; set; }
+        public bool request_location { get; set; }
     }
 
     public enum ParseMode

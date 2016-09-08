@@ -54,6 +54,9 @@ namespace ApiLibs.Telegram
         public int file_size { get; set; }
     }
 
+    /// <summary>
+    /// The contact that is shared with the bot
+    /// </summary>
     public class Contact
     {
         public string phone_number { get; set; }
