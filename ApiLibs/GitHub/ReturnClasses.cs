@@ -150,6 +150,9 @@ namespace ApiLibs.GitHub
         private string _url;
         public string url { get { return _url.Replace("https://api.github.com/", ""); } set { _url = value; } }
         public string subscription_url { get; set; }
+
+        //Created by me
+        public DateTime updated_at_dt => DateTime.Parse(updated_at);
     }
 
 
