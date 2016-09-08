@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using ApiLibs.General;
 
 // ReSharper disable InconsistentNaming
 
 namespace ApiLibs.GitHub
 {
-    public class Subject
+    public class Subject : ObjectSearcher
     {
         public string title { get; set; }
         public string url { get; set; }
@@ -138,7 +140,7 @@ namespace ApiLibs.GitHub
         }
     }
 
-    public class NotificationsObject
+    public class NotificationsObject : ObjectSearcher
     {
         public string id { get; set; }
         public bool unread { get; set; }
@@ -161,7 +163,7 @@ namespace ApiLibs.GitHub
         public Issue[] Property1 { get; set; }
     }
 
-    public class Issue
+    public class Issue : ObjectSearcher
     {
         private string notUrl;
         public string url { get { return notUrl.Replace("https://api.github.com/", ""); } set { notUrl = value; } }
@@ -184,6 +186,13 @@ namespace ApiLibs.GitHub
         public object closed_at { get; set; }
         public string body { get; set; }
         public Pull_Request pull_request { get; set; }
+
+        //OOP calls
+
+        public async Task<Issue> Modify(ModifyIssue it)
+        {
+            return await (service as GitHubService).ModifyIssue(url, it);
+        }
 
         //Added by me
 
