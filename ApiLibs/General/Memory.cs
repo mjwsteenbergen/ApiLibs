@@ -46,30 +46,21 @@ namespace ApiLibs.General
                 Directory.CreateDirectory(FileDirectoryPath);
             }
 
-            FileStream stream = File.Open(filePath, FileMode.OpenOrCreate);
+            FileStream stream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Read);
             string text;
             using (StreamReader reader = new StreamReader(stream))
             {
                 text = reader.ReadToEnd();
-                stream.Close();
                 reader.Close();
             }
-
+            stream.Close();
             return text;
         }
 
         public void WriteFile(string v, object obj)
         {
-            FileStream stream = File.Create(DirectoryPath + v);
-            using (StreamWriter writer = new StreamWriter(stream))
-            {
-                string toWrite;
-                var s = obj as string;
-                toWrite = s ?? JsonConvert.SerializeObject(obj, Formatting.Indented);
-                writer.WriteLine(toWrite);
-                writer.Close();
-            }
-            stream.Close();
+            var s = obj as string;
+            File.WriteAllText(DirectoryPath + v, s ?? JsonConvert.SerializeObject(obj, Formatting.Indented));
         }
     }
 }
