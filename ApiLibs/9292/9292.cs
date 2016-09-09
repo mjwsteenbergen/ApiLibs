@@ -63,6 +63,11 @@ namespace ApiLibs._9292
             parameters.Add(new Param("dateTime", minuteTimeString.Replace(":", "")));
             await HandleRequest("journeys", parameters: parameters);
         }
+
+        public async Task<List<Location>>  GetLocation(string searchQuery)
+        {
+            return (await MakeRequest<LocationRoot>("locations", parameters: new List<Param> {new Param("q", searchQuery)})).locations.ToList();
+        }
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

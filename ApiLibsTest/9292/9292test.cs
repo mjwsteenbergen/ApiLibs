@@ -32,5 +32,11 @@ namespace ApiLibsTest._9292
         {
             await serv.GetJourney("station-delft", "station-leiden-centraal", byTrain: true);
         }
+
+        [Test]
+        public async Task GetLocations()
+        {
+            Assert.NotNull((await serv.GetLocation("schiphol"))[0].name);
+        }
     }
 }

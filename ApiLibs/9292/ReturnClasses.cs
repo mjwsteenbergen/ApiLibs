@@ -126,7 +126,7 @@ namespace ApiLibs._9292
         public Urls urls { get; set; }
     }
 
-    
+
     public class Fare
     {
         public string _class { get; set; }
@@ -134,7 +134,7 @@ namespace ApiLibs._9292
         public int eurocents { get; set; }
     }
 
-    
+
 
     public class Mode
     {
@@ -167,7 +167,17 @@ namespace ApiLibs._9292
         public Place place { get; set; }
         public Latlong latLong { get; set; }
         public Urls urls { get; set; }
+        public string regionCode { get; set; }
+        public string regionName { get; set; }
+        public bool showRegion { get; set; }
+        public string countryCode { get; set; }
+        public string countryName { get; set; }
+        public bool showCountry { get; set; }
+        public string poiType { get; set; }
     }
 
-    
+    public class LocationRoot
+    {
+        public Location[] locations { get; set; }
+    }
 }
