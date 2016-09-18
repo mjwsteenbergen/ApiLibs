@@ -199,7 +199,16 @@ namespace ApiLibs.GitHub
             await MakeRequest<NotificationsObject>(notification.url, Call.PATCH, new List<Param>());
         }
 
-        
+
+        public async Task<List<Event>> GetEvents(string owner, string repo, int issueNumber)
+        {
+            return await MakeRequest<List<Event>>("/repos/" + owner + "/" + repo + "/issues/" + issueNumber + "/events");
+        }
+
+        public async Task<Issue> GetIssue(string user, string repo, int issueNumber)
+        {
+            return await MakeRequest<Issue>("/repos/" + user + "/" + repo + "/issues/" + issueNumber);
+        }
     }
 
     
