@@ -167,6 +167,11 @@ namespace ApiLibs.GitHub
             return await MakeRequest<Release>("repos/" + owner + "/" + repo + "/releases/tags/" + id);
         }
 
+        public async Task<Release> GetRelease(string owner, string repo, int id)
+        {
+            return await MakeRequest<Release>("repos/" + owner + "/" + repo + "/releases/" + id);
+        }
+
         public async Task<List<Release>> GetReleases(string owner, string repo)
         {
             return (await MakeRequest<Release[]>("repos/" + owner + "/" + repo + "/releases")).ToList();
