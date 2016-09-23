@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ApiLibs.General;
+using ApiLibs.Telegram;
 
 // ReSharper disable InconsistentNaming
 
@@ -152,6 +154,60 @@ namespace ApiLibs.GitHub
         private string _url;
         public string url { get { return _url.Replace("https://api.github.com/", ""); } set { _url = value; } }
         public string subscription_url { get; set; }
+
+        //Objects
+
+        public async Task<Issue> GetIssue()
+        {
+            Match match;
+            if (subject.type == "Issue")
+            {
+               match = Regex.Match(subject.url, "https:\\/\\/api.github.com\\/repos\\/([^//]+)\\/([^//]+)\\/issues\\/(\\d+)");
+            }
+            else if (subject.type == "PullRequest")
+            {
+                match = Regex.Match(subject.url, "https:\\/\\/api.github.com\\/repos\\/([^//]+)\\/([^//]+)\\/pulls\\/(\\d+)");
+            }
+            else
+            {
+                throw new ArgumentException("This should be an issue or pull request");
+            }
+            return await (service as GitHubService).GetIssue(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
+
+        }
+
+        public async Task<Release> GetRelease()
+        {
+            if (subject.type != "Release")
+            {
+                throw new ArgumentException("This should be an release");
+            }
+            Match match = Regex.Match(subject.url, "https:\\/\\/api.github.com\\/repos\\/([^//]+)\\/([^//]+)\\/releases\\/(\\d+)");
+            return await (service as GitHubService).GetRelease(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
+        }
+
+        public async Task<List<Event>> GetEvents()
+        {
+            Match match;
+            if (subject.type == "Issue")
+            {
+                match = Regex.Match(subject.url, "https:\\/\\/api.github.com\\/repos\\/([^//]+)\\/([^//]+)\\/issues\\/(\\d+)");
+            }
+            else if (subject.type == "PullRequest")
+            {
+                match = Regex.Match(subject.url, "https:\\/\\/api.github.com\\/repos\\/([^//]+)\\/([^//]+)\\/pulls\\/(\\d+)");
+            }
+            else if (subject.type == "Release")
+            {
+                match = Regex.Match(subject.url, "https:\\/\\/api.github.com\\/repos\\/([^//]+)\\/([^//]+)\\/releases\\/(\\d+)");
+            }
+            else
+            {
+                throw new ArgumentException("Unrecognized subject type");
+            }
+            return await (service as GitHubService).GetEvents(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
+
+        }
 
         //Created by me
         public DateTime updated_at_dt => DateTime.Parse(updated_at);
