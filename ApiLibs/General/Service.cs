@@ -144,7 +144,19 @@ namespace ApiLibs
 
                     throw resp.ErrorException;
                 }
-                throw new RequestException(resp.ResponseUri.ToString(), resp.StatusCode, resp.Content);
+                RequestException e = new RequestException(resp.ResponseUri.ToString(), resp.StatusCode, resp.Content);
+                switch (resp.StatusCode)
+                {
+                        case HttpStatusCode.NotFound:
+                            throw new PageNotFoundException(e);
+                        case HttpStatusCode.Unauthorized:
+                            throw new UnAuthorizedException(e);
+                        case HttpStatusCode.BadRequest:
+                            throw new BadRequestException(e);
+                        default:
+                            throw e;
+
+                }
 
 
 
@@ -201,10 +213,22 @@ namespace ApiLibs
 
 public class NoInternetException : InvalidOperationException
 {
-    public NoInternetException(Exception inner) : base(inner.Message, inner)
-    {
-        
-    }
+    public NoInternetException(Exception inner) : base(inner.Message, inner) { }
+}
+
+public class PageNotFoundException : InvalidOperationException
+{
+    public PageNotFoundException(Exception inner) : base(inner.Message, inner) { }
+}
+
+public class UnAuthorizedException : InvalidOperationException
+{
+    public UnAuthorizedException(Exception inner) : base(inner.Message, inner) { }
+}
+
+public class BadRequestException : InvalidOperationException
+{
+    public BadRequestException(Exception inner) : base(inner.Message, inner) { }
 }
 
 public class RequestException : InvalidOperationException
