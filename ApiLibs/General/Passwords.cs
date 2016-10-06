@@ -24,12 +24,13 @@ namespace ApiLibs.General
         public string GitHub_client_secret { get; set; }
         public string GitHub_access_token { get; set; }
 
-        public string OutlookKey { get; set; }
-        public string OutlookID { get; set; }
-
         public string Travis_Token { get; set; }
 
-        public string OutlookEmailAdres { get; set; }
+        public string OutlookClientSecret { get; set; }
+        public string OutlookClientID { get; set; }
+        public string OutlookAccessToken { get; set; }
+        public string OutlookEmail { get; set; }
+        public string OutlookRefreshToken { get; set; }
 
         public string GeneralRedirectUrl { get; set; }
         public string WunderlistToken { get; set; }
