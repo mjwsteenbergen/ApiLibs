@@ -88,9 +88,10 @@ namespace ApiLibs.Outlook
             return obj;
         }
 
-        public async Task<List<Message>> GetFlaggedEmail()
+        public async Task<List<Message>> GetFlaggedEmail(OData data)
         {
-            MessageRoot root = (await MakeRequest<MessageRoot>("me/messages?$filter=Flag/FlagStatus eq 'Flagged'"));
+            data.Filter = "Flag/FlagStatus eq 'Flagged'";
+            MessageRoot root = (await MakeRequest<MessageRoot>("me/messages" + data.ConvertToUrl()));
             root.value.ToList().ForEach(message => message.service = root.service);
             return root.value.ToList();
         }
@@ -155,5 +156,38 @@ namespace ApiLibs.Outlook
     {
         public string[] Categories;
         public bool IsRead;
+    }
+
+    public class OData
+    {
+        public string Filter;
+        public string Select;
+        public int Top = -1;
+
+
+        public string ConvertToUrl()
+        {
+            string res = "";
+            string convToken = "?";
+            string switchToken = "&";
+
+            if (Filter != null)
+            {
+                res += convToken + "$filter=" + Filter;
+                convToken = switchToken;
+            }
+            if (Select != null)
+            {
+                res += convToken + "$select=" + Select;
+                convToken = switchToken;
+            }
+            if (Top != -1)
+            {
+                res += convToken + "$top=" + Top;
+                convToken = switchToken;
+            }
+
+            return res;
+        }
     }
 }
