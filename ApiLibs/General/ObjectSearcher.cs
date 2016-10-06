@@ -27,6 +27,18 @@ namespace ApiLibs.General
                     ObjectSearcher objectSearcher = item.GetValue(this) as ObjectSearcher;
                     objectSearcher.Search(inputService);
                 }
+
+                if (item.PropertyType.IsArray)
+                {
+                    Array a = (Array) item.GetValue(this);
+                    foreach (object o in a)
+                    {
+                        if (o.GetType().BaseType == typeof(ObjectSearcher))
+                        {
+                            (o as ObjectSearcher)?.Search(inputService);
+                        }
+                    }
+                }
             }
         }
     }
