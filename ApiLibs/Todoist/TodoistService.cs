@@ -88,6 +88,7 @@ namespace ApiLibs.Todoist
             SortSyncObject(syncobject);
 
             CachedItems = syncobject.Items;
+            CachedItems.ForEach(item => item.service = syncobject.service);
             CachedProjects = syncobject.Projects;
             CachedLabels = syncobject.Labels;
             CachedNotes = syncobject.Notes;

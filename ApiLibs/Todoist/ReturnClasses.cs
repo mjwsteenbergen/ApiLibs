@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using ApiLibs.General;
 //using System.Windows.Media;
 using Newtonsoft.Json;
 
@@ -97,7 +99,7 @@ namespace ApiLibs.Todoist
     }
 
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-    public class Item
+    public class Item : ObjectSearcher
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
         public string due_date { get; set; }
@@ -139,6 +141,10 @@ namespace ApiLibs.Todoist
 
         public List<Label> labelList = new List<Label>();
 
+        public async Task complete()
+        {
+            await (service as TodoistService).MarkTodoAsDone(this);
+        }
     }
 
     public class TempIdMapping
@@ -160,7 +166,7 @@ namespace ApiLibs.Todoist
 
 
 
-    public class SyncObject
+    public class SyncObject : ObjectSearcher
     {
         public long seq_no_global { get; set; }
         public List<object> CollaboratorStates { get; set; }
