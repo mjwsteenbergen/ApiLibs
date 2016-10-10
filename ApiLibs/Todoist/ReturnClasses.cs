@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ApiLibs.General;
 //using System.Windows.Media;
@@ -172,20 +173,21 @@ namespace ApiLibs.Todoist
         public List<object> CollaboratorStates { get; set; }
         public List<object> ProjectNotes { get; set; }
         public string DayOrdersTimestamp { get; set; }
-        public List<Note> Notes { get; set; }
-        public List<Label> Labels { get; set; }
+        public Note[] Notes { get; set; }
+        public Label[] Labels { get; set; }
         public int UserId { get; set; }
         public List<object> Locations { get; set; }
         public List<object> Collaborators { get; set; }
-        public List<LiveNotification> LiveNotifications { get; set; }
-        public long seq_no { get; set; }
+        public LiveNotification[] LiveNotifications { get; set; }
         public User User { get; set; }
-        public List<Filter> Filters { get; set; }
-        public List<Item> Items { get; set; }
+        public Filter[] Filters { get; set; }
+        public Item[] Items { get; set; }
         public TempIdMapping TempIdMapping { get; set; }
-        public List<Reminder> Reminders { get; set; }
-        public List<Project> Projects { get; set; }
+        public Reminder[] Reminders { get; set; }
+        public Project[] Projects { get; set; }
         public long LiveNotificationsLastRead { get; set; }
+        public string sync_token { get; set; }
+        public bool full_sync { get; set; }
 
 
         //Added by me
@@ -217,7 +219,9 @@ namespace ApiLibs.Todoist
 
         public void SortProjects()
         {
-            Projects.Sort((p1, p2) => p1.item_order.CompareTo(p2.item_order));
+            List<Project> projects = Projects.ToList();
+            projects.Sort((p1, p2) => p1.item_order.CompareTo(p2.item_order));
+            Projects = projects.ToArray();
         }
     }
 

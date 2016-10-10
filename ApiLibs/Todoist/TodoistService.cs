@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
+using ApiLibs.General;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -10,13 +12,7 @@ namespace ApiLibs.Todoist
 {
     public class TodoistService : Service
     {
-        public List<Note> CachedNotes { get; private set; }
-        public List<Project> CachedProjects { get; private set; }
-        public List<Item> CachedItems { get; private set; }
-        public List<Label> CachedLabels { get; private set; }
-
-        private string TodoistUserAgent;
-        private string TodoistKey;
+        private readonly SyncObject _syncObject = new SyncObject();
 
         /// <summary>
         /// Get an access token by going to https://todoist.com/Users/viewPrefs?page=account
@@ -25,52 +21,42 @@ namespace ApiLibs.Todoist
         /// <param name="todoistUserAgent"></param>
         public TodoistService(string todoistKey, string todoistUserAgent)
         {
-            TodoistKey = todoistKey;
-            TodoistUserAgent = todoistUserAgent;
-            SetUp("https://todoist.com/API/v6/");
-            AddStandardParameter(new Param("user-agent", TodoistUserAgent));
-            AddStandardParameter(new Param("token", TodoistKey));
-            AddStandardParameter(new Param("seq_no", "0"));
-            AddStandardParameter(new Param("seq_no_global", "0"));
+            SetUp("https://todoist.com/API/v7/");
+            AddStandardParameter(new Param("user-agent", todoistUserAgent));
+            AddStandardParameter(new Param("token", todoistKey));
+            AddStandardParameter(new Param("sync_token", "*"));
         }
 
-        public async Task<List<Project>> GetProjects(bool cached)
+        public async Task<List<Project>> GetProjects()
         {
-
-            if (cached && CachedProjects != null)
-            {
-                return CachedProjects;
-            }
-            else
-            {
-                await SyncAllItems();
-                return CachedProjects;
-            }
+            List<Param> parameters = new List<Param> { new Param("resource_types", @"[""projects""]") };
+            SyncObject syncobject = await MakeRequest<SyncObject>("sync", parameters: parameters);
+            UpdateParameterIfExists(new Param("sync_token", syncobject.sync_token));
+            this._syncObject.Projects = Merger.Merge(_syncObject.Projects, syncobject.Projects);
+            return _syncObject.Projects.ToList();
         }
 
-        public async Task<List<Item>> GetItems(bool cached)
+        public async Task<List<Label>> GetLabels()
         {
-            if (cached && CachedItems != null)
-            {
-                return CachedItems;
-            }
-            await SyncAllItems();
-            return CachedItems;
+            List<Param> parameters = new List<Param> { new Param("resource_types", @"[""labels""]") };
+            SyncObject syncobject = await MakeRequest<SyncObject>("sync", parameters: parameters);
+            UpdateParameterIfExists(new Param("sync_token", syncobject.sync_token));
+            this._syncObject.Labels = Merger.Merge(_syncObject.Labels, syncobject.Labels);
+            return _syncObject.Labels.ToList();
         }
 
-        public async Task<List<Label>> GetLabels(bool cached)
+        public async Task<List<Item>> GetItems()
         {
-            if (cached && CachedLabels != null)
-            {
-                return CachedLabels;
-            }
-            await SyncAllItems();
-            return CachedLabels;
+            List<Param> parameters = new List<Param> { new Param("resource_types", @"[""items""]") };
+            SyncObject syncobject = await MakeRequest<SyncObject>("sync", parameters: parameters);
+            UpdateParameterIfExists(new Param("sync_token", syncobject.sync_token));
+            this._syncObject.Items = Merger.Merge(_syncObject.Items, syncobject.Items);
+            return _syncObject.Items.ToList();
         }
 
         public async Task<Label> GetLabel(string name)
         {
-            foreach (Label label in await GetLabels(false))
+            foreach (Label label in await GetLabels())
             {
                 if (label.name == name)
                 {
@@ -80,27 +66,11 @@ namespace ApiLibs.Todoist
             throw new KeyNotFoundException("Label: " + name + " was not found. Try something else");
         }
 
-        public async Task SyncAllItems()
-        {
-            List<Param> parameters = new List<Param> {new Param("resource_types", @"[""all""]")};
-            SyncObject syncobject = await MakeRequest<SyncObject>("sync", parameters: parameters);
-
-            SortSyncObject(syncobject);
-
-            CachedItems = syncobject.Items;
-            CachedItems.ForEach(item => item.service = syncobject.service);
-            CachedProjects = syncobject.Projects;
-            CachedLabels = syncobject.Labels;
-            CachedNotes = syncobject.Notes;
-        }
+        
 
         public async Task<Project> GetProject(string projectName)
         {
-            if (CachedProjects == null)
-            {
-                await SyncAllItems();
-            }
-            foreach (Project p in CachedProjects)
+            foreach (Project p in await GetProjects())
             {
                 if (p.name == projectName)
                 {
