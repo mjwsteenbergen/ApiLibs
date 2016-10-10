@@ -22,6 +22,10 @@ namespace ApiLibs.General
 
             foreach (var item in GetType().GetProperties())
             {
+                if (item.GetValue(this) == null)
+                {
+                    continue;
+                }
                 if (item.GetMethod.ReturnType.BaseType == typeof(ObjectSearcher))
                 {
                     ObjectSearcher objectSearcher = item.GetValue(this) as ObjectSearcher;
