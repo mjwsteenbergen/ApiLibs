@@ -16,7 +16,9 @@ namespace ApiLibs.Telegram
         private List<From> contacts;
 
         public event MessageHandler MessageRecieved;
+
         public delegate void MessageHandler(Message m, EventArgs e);
+
         public Memory mem;
 
         public string Telegram_token;
@@ -35,12 +37,14 @@ namespace ApiLibs.Telegram
             await HandleRequest("/getMe", Call.POST, new List<Param>());
         }
 
-        public async Task SendMessage(string username, string message, ParseMode mode = ParseMode.None, bool webPreview = true, int replyToMessageId = -1)
+        public async Task SendMessage(string username, string message, ParseMode mode = ParseMode.None,
+            bool webPreview = true, int replyToMessageId = -1)
         {
             await SendMessage(ConvertFromUsernameToID(username), message, mode, webPreview, replyToMessageId);
         }
-        
-        public async Task SendMessage(int id, string message, ParseMode mode = ParseMode.None, bool webPreview = true, int replyToMessageId = -1, object replyMarkup = null)
+
+        public async Task SendMessage(int id, string message, ParseMode mode = ParseMode.None, bool webPreview = true,
+            int replyToMessageId = -1, object replyMarkup = null)
         {
             List<Param> param = new List<Param>
             {
@@ -51,7 +55,7 @@ namespace ApiLibs.Telegram
             switch (mode)
             {
                 case ParseMode.HTML:
-                    param.Add(new Param("parse_mode","HTML"));
+                    param.Add(new Param("parse_mode", "HTML"));
                     break;
                 case ParseMode.Markdown:
                     param.Add(new Param("parse_mode", "Markdown"));
@@ -72,9 +76,9 @@ namespace ApiLibs.Telegram
 
         public int ConvertFromUsernameToID(string userid)
         {
-            foreach(From contact in contacts)
+            foreach (From contact in contacts)
             {
-                if(contact.username == userid)
+                if (contact.username == userid)
                 {
                     return contact.id;
                 }
@@ -86,13 +90,27 @@ namespace ApiLibs.Telegram
         {
             Thread t = new Thread(async () =>
             {
-                while (true)
+                try
                 {
-                    List<Message> mList = await WaitForNextMessage();
-                    foreach (Message m in mList)
+                    while (true)
                     {
-                        MessageRecieved.Invoke(m, EventArgs.Empty);
+                        try
+                        {
+                            List<Message> mList = await WaitForNextMessage();
+                            foreach (Message m in mList)
+                            {
+                                MessageRecieved?.Invoke(m, EventArgs.Empty);
+                            }
+                        }
+                        catch (NoInternetException)
+                        {
+                            Thread.Sleep(TimeSpan.FromMinutes(1));
+                        }
                     }
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception.Message + " " + exception.StackTrace);
                 }
             });
             t.Start();

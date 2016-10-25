@@ -139,24 +139,32 @@ namespace ApiLibs
                 {
                     if (resp.ErrorException is System.Net.WebException)
                     {
+
                         throw new NoInternetException(resp.ErrorException);
                     }
 
                     throw resp.ErrorException;
                 }
+                Exception toThrow;
                 RequestException e = new RequestException(resp.ResponseUri.ToString(), resp.StatusCode, resp.Content);
                 switch (resp.StatusCode)
                 {
                         case HttpStatusCode.NotFound:
-                            throw new PageNotFoundException(e);
+                            toThrow = new PageNotFoundException(e);
+                            break;
                         case HttpStatusCode.Unauthorized:
-                            throw new UnAuthorizedException(e);
+                            toThrow = new UnAuthorizedException(e);
+                            break;
                         case HttpStatusCode.BadRequest:
-                            throw new BadRequestException(e);
+                            toThrow = new BadRequestException(e);
+                            break;
                         default:
-                            throw e;
+                            toThrow = e;
+                        break;
 
                 }
+                Console.WriteLine(toThrow.Message + "\n" + toThrow.StackTrace + "\n" + e.StatusCode);
+                throw toThrow;
 
 
 
