@@ -88,11 +88,19 @@ namespace ApiLibs.Telegram
             {
                 while (true)
                 {
-                    List<Message> mList = await WaitForNextMessage();
-                    foreach (Message m in mList)
+                    try
                     {
-                        MessageRecieved.Invoke(m, EventArgs.Empty);
+                        List<Message> mList = await WaitForNextMessage();
+                        foreach (Message m in mList)
+                        {
+                            MessageRecieved.Invoke(m, EventArgs.Empty);
+                        }
                     }
+                    catch (NoInternetException e)
+                    {
+                        Thread.Sleep(TimeSpan.FromMinutes(2));
+                    }
+                    
                 }
             });
             t.Start();
@@ -105,7 +113,7 @@ namespace ApiLibs.Telegram
             TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", parameters: new List <Param> { new Param("timeout", "10000"), new Param("offset", updateId.ToString()) });
             foreach (Result message in messages.result)
             {
-                AddFrom(message.message.from);
+                AddFrom(message?.message?.from);
             }
 
             List<Message> result = new List<Message>();
@@ -165,6 +173,10 @@ namespace ApiLibs.Telegram
 
         private void AddFrom(From from)
         {
+            if (from == null)
+            {
+                return;
+            }
             if (!contacts.Contains(from))
             {
                 contacts.Add(from);
