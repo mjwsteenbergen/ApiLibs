@@ -20,7 +20,7 @@ namespace ApiLibs._9292
             return await MakeRequest<Status>("status");
         }
 
-        public async Task GetJourney(string from, string to, int before = 0, int after = 0, int sequence = 1, bool byBus = false, bool byFerry = false, bool bySubway = false, bool byTram = false, bool byTrain = false, DateTime time = default(DateTime), SearchType searchType = SearchType.departure)
+        public async Task<JourneyObject> GetJourney(string from, string to, int before = 0, int after = 0, int sequence = 1, bool byBus = false, bool byFerry = false, bool bySubway = false, bool byTram = false, bool byTrain = false, DateTime time = default(DateTime), SearchType searchType = SearchType.departure)
         {
             List<Param> parameters = new List<Param>
             {
@@ -61,7 +61,7 @@ namespace ApiLibs._9292
             string timeString = time.ToString("s");
             string minuteTimeString = timeString.Remove(timeString.Length - 3);
             parameters.Add(new Param("dateTime", minuteTimeString.Replace(":", "")));
-            await HandleRequest("journeys", parameters: parameters);
+            return await MakeRequest<JourneyObject>("journeys", parameters: parameters);
         }
 
         public async Task<List<Location>>  GetLocation(string searchQuery)

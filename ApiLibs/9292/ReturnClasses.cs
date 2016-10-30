@@ -5,12 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ApiLibs._9292
-{
-    class ReturnClasses
-    {
-    }
-
-
+{ 
     public class Status
     {
         public Daterange dateRange { get; set; }
@@ -26,7 +21,7 @@ namespace ApiLibs._9292
     }
 
 
-    public class Rootobject
+    public class JourneyObject
     {
         public Journey[] journeys { get; set; }
         public string earlier { get; set; }
@@ -41,8 +36,8 @@ namespace ApiLibs._9292
         public string id { get; set; }
         public object[] ludMessages { get; set; }
         public object fasterJourneyId { get; set; }
-        public string departure { get; set; }
-        public string arrival { get; set; }
+        public DateTime departure { get; set; }
+        public DateTime arrival { get; set; }
         public int numberOfChanges { get; set; }
         public Leg1[] legs { get; set; }
         public Fareinfo fareInfo { get; set; }
@@ -150,8 +145,8 @@ namespace ApiLibs._9292
 
     public class Stop
     {
-        public string arrival { get; set; }
-        public string departure { get; set; }
+        public DateTime? arrival { get; set; }
+        public DateTime? departure { get; set; }
         public string platform { get; set; }
         public Location location { get; set; }
         public object fallbackName { get; set; }
