@@ -37,15 +37,17 @@ namespace ApiLibs.Telegram
             await HandleRequest("/getMe", Call.POST, new List<Param>());
         }
 
-        public async Task SendMessage(string username, string message, ParseMode mode = ParseMode.None,
-            bool webPreview = true, int replyToMessageId = -1)
+        public async Task SendMessage(string username, string message, ParseMode mode = ParseMode.None, bool webPreview = true, int replyToMessageId = -1)
         {
             await SendMessage(ConvertFromUsernameToID(username), message, mode, webPreview, replyToMessageId);
         }
 
-        public async Task SendMessage(int id, string message, ParseMode mode = ParseMode.None, bool webPreview = true,
-            int replyToMessageId = -1, object replyMarkup = null)
+        public async Task SendMessage(int id, string message, ParseMode mode = ParseMode.None, bool webPreview = true, int replyToMessageId = -1, object replyMarkup = null)
         {
+            if (message.Length > 4096)
+            {
+                message = message.Substring(4090);
+            }
             List<Param> param = new List<Param>
             {
                 new Param("chat_id", id.ToString()),

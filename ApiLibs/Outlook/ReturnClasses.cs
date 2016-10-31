@@ -65,6 +65,11 @@ namespace ApiLibs.Outlook
             await (service as OutlookService).SetFlagged(this, status);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="read">True means that the maessage will be marked as read</param>
+        /// <returns></returns>
         public async Task SetRead(bool read)
         {
             await (service as OutlookService).SetRead(this, read);
@@ -165,9 +170,9 @@ namespace ApiLibs.Outlook
         public int TotalItemCount { get; set; }
         public object WellKnownName { get; set; }
 
-        public async Task<List<Message>> GetMessages()
+        public async Task<List<Message>> GetMessages(OData odata)
         {
-            return await (service as OutlookService).GetMessages(this);
+            return await (service as OutlookService).GetMessages(this, odata);
         }
     }
 

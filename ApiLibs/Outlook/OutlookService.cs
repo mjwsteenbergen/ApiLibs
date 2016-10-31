@@ -121,9 +121,9 @@ namespace ApiLibs.Outlook
             return await MakeRequest<Message>("me/messages/" + id, Call.PATCH, content: new MessageChange { IsRead = read, Categories = new string[0] });
         }
 
-        public async Task<List<Folder>> GetFolders()
+        public async Task<List<Folder>> GetFolders(OData oData)
         {
-            var returns =  (await MakeRequest<FolderRoot>("me/MailFolders/")).value.ToList();
+            var returns =  (await MakeRequest<FolderRoot>("me/MailFolders" + oData.ConvertToUrl())).value.ToList();
             return returns;
         }
 
@@ -141,9 +141,9 @@ namespace ApiLibs.Outlook
             
         }
 
-        public async Task<List<Message>> GetMessages(Folder folder)
+        public async Task<List<Message>> GetMessages(Folder folder, OData data)
         {
-            return (await MakeRequest<MessageRoot>("me/MailFolders/" + folder.Id + "/messages")).value.ToList();
+            return (await MakeRequest<MessageRoot>("me/MailFolders/" + folder.Id + "/messages" + data.ConvertToUrl())).value.ToList();
         }
     }
 
@@ -188,6 +188,19 @@ namespace ApiLibs.Outlook
             }
 
             return res;
+        }
+
+        public OData AddUnreadSelector(bool isRead)
+        {
+            string s = "IsRead eq " + isRead.ToString().ToLower();
+            Filter = Filter == null ? s : Filter + " " + s;
+            return this;
+        }
+
+        public OData GetMaxItems()
+        {
+            Top = 50;
+            return this;
         }
     }
 }
