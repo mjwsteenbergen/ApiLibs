@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ApiLibs.Instapaper
 {
-    class InstapaperService : Service
+    public class InstapaperService : Service
     {
         private string AcessToken { get; set; }
 
@@ -62,9 +64,14 @@ namespace ApiLibs.Instapaper
             await HandleRequest("/bookmarks/add", parameters: param);
         }
 
-        public async void DeleteBookmark(int bookmarkId)
+        public async Task DeleteBookmark(int bookmarkId)
         {
             await HandleRequest("/bookmarks/delete", parameters: new List<Param> {new Param("bookmark_id", bookmarkId.ToString())});
+        }
+
+        public Task DeleteBookmark(Bookmark bm)
+        {
+            await DeleteBookmark(bm.bookmark_id)
         }
 
         public async void StarBookmark(int bookmarkId)
@@ -96,19 +103,32 @@ namespace ApiLibs.Instapaper
             });
         }
 
-        public async void GetFolders()
+        public async Task GetFolders()
         {
             await HandleRequest("/folders/list");
         }
 
-        public async void AddFolder(string title)
+        public async Task AddFolder(string title)
         {
             await HandleRequest("/folders/add", parameters: new List<Param> {new Param("title", title)});
         }
 
-        public async void Delete(int folderId)
+        public async Task DeleteFolder(int folderId)
         {
             await HandleRequest("/folders/delete", parameters: new List<Param> {new Param("folder_id", folderId.ToString())});
+        }
+
+        public async Task<Folder> GetFolder(string foldername)
+        {
+            await GetFolders();
+            foreach (var folder in new List<Folder>())
+            {
+                if (folder.name == foldername)
+                {
+                    return folder;
+                }
+            }
+            throw new KeyNotFoundException("Your folder could not be found");
         }
     }
 }

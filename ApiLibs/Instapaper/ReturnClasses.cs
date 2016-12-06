@@ -16,4 +16,10 @@ namespace ApiLibs.Instapaper
         public string description { get; set; }
     }
 
+    public class Folder
+    {
+        public string name { get; set; }
+        public int folder_id { get; set; }
+    }
+
 }
