@@ -57,6 +57,8 @@
     <Compile Include="GitHub\ReturnClasses.cs" />
     <Compile Include="General\Param.cs" />
     <Compile Include="General\Passwords.cs" />
+    <Compile Include="Instapaper\InstapaperService.cs" />
+    <Compile Include="Instapaper\ReturnClasses.cs" />
     <Compile Include="Outlook\OutlookService.cs" />
     <Compile Include="Outlook\ReturnClasses.cs" />
     <Compile Include="Pocket\PocketService.cs" />

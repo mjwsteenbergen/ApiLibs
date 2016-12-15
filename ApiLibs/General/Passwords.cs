@@ -12,25 +12,29 @@ namespace ApiLibs.General
 {
     public class Passwords
     {
-        public string TodoistKey { get; set; }
-        public string TodoistUserAgent { get; set; }
-
-        public string PocketKey { get; set; }
-        public string Pocket_access_token { get; set; }
-
-        public string Telegram_token { get; set; }
 
         public string GitHub_clientID { get; set; }
         public string GitHub_client_secret { get; set; }
         public string GitHub_access_token { get; set; }
 
-        public string Travis_Token { get; set; }
+        public string Instaper_ID { get; set; }
+        public string Instaper_secret { get; set; }
 
         public string OutlookClientSecret { get; set; }
         public string OutlookClientID { get; set; }
         public string OutlookAccessToken { get; set; }
         public string OutlookEmail { get; set; }
         public string OutlookRefreshToken { get; set; }
+
+        public string PocketKey { get; set; }
+        public string Pocket_access_token { get; set; }
+
+        public string Telegram_token { get; set; }
+
+        public string TodoistKey { get; set; }
+        public string TodoistUserAgent { get; set; }
+
+        public string Travis_Token { get; set; }
 
         public string GeneralRedirectUrl { get; set; }
         public string WunderlistToken { get; set; }
