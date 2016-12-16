@@ -41,7 +41,7 @@ namespace ApiLibs.Instapaper
             client.Authenticator = OAuth1Authenticator.ForAccessToken(clientId, clientSecret, token, tokenSecret);
         }
 
-        public async void GetBookmarks(int limit = 25, int folderId = -1)
+        public async Task<List<Bookmark>> GetBookmarks(int limit = 25, int folderId = -1)
         {
             List<Param> param = new List<Param>();
             if (limit != 25)
@@ -52,10 +52,17 @@ namespace ApiLibs.Instapaper
             {
                 param.Add(new Param("folder_id", folderId.ToString()));
             }
-            await HandleRequest("bookmarks/list", parameters: param);
+            List<Bookmark> bookmarks = await MakeRequest<List<Bookmark>>("bookmarks/list", parameters: param);
+            bookmarks.RemoveRange(0,2);
+            return bookmarks;
         }
 
-        public async Task<ReturnBookmark> AddBookmark(string url, string title = "", string description = "", int folderId = -1,
+        public async Task<List<Bookmark>> GetBookmarks(int limit, Folder folder)
+        {
+            return await GetBookmarks(limit, folder.folder_id);
+        }
+
+        public async Task<Bookmark> AddBookmark(string url, string title = "", string description = "", int folderId = -1,
             string finalUrl = "")
         {
             List<Param> param = new List<Param> { new Param("url", url)};
@@ -79,7 +86,7 @@ namespace ApiLibs.Instapaper
                 param.Add(new Param("final_url", finalUrl));
             }
 
-            return (await MakeRequest<List<ReturnBookmark>>("bookmarks/add", parameters: param))[0];
+            return (await MakeRequest<List<Bookmark>>("bookmarks/add", parameters: param))[0];
         }
 
         public async Task DeleteBookmark(int bookmarkId)
@@ -138,8 +145,8 @@ namespace ApiLibs.Instapaper
 
         public async Task<Folder> GetFolder(string foldername)
         {
-            await GetFolders();
-            foreach (var folder in new List<Folder>())
+            List<Folder> folders = await GetFolders();
+            foreach (var folder in folders)
             {
                 if (folder.title == foldername)
                 {

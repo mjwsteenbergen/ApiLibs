@@ -6,19 +6,9 @@ using System.Threading.Tasks;
 
 namespace ApiLibs.Instapaper
 {
-
     public class Bookmark
     {
         public string type { get; set; }
-        public int bookmark_id { get; set; }
-        public string url { get; set; }
-        public string title { get; set; }
-        public string description { get; set; }
-    }
-
-
-    public class ReturnBookmark
-    {
         public string hash { get; set; }
         public string description { get; set; }
         public int bookmark_id { get; set; }
@@ -26,10 +16,9 @@ namespace ApiLibs.Instapaper
         public string title { get; set; }
         public string url { get; set; }
         public int progress_timestamp { get; set; }
-        public float time { get; set; }
+        public int time { get; set; }
         public float progress { get; set; }
         public string starred { get; set; }
-        public string type { get; set; }
     }
 
 
