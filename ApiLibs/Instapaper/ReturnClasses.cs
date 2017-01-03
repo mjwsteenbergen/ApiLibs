@@ -16,7 +16,7 @@ namespace ApiLibs.Instapaper
         public string title { get; set; }
         public string url { get; set; }
         public int progress_timestamp { get; set; }
-        public int time { get; set; }
+        public double time { get; set; }
         public float progress { get; set; }
         public string starred { get; set; }
     }
