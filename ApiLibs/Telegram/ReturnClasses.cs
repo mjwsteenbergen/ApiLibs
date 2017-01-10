@@ -85,6 +85,7 @@ namespace ApiLibs.Telegram
     public class Message
     {
         public int message_id { get; set; }
+        public string id { get; set; }
         public From from { get; set; }
         public Chat chat { get; set; }
         public int date { get; set; }
@@ -96,6 +97,8 @@ namespace ApiLibs.Telegram
         public Document document { get; set; }
         public Contact contact { get; set; }
         public Sticker sticker { get; set; }
+        public string query { get; set; }
+        public bool isMessage => text != null;
 
         public override string ToString()
         {
@@ -120,11 +123,26 @@ namespace ApiLibs.Telegram
 
         public int update_id { get; set; }
         public Message message { get; set; }
+        public Message inline_query { get; set; }
+
     }
 
     public class TelegramMessageObject
     {
         public bool ok { get; set; }
         public List<Result> result { get; set; }
+    }
+
+    public class InlineQueryResultArticle
+    {
+        public string type { get; set; }
+        public string id { get; set; }
+        public string title { get; set; }
+        public InputTextMessageContent input_message_content { get; set; }
+    }
+
+    public class InputTextMessageContent
+    {
+        public string message_text { get; set; }
     }
 }

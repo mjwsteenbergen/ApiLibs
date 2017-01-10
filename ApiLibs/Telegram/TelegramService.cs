@@ -76,6 +76,11 @@ namespace ApiLibs.Telegram
             Message m = await MakeRequest<Message>("/sendMessage", Call.GET, param);
         }
 
+        public async Task answerInlineQuery(string inline_query_id, List<InlineQueryResultArticle> results)
+        {
+            await HandleRequest("answerInlineQuery", parameters: new List<Param>() { new Param("inline_query_id", inline_query_id), new Param("results", JsonConvert.SerializeObject(results))});
+        }
+
         public int ConvertFromUsernameToID(string userid)
         {
             foreach (From contact in contacts)
@@ -125,7 +130,7 @@ namespace ApiLibs.Telegram
             TelegramMessageObject messages = await MakeRequest<TelegramMessageObject>("/getUpdates", parameters: new List <Param> { new Param("timeout", "10000"), new Param("offset", updateId.ToString()) });
             foreach (Result message in messages.result)
             {
-                AddFrom(message.message.from);
+                AddFrom(message.message?.from ?? message.inline_query.from);
             }
 
             List<Message> result = new List<Message>();
@@ -137,7 +142,7 @@ namespace ApiLibs.Telegram
                 {
                     break;
                 }
-                result.Add(message.message);
+                result.Add(message.message ?? message.inline_query);
             }
 
             if (result.Count != 0)
