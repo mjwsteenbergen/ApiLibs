@@ -31,6 +31,11 @@ namespace ApiLibs
             _standardHeader.Add(p);
         }
 
+        internal void AddStandardHeader(string name, string content)
+        {
+            AddStandardHeader(new Param(name, content));
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
         internal void UpdateParameterIfExists(Param p)
         {
