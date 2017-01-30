@@ -151,7 +151,7 @@ namespace ApiLibs
                     throw resp.ErrorException;
                 }
                 Exception toThrow;
-                RequestException e = new RequestException(resp.ResponseUri.ToString(), resp.StatusCode, resp.Content);
+                RequestException e = new RequestException(resp, resp.ResponseUri.ToString(), resp.StatusCode, resp.Content);
                 switch (resp.StatusCode)
                 {
                         case HttpStatusCode.NotFound:
@@ -249,13 +249,16 @@ public class RequestException : InvalidOperationException
     public readonly string ResponseUri;
     public readonly HttpStatusCode StatusCode;
     public readonly string Content;
+    public IRestResponse Response { get; set; }
 
-    public RequestException(string responseUri, HttpStatusCode statusCode, string content) : base("A problem occured while trying to access " + responseUri + ". Statuscode: " + statusCode + "\n" + content)
+    public RequestException(IRestResponse response, string responseUri, HttpStatusCode statusCode, string content) : base("A problem occured while trying to access " + responseUri + ". Statuscode: " + statusCode + "\n" + content)
     {
+        Response = response;
         ResponseUri = responseUri;
         StatusCode = statusCode;
         Content = content;
     }
+
 }
 
 enum Call

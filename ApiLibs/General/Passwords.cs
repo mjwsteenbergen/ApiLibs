@@ -29,6 +29,11 @@ namespace ApiLibs.General
         public string PocketKey { get; set; }
         public string Pocket_access_token { get; set; }
 
+        public string RedditClient { get; set; }
+        public string RedditSecret { get; set; }
+        public string RedditToken { get; set; }
+
+
         public string Telegram_token { get; set; }
 
         public string TodoistKey { get; set; }
