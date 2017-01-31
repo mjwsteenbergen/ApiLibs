@@ -36,6 +36,11 @@ namespace ApiLibs
             AddStandardHeader(new Param(name, content));
         }
 
+        internal void RemoveStandardHeader(string name)
+        {
+            _standardHeader.RemoveAll(p => p.Name == name);
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
         internal void UpdateParameterIfExists(Param p)
         {
@@ -45,7 +50,6 @@ namespace ApiLibs
                 {
                     Console.WriteLine(para.Name + " was: " + para.Value + " is: " + p.Value);
                     para.Value = p.Value;
-                    
                 }
             }
         }
@@ -72,13 +76,14 @@ namespace ApiLibs
 
         internal async Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null)
         {
-            var request = new RestRequest(url, Convert(m));
+            IRestResponse response = await HandleRequest(url, m , parameters, header, content);
 
+            return Convert<T>(response);
+        }
 
-            var rParameters = parameters ?? new List<Param>();
-
-            var rHeaders = header ?? new List<Param>();
-
+        internal virtual async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null)
+        {
+            RestRequest request = new RestRequest(url, Convert(call));
 
             if (content != null)
             {
@@ -86,14 +91,6 @@ namespace ApiLibs
                 request.AddHeader("content-type", "application/json");
             }
 
-            IRestResponse response = await HandleRequest(request, rParameters, rHeaders);
-
-            return Convert<T>(response);
-        }
-
-        internal async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null)
-        {
-            RestRequest request = new RestRequest(url, Convert(call));
             return await HandleRequest(request, parameters, headers);
         }
 
