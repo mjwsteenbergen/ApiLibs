@@ -32,7 +32,7 @@ namespace ApiLibs.General
         public string RedditClient { get; set; }
         public string RedditSecret { get; set; }
         public string RedditToken { get; set; }
-
+        public string RedditRefreshToken { get; set; }
 
         public string Telegram_token { get; set; }
 
@@ -47,6 +47,11 @@ namespace ApiLibs.General
         public string WunderlistSecret { get; set; }
 
         internal Memory mem;
+
+        public void WriteToFile(string baseUrl)
+        {
+            WritePasswords(this, baseUrl);
+        }
 
         public static Passwords ReadPasswords(string baseUrl)
         {
