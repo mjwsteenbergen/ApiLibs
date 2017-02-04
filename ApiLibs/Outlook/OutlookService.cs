@@ -67,25 +67,43 @@ namespace ApiLibs.Outlook
             return token;
         }
 
-        public async Task<AccessTokenObject> RenewToken()
+        public async Task<AccessTokenObject> RefreshToken()
         {
             SetBaseUrl("https://login.microsoftonline.com/common/oauth2/v2.0/");
+            RemoveStandardHeader("Authorization");
 
-            List<Param> parameters = new List<Param>();
-            parameters.Add(new Param("client_id", _outlookClientId));
-            parameters.Add(new Param("client_secret", _outlookClientSecret));
-            parameters.Add(new Param("refresh_token", _refreshToken));
-            parameters.Add(new Param("redirect_uri", "https://www.microsoft.com"));
-            parameters.Add(new Param("grant_type", "refresh_token"));
 
-            AccessTokenObject obj = await MakeRequest<AccessTokenObject>("token", Call.POST, parameters);
+            List<Param> parameters = new List<Param>
+            {
+                new Param("client_id", _outlookClientId),
+                new Param("client_secret", _outlookClientSecret),
+                new Param("refresh_token", _refreshToken),
+                new Param("redirect_uri", "https://www.microsoft.com"),
+                new Param("grant_type", "refresh_token")
+            };
 
-            _refreshToken = obj.refresh_token;
-            UpdateHeaderIfExists(new Param("Authorization", "Bearer " + obj.access_token));
+            AccessTokenObject accessToken = await MakeRequest<AccessTokenObject>("token", Call.POST, parameters);
+
+            _refreshToken = accessToken.refresh_token;
+            AddStandardHeader(new Param("Authorization", "Bearer " + accessToken.access_token));
 
             SetBaseUrl(basePath);
 
-            return obj;
+            return accessToken;
+        }
+
+        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null)
+        {
+            try
+            {
+                return await base.HandleRequest(url, call, parameters, headers);
+            }
+            catch (UnAuthorizedException e)
+            {
+                await RefreshToken();
+                return await base.HandleRequest(url, call, parameters, headers);
+            }
+
         }
 
         public async Task<List<Message>> GetFlaggedEmail(OData data)
@@ -125,20 +143,6 @@ namespace ApiLibs.Outlook
         {
             var returns =  (await MakeRequest<FolderRoot>("me/MailFolders" + oData.ConvertToUrl())).value.ToList();
             return returns;
-        }
-
-        internal new async Task<IRestResponse> ExcecuteRequest(IRestRequest request)
-        {
-            try
-            {
-                return await base.ExcecuteRequest(request);
-            }
-            catch (UnAuthorizedException)
-            {
-                await RenewToken();
-                return await base.ExcecuteRequest(request);
-            }
-            
         }
 
         public async Task<List<Message>> GetMessages(Folder folder, OData data)
