@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -65,7 +66,7 @@ namespace ApiLibs.Telegram
             await HandleRequest("/sendMessage", Call.GET, param);
         }
 
-        public async Task answerInlineQuery(string inline_query_id, List<InlineQueryResultArticle> results)
+        public async Task answerInlineQuery(string inline_query_id, IEnumerable<InlineQueryResultArticle> results)
         {
             try
             {
@@ -80,7 +81,7 @@ namespace ApiLibs.Telegram
                 else
                 {
                     Console.WriteLine(inline_query_id);
-                    results.ForEach(Console.WriteLine);
+                    results.ToList().ForEach(Console.WriteLine);
                 }
             }
         }

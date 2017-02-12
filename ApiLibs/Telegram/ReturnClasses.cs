@@ -212,6 +212,11 @@ namespace ApiLibs.Telegram
         public string title { get; set; }
         public InputTextMessageContent input_message_content { get; set; }
 
+        public InlineQueryResultArticle()
+        {
+            type = "article";
+        }
+
         public override string ToString()
         {
             return id + ":" + title;
