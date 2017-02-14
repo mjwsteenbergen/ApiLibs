@@ -115,7 +115,7 @@ namespace ApiLibs.Telegram
 
         public async Task<TgMessages> GetMessages(int? timeout = null)
         {
-            int updateId = mem.ReadFile<Result>("data/telegram/lastID").update_id;
+            int updateId = mem.ReadFile<Update>("data/telegram/lastID").update_id;
 
             List<Param> parameters = new List<Param>();
 
@@ -129,15 +129,16 @@ namespace ApiLibs.Telegram
                 parameters.Add(new Param("timeout", timeout.ToString()));
             }
 
-            TgResponseObject messages = await MakeRequest<TgResponseObject>("/getUpdates", parameters: parameters);
+            TgUpdateObject messages = await MakeRequest<TgUpdateObject>("/getUpdates", parameters: parameters);
             messages.result.Reverse();
 
             List<TgMessage> tgMessages = new List<TgMessage>();
             List<TgInlineQuery> tgInlineQueries = new List<TgInlineQuery>();
+            List<ChosenInlineResult> chosenInlineResults = new List<ChosenInlineResult>();
 
             List<From> alreadyInUse = new List<From>();
 
-            foreach (Result message in messages.result)
+            foreach (Update message in messages.result)
             {
                 if (message.update_id == updateId)
                 {
@@ -158,9 +159,13 @@ namespace ApiLibs.Telegram
                     tgInlineQueries.Add(TgResult.Convert<TgInlineQuery>(message.inline_query)); 
                     alreadyInUse.Add(message.inline_query.from);
                 }
+                if (message.IsChosenInlineResult)
+                {
+                    chosenInlineResults.Add(message.chosen_inline_result);
+                }
             }
 
-            TgMessages result = new TgMessages(tgMessages, tgInlineQueries);
+            TgMessages result = new TgMessages(tgMessages, tgInlineQueries, chosenInlineResults);
 
             if (result.HasMessages())
             {

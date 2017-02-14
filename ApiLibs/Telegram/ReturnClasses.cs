@@ -111,9 +111,9 @@ namespace ApiLibs.Telegram
         public string username { get; set; }
     }
 
-    public class Result
+    public class Update
     {
-        public Result()
+        public Update()
         {
             update_id = -1;
         }
@@ -121,32 +121,50 @@ namespace ApiLibs.Telegram
         public int update_id { get; set; }
         public ConvertableMessage message { get; set; }
         public ConvertableMessage inline_query { get; set; }
+        public ChosenInlineResult chosen_inline_result { get; set; }
 
         public bool IsTgMessage => message != null;
         public bool IsInlineQuery => inline_query != null;
+        public bool IsChosenInlineResult => chosen_inline_result != null;
     }
 
-    public class TgResponseObject
+    public class ChosenInlineResult
+    {
+        public string result_id { get; set; }
+        public User from { get; set; }
+        public TgLocation location { get; set; }
+        public string inline_message_id { get; set; }
+        public string query { get; set; }
+    }
+
+    public class TgLocation
+    {
+        public float longitude { get; set; }
+        public float latitude { get; set; }
+    }
+
+    public class TgUpdateObject
     {
         public bool ok { get; set; }
-        public List<Result> result { get; set; }
+        public List<Update> result { get; set; }
     }
 
     public class TgMessages
     {
         public List<TgInlineQuery> tgInlineQueries { get; }
-
+        public List<ChosenInlineResult> ChosenInlineResults { get; }
         public List<TgMessage> Messages { get; }
 
-        public TgMessages(List<TgMessage> tgMessageses, List<TgInlineQuery> tgInlineQueries)
+        public TgMessages(List<TgMessage> tgMessageses, List<TgInlineQuery> tgInlineQueries, List<ChosenInlineResult> chosenInlineResults)
         {
             Messages = tgMessageses;
             this.tgInlineQueries = tgInlineQueries;
+            ChosenInlineResults = chosenInlineResults;
         }
 
         public bool HasMessages()
         {
-            return Messages.Count != 0 | tgInlineQueries.Count != 0;
+            return Messages.Count != 0 | tgInlineQueries.Count != 0 | ChosenInlineResults.Count != 0;
         }
     }
 
