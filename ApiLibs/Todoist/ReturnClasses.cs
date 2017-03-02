@@ -13,14 +13,14 @@ namespace ApiLibs.Todoist
 {
     public class Note
     {
-        public int is_deleted { get; set; }
-        public int is_archived { get; set; }
+        public int? is_deleted { get; set; }
+        public int? is_archived { get; set; }
         public string content { get; set; }
-        public int posted_uid { get; set; }
+        public int? posted_uid { get; set; }
         public object uids_to_notify { get; set; }
-        public int item_id { get; set; }
-        public int project_id { get; set; }
-        public int id { get; set; }
+        public int? item_id { get; set; }
+        public int? project_id { get; set; }
+        public int? id { get; set; }
         public string posted { get; set; }
     }
 
@@ -146,6 +146,11 @@ namespace ApiLibs.Todoist
         {
             await (service as TodoistService).MarkTodoAsDone(this);
         }
+
+        public async Task AddNote(string note)
+        {
+            await (service as TodoistService).AddNote(note, this);
+        }
     }
 
     public class TempIdMapping
@@ -225,7 +230,7 @@ namespace ApiLibs.Todoist
         }
     }
 
-    public class Project
+    public class Project : ObjectSearcher
     {
         public int user_id { get; set; }
         public string name { get; set; }
@@ -250,43 +255,9 @@ namespace ApiLibs.Todoist
 //            get { return (Brush)new BrushConverter().ConvertFrom(colorHex); }
 //        }
 
-        public List<Item> tasks = new List<Item>();
-        public void AddItem(Item it)
+        public async Task<List<Item>> GetItems()
         {
-            tasks.Add(it);
-        }
-
-        public void OrderItems()
-        {
-            tasks.Sort((p1, p2) => p1.item_order.CompareTo(p2.item_order));
-        }
-
-        public Item nextTodo
-        {
-            get
-            {
-                if (tasks.Count == 0)
-                {
-                    return new Item() { content = "" };
-                }
-
-                Item returnTask = new Item { indent = -1 };
-
-                foreach (Item task in tasks)
-                {
-                    if (task.@checked == 1)
-                        continue;
-                    if (task.indent > returnTask.indent)
-                    {
-                        returnTask = task;
-                    }
-                    else
-                    {
-                        return returnTask;
-                    }
-                }
-                return returnTask;
-            }
+            return (await ((TodoistService) service).GetItems()).Where(t => t.project_id == id).ToList();
         }
 
         public override string ToString()
