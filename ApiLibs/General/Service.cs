@@ -36,6 +36,11 @@ namespace ApiLibs
             AddStandardHeader(new Param(name, content));
         }
 
+        internal void RemoveStandardHeader(string name)
+        {
+            _standardHeader.RemoveAll(p => p.Name == name);
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
         internal void UpdateParameterIfExists(Param p)
         {
@@ -45,7 +50,6 @@ namespace ApiLibs
                 {
                     Console.WriteLine(para.Name + " was: " + para.Value + " is: " + p.Value);
                     para.Value = p.Value;
-                    
                 }
             }
         }
@@ -72,13 +76,14 @@ namespace ApiLibs
 
         internal async Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null)
         {
-            var request = new RestRequest(url, Convert(m));
+            IRestResponse response = await HandleRequest(url, m , parameters, header, content);
 
+            return Convert<T>(response);
+        }
 
-            var rParameters = parameters ?? new List<Param>();
-
-            var rHeaders = header ?? new List<Param>();
-
+        internal virtual async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null)
+        {
+            RestRequest request = new RestRequest(url, Convert(call));
 
             if (content != null)
             {
@@ -86,14 +91,6 @@ namespace ApiLibs
                 request.AddHeader("content-type", "application/json");
             }
 
-            IRestResponse response = await HandleRequest(request, rParameters, rHeaders);
-
-            return Convert<T>(response);
-        }
-
-        internal async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null)
-        {
-            RestRequest request = new RestRequest(url, Convert(call));
             return await HandleRequest(request, parameters, headers);
         }
 
@@ -151,7 +148,7 @@ namespace ApiLibs
                     throw resp.ErrorException;
                 }
                 Exception toThrow;
-                RequestException e = new RequestException(resp.ResponseUri.ToString(), resp.StatusCode, resp.Content);
+                RequestException e = new RequestException(resp, resp.ResponseUri.ToString(), resp.StatusCode, resp.Content);
                 switch (resp.StatusCode)
                 {
                         case HttpStatusCode.NotFound:
@@ -249,13 +246,16 @@ public class RequestException : InvalidOperationException
     public readonly string ResponseUri;
     public readonly HttpStatusCode StatusCode;
     public readonly string Content;
+    public IRestResponse Response { get; set; }
 
-    public RequestException(string responseUri, HttpStatusCode statusCode, string content) : base("A problem occured while trying to access " + responseUri + ". Statuscode: " + statusCode + "\n" + content)
+    public RequestException(IRestResponse response, string responseUri, HttpStatusCode statusCode, string content) : base("A problem occured while trying to access " + responseUri + ". Statuscode: " + statusCode + "\n" + content)
     {
+        Response = response;
         ResponseUri = responseUri;
         StatusCode = statusCode;
         Content = content;
     }
+
 }
 
 enum Call
