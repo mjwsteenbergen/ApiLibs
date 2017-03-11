@@ -1,5 +1,4 @@
 ﻿using ApiLibs.General;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -60,7 +59,7 @@ namespace ApiLibs.Telegram
             }
             if (replyMarkup != null)
             {
-                param.Add(new Param("reply_markup", JsonConvert.SerializeObject(replyMarkup)));
+                param.Add(new Param("reply_markup", replyMarkup));
             }
 
             await HandleRequest("/sendMessage", Call.GET, param);
@@ -70,7 +69,7 @@ namespace ApiLibs.Telegram
         {
             try
             {
-                await HandleRequest("answerInlineQuery", parameters: new List<Param>() { new Param("inline_query_id", inline_query_id), new Param("results", JsonConvert.SerializeObject(results)) });
+                await HandleRequest("answerInlineQuery", parameters: new List<Param>() { new Param("inline_query_id", inline_query_id), new Param("results", results) });
             }
             catch (BadRequestException e)
             {

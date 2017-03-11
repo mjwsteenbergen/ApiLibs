@@ -26,7 +26,7 @@ namespace ApiLibs.Instapaper
 
         public InstapaperService(string clientId, string clientSecret, string token, string tokenSecret)
         {
-            SetUp("https://www.instapaper.com/api/1/");
+            SetUp("https://www.instapaper.com/api/1.1/");
             Client.Authenticator = OAuth1Authenticator.ForAccessToken(clientId, clientSecret, token, tokenSecret);
         }
 
@@ -72,8 +72,10 @@ namespace ApiLibs.Instapaper
             {
                 param.Add(new Param("folder_id", folderId.ToString()));
             }
-            List<Bookmark> bookmarks = await MakeRequest<List<Bookmark>>("bookmarks/list", parameters: param);
-            bookmarks.RemoveRange(0,2);
+
+            var s = await MakeRequest<BookmarksObject>("bookmarks/list", parameters: param);
+
+            List<Bookmark> bookmarks = s.bookmarks;
             return bookmarks;
         }
 
@@ -225,6 +227,7 @@ namespace ApiLibs.Instapaper
             }
             throw new KeyNotFoundException("Your folder could not be found");
         }
-    }
 
+        public async Task<List<Highlight>> GetHighlights(Bookmark bookmark) => await MakeRequest<List<Highlight>>("bookmarks/" + bookmark.bookmark_id  + "/highlights");
+    }
 }
