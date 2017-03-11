@@ -74,8 +74,7 @@ namespace ApiLibs.Pocket
 
         public async Task<Item> AddArticle(string url)
         {
-            List<Param> parameters = new List<Param>();
-            parameters.Add(new Param("url", url));
+            List<Param> parameters = new List<Param> {new Param("url", url)};
 
             return (await MakeRequest<AddItemResponse>("add.php", parameters: parameters)).item;
         }
@@ -118,7 +117,7 @@ namespace ApiLibs.Pocket
         {
             List<Param> parameters = new List<Param>
             {
-                new Param("actions", JsonConvert.SerializeObject(new List<PocketAction> {pa}))
+                new Param("actions", new List<PocketAction> {pa})
             };
             await HandleRequest("send.php", parameters: parameters);
         }

@@ -87,7 +87,11 @@ namespace ApiLibs
 
             if (content != null)
             {
-                request.AddParameter("application/json", JsonConvert.SerializeObject(content), ParameterType.RequestBody);
+                JsonSerializerSettings settings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                };
+                request.AddParameter("application/json", JsonConvert.SerializeObject(content, settings), ParameterType.RequestBody);
                 request.AddHeader("content-type", "application/json");
             }
 

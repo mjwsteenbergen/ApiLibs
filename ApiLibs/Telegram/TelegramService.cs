@@ -1,11 +1,7 @@
 ﻿using ApiLibs.General;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -70,7 +66,7 @@ namespace ApiLibs.Telegram
             }
             if (replyMarkup != null)
             {
-                param.Add(new Param("reply_markup", JsonConvert.SerializeObject(replyMarkup)));
+                param.Add(new Param("reply_markup", replyMarkup));
             }
 
             Message m = await MakeRequest<Message>("/sendMessage", Call.GET, param);
