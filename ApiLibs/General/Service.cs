@@ -84,17 +84,10 @@ namespace ApiLibs
         internal virtual async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null)
         {
             RestRequest request = new RestRequest(url, Convert(call));
-
-            if (content != null)
-            {
-                request.AddParameter("application/json", JsonConvert.SerializeObject(content), ParameterType.RequestBody);
-                request.AddHeader("content-type", "application/json");
-            }
-
-            return await HandleRequest(request, parameters, headers);
+            return await HandleRequest(request, parameters, headers, content);
         }
 
-        internal async Task<IRestResponse> HandleRequest(IRestRequest request, List <Param> parameters = null, List<Param> headers = null)
+        internal async Task<IRestResponse> HandleRequest(IRestRequest request, List <Param> parameters = null, List<Param> headers = null, object content = null)
         {
             if (headers != null)
             {
@@ -102,6 +95,12 @@ namespace ApiLibs
                 {
                     request.AddHeader(p.Name, p.Value);
                 }
+            }
+
+            if (content != null)
+            {
+                request.AddParameter("application/json", JsonConvert.SerializeObject(content), ParameterType.RequestBody);
+                request.AddHeader("content-type", "application/json");
             }
 
             if (parameters != null)
