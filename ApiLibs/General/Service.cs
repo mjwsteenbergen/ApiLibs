@@ -136,10 +136,6 @@ namespace ApiLibs
 
             if (resp.StatusCode.ToString() != "OK" && resp.StatusCode.ToString() != "Created" && resp.StatusCode.ToString() != "ResetContent")
             {
-                foreach (Parameter p in resp.Headers)
-                {
-                    Console.WriteLine(p.ToString());
-                }
                 if (resp.ErrorException != null)
                 {
                     if (resp.ErrorException is System.Net.WebException)
@@ -151,7 +147,7 @@ namespace ApiLibs
                     throw resp.ErrorException;
                 }
                 Exception toThrow;
-                RequestException e = new RequestException(resp, resp.ResponseUri.ToString(), resp.StatusCode, resp.Content);
+                RequestException e = new RequestException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
                 switch (resp.StatusCode)
                 {
                         case HttpStatusCode.NotFound:
@@ -168,11 +164,13 @@ namespace ApiLibs
                         break;
 
                 }
-                Console.WriteLine(toThrow.Message + "\n" + toThrow.StackTrace + "\n" + e.StatusCode);
+                Console.WriteLine("--Exception Log---");
+                Console.WriteLine("URL: " +  resp.ResponseUri);
+                Console.WriteLine("Status Code" + e.StatusCode);
+                Console.WriteLine("Response Message:\n" + resp.Content);
+                Console.WriteLine("Full StackTrace:\n" + toThrow.StackTrace);
+                Console.WriteLine("---END---\n");
                 throw toThrow;
-
-
-
             }
             return resp;
         }
