@@ -165,8 +165,8 @@ namespace ApiLibs
 
                 }
                 Console.WriteLine("--Exception Log---");
-                Console.WriteLine("URL: " +  resp.ResponseUri);
-                Console.WriteLine("Status Code" + e.StatusCode);
+                Console.WriteLine("URL:\n" +  resp.ResponseUri);
+                Console.WriteLine("Status Code:\n" + e.StatusCode);
                 Console.WriteLine("Response Message:\n" + resp.Content);
                 Console.WriteLine("Full StackTrace:\n" + toThrow.StackTrace);
                 Console.WriteLine("---END---\n");
