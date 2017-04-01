@@ -120,11 +120,11 @@ namespace ApiLibs.Todoist
 
         public async Task<Item> AddTodo(string name, Project project = null, List<Label> labels = null, string date =null)
         {
-            int id = project?.id ?? -1;
+            long id = project?.id ?? -1;
             return await AddTodo(name, id, labels, date);
         }
 
-        public async Task<Item> AddTodo(string name, int id, List<Label> labels = null, string date = null)
+        public async Task<Item> AddTodo(string name, long id, List<Label> labels = null, string date = null)
         {
             List<Param> parameters = new List<Param>
             {

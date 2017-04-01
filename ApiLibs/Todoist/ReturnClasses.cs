@@ -20,7 +20,7 @@ namespace ApiLibs.Todoist
         public object uids_to_notify { get; set; }
         public int? item_id { get; set; }
         public int? project_id { get; set; }
-        public int? id { get; set; }
+        public long? id { get; set; }
         public string posted { get; set; }
     }
 
@@ -30,7 +30,7 @@ namespace ApiLibs.Todoist
         public int is_deleted { get; set; }
         public string name { get; set; }
         public int color { get; set; }
-        public int id { get; set; }
+        public long id { get; set; }
         public int uid { get; set; }
 
         public string colorHex => TodoistLabelColor.Convert(color);
@@ -62,7 +62,7 @@ namespace ApiLibs.Todoist
         public string full_name { get; set; }
         public int auto_reminder { get; set; }
         public bool has_push_reminders { get; set; }
-        public int id { get; set; }
+        public long id { get; set; }
         public int next_week { get; set; }
         public int completed_count { get; set; }
         public List<object> tz_offset { get; set; }
@@ -96,7 +96,7 @@ namespace ApiLibs.Todoist
         public int item_order { get; set; }
         public string query { get; set; }
         public int is_deleted { get; set; }
-        public int id { get; set; }
+        public long id { get; set; }
     }
 
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
@@ -161,7 +161,7 @@ namespace ApiLibs.Todoist
     {
         public int is_deleted { get; set; }
         public string service { get; set; }
-        public int id { get; set; }
+        public long id { get; set; }
         public string due_date_utc { get; set; }
         public int minute_offset { get; set; }
         public int item_id { get; set; }
@@ -180,7 +180,7 @@ namespace ApiLibs.Todoist
         public string DayOrdersTimestamp { get; set; }
         public Note[] Notes { get; set; }
         public Label[] Labels { get; set; }
-        public int UserId { get; set; }
+        public long UserId { get; set; }
         public List<object> Locations { get; set; }
         public List<object> Collaborators { get; set; }
         public LiveNotification[] LiveNotifications { get; set; }
@@ -237,7 +237,7 @@ namespace ApiLibs.Todoist
         public int color { get; set; }
         public int is_deleted { get; set; }
         public int collapsed { get; set; }
-        public int id { get; set; }
+        public long id { get; set; }
         public object archived_date { get; set; }
         public int item_order { get; set; }
         public int indent { get; set; }
