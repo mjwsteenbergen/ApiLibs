@@ -18,8 +18,8 @@ namespace ApiLibs.Todoist
         public string content { get; set; }
         public int? posted_uid { get; set; }
         public object uids_to_notify { get; set; }
-        public int? item_id { get; set; }
-        public int? project_id { get; set; }
+        public long? item_id { get; set; }
+        public long? project_id { get; set; }
         public long? id { get; set; }
         public string posted { get; set; }
     }
@@ -115,7 +115,7 @@ namespace ApiLibs.Todoist
         public int @checked { get; set; }
         public string date_lang { get; set; }
         [JsonProperty]
-        public int id { get; set; }
+        public long id { get; set; }
         public string content { get; set; }
         public int indent { get; set; }
         public int user_id { get; set; }
@@ -123,7 +123,7 @@ namespace ApiLibs.Todoist
         public int priority { get; set; }
         public int item_order { get; set; }
         public object responsible_uid { get; set; }
-        public int project_id { get; set; }
+        public long project_id { get; set; }
         public int collapsed { get; set; }
         public string date_string { get; set; }
 
@@ -198,7 +198,7 @@ namespace ApiLibs.Todoist
         //Added by me
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S100:Method name should comply with a naming convention", Justification = "Is returnClass")]
-        public Project getProjectById(int id)
+        public Project getProjectById(long id)
         {
             foreach (var proj in Projects)
             {
@@ -279,7 +279,7 @@ namespace ApiLibs.Todoist
         public int @checked { get; set; }
         public string date_added { get; set; }
         public string date_lang { get; set; }
-        public int id { get; set; }
+        public long id { get; set; }
         public int priority { get; set; }
         public int complete_count { get; set; }
         public int user_id { get; set; }
