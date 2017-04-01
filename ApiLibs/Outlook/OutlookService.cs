@@ -16,6 +16,10 @@ namespace ApiLibs.Outlook
         private string _refreshToken;
         private string _outlookClientId;
         private string _outlookClientSecret;
+
+        public event RefreshChangedEventHandler Changed;
+        public delegate void RefreshChangedEventHandler(OutlookService sender, RefreshArgs e);
+
         private readonly string basePath = "https://outlook.office.com/api/beta/";
 
 
@@ -29,6 +33,7 @@ namespace ApiLibs.Outlook
             _refreshToken = refreshToken;
             _outlookClientId = outlookClientId;
             _outlookClientSecret = outlookClientSecret;
+
             SetUp(basePath);
 
             AddStandardHeader(new Param("Accept", "application/json"));
@@ -44,26 +49,23 @@ namespace ApiLibs.Outlook
                         "&redirect_uri=" + redirectUrl +
                         "&response_type=code&scope=https%3A%2F%2Foutlook.office.com%2FMail.ReadWrite+https%3A%2F%2Foutlook.office.com%2FCalendars.ReadWrite+" +
                         "offline_access");
-            string return_url = authe.ActivateOAuth(uri);
-            
-
-            string login_code = return_url.Replace("code=","");
-
-            SetBaseUrl("https://outlook.office.com/api/v1.0/");
+            authe.ActivateOAuth(uri);
         }
 
-        public async Task<string> ConvertToToken(string outlookClientId, string outlookClientSecret, string loginCode)
+        public async Task<string> ConvertToToken(string outlookClientId, string outlookClientSecret, string loginCode, string redirect_url)
         {
+            SetBaseUrl("https://login.microsoftonline.com/common/oauth2/v2.0/");
+
             List<Param> parameters = new List<Param>();
             parameters.Add(new Param("client_id", outlookClientId));
             parameters.Add(new Param("client_secret", outlookClientSecret));
             parameters.Add(new Param("code", loginCode));
-            parameters.Add(new Param("redirect_uri", "https://www.microsoft.com"));
+            parameters.Add(new Param("redirect_uri", redirect_url));
             parameters.Add(new Param("grant_type", "authorization_code"));
 
-            string token = (await MakeRequest<AccessTokenObject>("token", Call.POST, parameters)).access_token;
+            string token = (await MakeRequest<AccessTokenObject>("token", Call.POST, parameters)).refresh_token;
 
-            AddStandardHeader(new Param("Authorization", "Bearer " + token));
+            SetBaseUrl(basePath);
             return token;
         }
 
@@ -86,22 +88,27 @@ namespace ApiLibs.Outlook
 
             _refreshToken = accessToken.refresh_token;
             AddStandardHeader(new Param("Authorization", "Bearer " + accessToken.access_token));
-
+            Changed?.Invoke(this, new RefreshArgs { RefreshToken = _refreshToken});
             SetBaseUrl(basePath);
 
             return accessToken;
+        }
+
+        public class RefreshArgs : EventArgs
+        {
+            public string RefreshToken { get; set; }
         }
 
         internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null)
         {
             try
             {
-                return await base.HandleRequest(url, call, parameters, headers);
+                return await base.HandleRequest(url, call, parameters, headers, content);
             }
-            catch (UnAuthorizedException e)
+            catch (UnAuthorizedException)
             {
                 await RefreshToken();
-                return await base.HandleRequest(url, call, parameters, headers);
+                return await base.HandleRequest(url, call, parameters, headers, content);
             }
 
         }
@@ -145,10 +152,17 @@ namespace ApiLibs.Outlook
             return returns;
         }
 
+        public async Task<Folder> GetFolder(string folderName, OData oData)
+        {
+            return (await GetFolders(oData)).Find(folder => folder.DisplayName == folderName);
+        }
+
         public async Task<List<Message>> GetMessages(Folder folder, OData data)
         {
             return (await MakeRequest<MessageRoot>("me/MailFolders/" + folder.Id + "/messages" + data.ConvertToUrl())).value.ToList();
         }
+
+        
     }
 
     public enum FlagStatus
