@@ -13,6 +13,7 @@ namespace ApiLibs.Todoist
     public class TodoistService : Service
     {
         private readonly SyncObject _syncObject = new SyncObject();
+        private bool firstcall = true;
 
         /// <summary>
         /// Get an access token by going to https://todoist.com/Users/viewPrefs?page=account
@@ -27,30 +28,31 @@ namespace ApiLibs.Todoist
             AddStandardParameter(new Param("sync_token", "*"));
         }
 
-        public async Task<List<Project>> GetProjects()
+        private async Task Sync()
         {
-            List<Param> parameters = new List<Param> { new Param("resource_types", @"[""projects""]") };
+            List<Param> parameters = new List<Param> { new Param("resource_types", @"[""all""]") };
             SyncObject syncobject = await MakeRequest<SyncObject>("sync", parameters: parameters);
             UpdateParameterIfExists(new Param("sync_token", syncobject.sync_token));
             this._syncObject.Projects = Merger.Merge(_syncObject.Projects, syncobject.Projects);
+            this._syncObject.Labels = Merger.Merge(_syncObject.Labels, syncobject.Labels);
+            this._syncObject.Items = Merger.Merge(_syncObject.Items, syncobject.Items);
+        }
+
+        public async Task<List<Project>> GetProjects()
+        {
+            await Sync();
             return _syncObject.Projects.ToList();
         }
 
         public async Task<List<Label>> GetLabels()
         {
-            List<Param> parameters = new List<Param> { new Param("resource_types", @"[""labels""]") };
-            SyncObject syncobject = await MakeRequest<SyncObject>("sync", parameters: parameters);
-            UpdateParameterIfExists(new Param("sync_token", syncobject.sync_token));
-            this._syncObject.Labels = Merger.Merge(_syncObject.Labels, syncobject.Labels);
+            await Sync();
             return _syncObject.Labels.ToList();
         }
 
         public async Task<List<Item>> GetItems()
         {
-            List<Param> parameters = new List<Param> { new Param("resource_types", @"[""items""]") };
-            SyncObject syncobject = await MakeRequest<SyncObject>("sync", parameters: parameters);
-            UpdateParameterIfExists(new Param("sync_token", syncobject.sync_token));
-            this._syncObject.Items = Merger.Merge(_syncObject.Items, syncobject.Items);
+            await Sync();
             return _syncObject.Items.ToList();
         }
 
@@ -92,26 +94,6 @@ namespace ApiLibs.Todoist
             return obj[0] ?? new RootObject();
         }
 
-        public void SortSyncObject(SyncObject sync)
-        {
-            foreach (Item it in sync.Items)
-            {
-                sync.getProjectById(it.project_id).AddItem(it);
-                foreach (int lb in it.labels)
-                {
-                    it.labelList.Add(sync.GetLabelbyId(lb));
-                }
-
-            }
-
-            sync.SortProjects();
-
-            foreach (Project proj in sync.Projects)
-            {
-                proj.OrderItems();
-            }
-        }
-
         public async Task MarkTodoAsDone(Item todo)
         {
             List<Param> parameters = new List<Param>();
@@ -124,13 +106,25 @@ namespace ApiLibs.Todoist
             await HandleRequest("sync", Call.GET, parameters);
         }
 
+        public async Task AddNote(string note, Item todo)
+        {
+            await AddNote(note, todo.id);
+        }
+
+        public async Task AddNote(string note, int itemId)
+        {
+            Note noteObject = new Note { content = note, item_id = itemId};
+            await MakeRequest<Note>("sync",
+                parameters: new List<Param> {new Param("commands", "[" + new TodoistCommand("note_add", noteObject).ToCommand() + "]")});
+        }
+
         public async Task<Item> AddTodo(string name, Project project = null, List<Label> labels = null, string date =null)
         {
-            int id = project?.id ?? -1;
+            long id = project?.id ?? -1;
             return await AddTodo(name, id, labels, date);
         }
 
-        public async Task<Item> AddTodo(string name, int id, List<Label> labels = null, string date = null)
+        public async Task<Item> AddTodo(string name, long id, List<Label> labels = null, string date = null)
         {
             List<Param> parameters = new List<Param>
             {
@@ -176,10 +170,39 @@ namespace ApiLibs.Todoist
                 throw e;
             }
         }
+    }
 
-        public void HandleException(RequestException e)
+    public class TodoistCommand
+    {
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
+
+        [JsonProperty(PropertyName = "uuid")]
+        public int Uuid { get; set; }
+
+        [JsonProperty(PropertyName = "temp_id")]
+        public int? Temp_id { get; set; }
+
+        [JsonProperty(PropertyName = "args")]
+        public Object Arguments { get; set; }
+
+        public TodoistCommand(string type, object args)
         {
-            
+            Uuid = (new Random()).Next(0, 10000);
+            if (type.Contains("add"))
+            {
+                Temp_id = (new Random()).Next(0, 10000);
+            }
+            this.Type = type;
+            Arguments = args;
+        }
+
+        public string ToCommand()
+        {
+            var jsonSerializerSettings = new JsonSerializerSettings();
+            jsonSerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+            string serializedObject = JsonConvert.SerializeObject(this, jsonSerializerSettings);
+            return serializedObject;
         }
     }
 }

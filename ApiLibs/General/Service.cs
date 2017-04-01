@@ -84,17 +84,10 @@ namespace ApiLibs
         internal virtual async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null)
         {
             RestRequest request = new RestRequest(url, Convert(call));
-
-            if (content != null)
-            {
-                request.AddParameter("application/json", JsonConvert.SerializeObject(content), ParameterType.RequestBody);
-                request.AddHeader("content-type", "application/json");
-            }
-
-            return await HandleRequest(request, parameters, headers);
+            return await HandleRequest(request, parameters, headers, content);
         }
 
-        internal async Task<IRestResponse> HandleRequest(IRestRequest request, List <Param> parameters = null, List<Param> headers = null)
+        internal async Task<IRestResponse> HandleRequest(IRestRequest request, List <Param> parameters = null, List<Param> headers = null, object content = null)
         {
             if (headers != null)
             {
@@ -102,6 +95,16 @@ namespace ApiLibs
                 {
                     request.AddHeader(p.Name, p.Value);
                 }
+            }
+
+            if (content != null)
+            {
+                JsonSerializerSettings settings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                };
+                request.AddParameter("application/json", JsonConvert.SerializeObject(content, settings), ParameterType.RequestBody);
+                request.AddHeader("content-type", "application/json");
             }
 
             if (parameters != null)
@@ -133,10 +136,6 @@ namespace ApiLibs
 
             if (resp.StatusCode.ToString() != "OK" && resp.StatusCode.ToString() != "Created" && resp.StatusCode.ToString() != "ResetContent")
             {
-                foreach (Parameter p in resp.Headers)
-                {
-                    Console.WriteLine(p.ToString());
-                }
                 if (resp.ErrorException != null)
                 {
                     if (resp.ErrorException is System.Net.WebException)
@@ -148,7 +147,7 @@ namespace ApiLibs
                     throw resp.ErrorException;
                 }
                 Exception toThrow;
-                RequestException e = new RequestException(resp, resp.ResponseUri.ToString(), resp.StatusCode, resp.Content);
+                RequestException e = new RequestException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
                 switch (resp.StatusCode)
                 {
                         case HttpStatusCode.NotFound:
@@ -165,11 +164,13 @@ namespace ApiLibs
                         break;
 
                 }
-                Console.WriteLine(toThrow.Message + "\n" + toThrow.StackTrace + "\n" + e.StatusCode);
+                Console.WriteLine("--Exception Log---");
+                Console.WriteLine("URL:\n" +  resp.ResponseUri);
+                Console.WriteLine("Status Code:\n" + e.StatusCode);
+                Console.WriteLine("Response Message:\n" + resp.Content);
+                Console.WriteLine("Full StackTrace:\n" + toThrow.StackTrace);
+                Console.WriteLine("---END---\n");
                 throw toThrow;
-
-
-
             }
             return resp;
         }

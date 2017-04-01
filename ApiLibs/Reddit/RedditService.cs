@@ -9,6 +9,9 @@ using RestSharp.Authenticators;
 
 namespace ApiLibs.Folder
 {
+    /// <summary>
+    /// For more explanation see the reddit documentation: https://www.reddit.com/dev/api/
+    /// </summary>
     public class RedditService : Service
     {
         private string Refreshtoken { get; }
@@ -16,6 +19,14 @@ namespace ApiLibs.Folder
         private readonly string _user;
         private readonly string _clientId;
 
+        /// <summary>
+        /// Create the service
+        /// </summary>
+        /// <param name="redditToken"></param>
+        /// <param name="refreshtoken"></param>
+        /// <param name="clientId"></param>
+        /// <param name="clientSecret"></param>
+        /// <param name="user"></param>
         public RedditService(string redditToken, string refreshtoken, string clientId, string clientSecret, string user)
         {
             Refreshtoken = refreshtoken;
@@ -26,6 +37,14 @@ namespace ApiLibs.Folder
             AddStandardHeader(new Param("Authorization", "bearer " + redditToken));
         }
 
+        /// <summary>
+        /// First connect to ask the user for an access token
+        /// </summary>
+        /// <param name="oAuth">Your IOAUTH object</param>
+        /// <param name="redirectUrl">Where you want the user to be sent to after</param>
+        /// <param name="scopes">What scopes you need (see reddit documentation)</param>
+        /// <param name="randomString">Add a random string for security reasons</param>
+        /// <param name="duration">How long you want the token to be active</param>
         public void Connect(IOAuth oAuth, string redirectUrl, List<string> scopes, string randomString,  string duration = "permanent")
         {
             oAuth.ActivateOAuth(
@@ -34,6 +53,12 @@ namespace ApiLibs.Folder
                     redirectUrl + "&duration=" + duration + "&scope=" + scopes.Aggregate((i, j) => i + " " + j)));
         }
 
+        /// <summary>
+        /// Call this method to activate your token after you called Connect
+        /// </summary>
+        /// <param name="code">The code you recieved</param>
+        /// <param name="redirectUrl">The redirect url you entered at Connect()</param>
+        /// <returns></returns>
         public async Task<TokenObject> GetAccessToken(string code, string redirectUrl)
         {
             SetBaseUrl("https://www.reddit.com/");
@@ -49,6 +74,10 @@ namespace ApiLibs.Folder
             return returns;
         }
 
+        /// <summary>
+        /// Update your bearer token once it no longer works
+        /// </summary>
+        /// <returns></returns>
         public async Task RefreshToken()
         {
             SetBaseUrl("https://www.reddit.com/");
@@ -78,6 +107,10 @@ namespace ApiLibs.Folder
             
         }
 
-        public async Task<List<PostWrapper>>  GetSaved() => (await MakeRequest<SavedObject>("/user/newnottakenname/saved")).data.children;
+        /// <summary>
+        /// Get all saved posts by your user
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<PostWrapper>>  GetSaved() => (await MakeRequest<SavedObject>("/user/" + _user + "/saved")).data.children;
     }
 }
