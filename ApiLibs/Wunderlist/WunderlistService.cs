@@ -7,20 +7,12 @@ namespace ApiLibs.Wunderlist
 {
     public class WunderlistService : Service
     {
-        private string WunderlistToken;
-        private readonly string WunderlistId;
-        private readonly string WunderlistSecret;
-
         /// <summary>
         /// Use this constructor if you don't have a wunderlist token
         /// </summary>
-        /// <param name="wunderlistId"></param>
-        /// <param name="wunderlistSecret"></param>
-        /// <param name="NoToken">Ignore this. Is so that we have 2 constructors</param>
-        public WunderlistService(string wunderlistId, string wunderlistSecret, bool NoToken)
+        public WunderlistService()
         {
-            WunderlistId = wunderlistId;
-            WunderlistSecret = wunderlistSecret;
+            SetUp("https://a.wunderlist.com/api/v1/");
         }
 
         /// <summary>
@@ -30,38 +22,36 @@ namespace ApiLibs.Wunderlist
         /// <param name="wunderlistToken"></param>
         public WunderlistService(string wunderlistId, string wunderlistToken)
         {
-            SetBaseUrl("https://a.wunderlist.com/api/v1/");
+            SetUp("https://a.wunderlist.com/api/v1/");
 
-            AddStandardHeader(new Param("X-Access-Token", WunderlistToken));
-            AddStandardHeader(new Param("X-Client-ID", WunderlistId));
+            AddStandardHeader(new Param("X-Access-Token", wunderlistToken));
+            AddStandardHeader(new Param("X-Client-ID", wunderlistId));
         }
 
-        public async Task<string> Connect(IOAuth _authenticator)
+        public void Connect(IOAuth authenticator, string WunderlistId)
+        {
+            string url = "https://www.wunderlist.com/oauth/authorize?client_id=" + WunderlistId + "&redirect_uri=" + authenticator.RedirectUrl() + "&state=PleasCopyThis";
+            authenticator.ActivateOAuth(new Uri(url));
+        }
+
+        public async Task<string> ConvertToToken(string token, string wunderlistId, string wunderlistSecret)
         {
             SetUp("https://www.wunderlist.com/oauth/access_token");
-            if (WunderlistToken == null)
-            {
 
-                string url = "https://www.wunderlist.com/oauth/authorize?client_id=" + WunderlistId + "&redirect_uri=" + "https://developer.wunderlist.com" + "&state=PleasCopyThis";
-                string res = _authenticator.ActivateOAuth(new Uri(url), "https://developer.wunderlist.com");
-                string token = Regex.Match(res, "code=(.+)").Groups[1].Value;
-
-                Auth auth = await MakeRequest<Auth>("", Call.POST, new List<Param>
+            Auth auth = await MakeRequest<Auth>("", Call.POST, new List<Param>
                 {
-                    new Param("client_id", WunderlistId),
+                    new Param("client_id", wunderlistId),
                     new Param("code", token),
-                    new Param("client_secret", WunderlistSecret)
+                    new Param("client_secret", wunderlistSecret)
                 });
 
-                WunderlistToken = auth.access_token;
-            }
+            string wunderlistToken = auth.access_token;
 
-            SetBaseUrl("https://a.wunderlist.com/api/v1/");
+            AddStandardHeader(new Param("X-Access-Token", wunderlistToken));
+            AddStandardHeader(new Param("X-Client-ID", wunderlistId));
+            SetUp("https://a.wunderlist.com/api/v1/");
 
-            AddStandardHeader(new Param("X-Access-Token", WunderlistToken));
-            AddStandardHeader(new Param("X-Client-ID", WunderlistId));
-
-            return WunderlistToken;
+            return wunderlistToken;
         }
 
         public async Task<List<WList>> GetLists()
@@ -69,9 +59,9 @@ namespace ApiLibs.Wunderlist
             return await MakeRequest<List<WList>>("lists");
         }
 
-        public async Task<List<WTask>> GetTasks(int id)
+        public async Task<List<WTask>> GetTasks(long id, bool completed = false)
         {
-            return await MakeRequest<List<WTask>>("tasks", parameters: new List <Param> {new Param("list_id", id.ToString())});
+            return await MakeRequest<List<WTask>>("tasks", parameters: new List <Param> {new Param("list_id", id.ToString()), new Param("completed", completed)});
         }
 
         public async Task<WList> GetList(string listName)
@@ -84,7 +74,7 @@ namespace ApiLibs.Wunderlist
                 }
             }
 
-            throw new KeyNotFoundException("The PocketList with name:" + listName + " could not be found.");
+            throw new KeyNotFoundException("The Wunder-List with name:" + listName + " could not be found.");
         }
 
         public async Task<WTask> AddTask(WRequestTask wTask)
@@ -124,6 +114,11 @@ namespace ApiLibs.Wunderlist
                 new Param("completed", "true"),
                 new Param("list_id", (await GetList(listName)).id.ToString())
             });
+        }
+
+        public async Task Update(WTask task)
+        {
+            await MakeRequest<WTask>("tasks/" + task.id, Call.PATCH, content: task.ToPatchTask());
         }
     }
 }

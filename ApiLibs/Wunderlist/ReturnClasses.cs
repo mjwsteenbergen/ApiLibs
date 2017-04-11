@@ -21,7 +21,7 @@ namespace ApiLibs.Wunderlist
 
     public class WList
     {
-        public int id { get; set; }
+        public long id { get; set; }
         public string title { get; set; }
         public string owner_type { get; set; }
         public int owner_id { get; set; }
@@ -35,13 +35,13 @@ namespace ApiLibs.Wunderlist
 
     public class WTask
     {
-        public int id { get; set; }
+        public long id { get; set; }
         public DateTime created_at { get; set; }
         public int created_by_id { get; set; }
         public string created_by_request_id { get; set; }
         public bool completed { get; set; }
         public bool starred { get; set; }
-        public int list_id { get; set; }
+        public long list_id { get; set; }
         public int revision { get; set; }
         public string title { get; set; }
         public string type { get; set; }
@@ -51,16 +51,34 @@ namespace ApiLibs.Wunderlist
             return (obj as WTask)?.id == id;
         }
 
-        public override int GetHashCode()
+        public WPatchTask ToPatchTask()
         {
-            return id;
+            WPatchTask patch = new WPatchTask
+            {
+                id = id,
+                completed = completed,
+                list_id = list_id,
+                title = title,
+                revision = revision
+            };
+            return patch;
         }
+    }
+
+    public class WPatchTask
+    {
+        public long? id;
+        public int? revision;
+        public long? list_id;
+        public string title;
+        public int? assignee;
+        public bool? completed;
     }
 
 
     public class WRequestTask
     {
-        public int list_id { get; set; }
+        public long list_id { get; set; }
         public string title { get; set; }
         public int? assignee_id { get; set; }
         public bool completed { get; set; }
