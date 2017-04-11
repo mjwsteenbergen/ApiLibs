@@ -111,7 +111,7 @@ namespace ApiLibs.Todoist
             await AddNote(note, todo.id);
         }
 
-        public async Task AddNote(string note, int itemId)
+        public async Task AddNote(string note, long itemId)
         {
             Note noteObject = new Note { content = note, item_id = itemId};
             await MakeRequest<Note>("sync",

@@ -48,15 +48,17 @@ namespace ApiLibs.General
 
         internal Memory mem;
 
-        public void WriteToFile(string baseUrl)
+        public void WriteToFile()
         {
-            WritePasswords(this, baseUrl);
+            WritePasswords(this, mem.DirectoryPath);
         }
 
         public static Passwords ReadPasswords(string baseUrl)
         {
             Memory mem = new Memory(baseUrl);
-            return mem.ReadFile<Passwords>("KeyFile.pass");
+            Passwords passwords = mem.ReadFile<Passwords>("KeyFile.pass");
+            passwords.mem = mem;
+            return passwords;
         }
 
         

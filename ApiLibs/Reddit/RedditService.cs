@@ -97,12 +97,12 @@ namespace ApiLibs.Folder
         {
             try
             {
-                return await base.HandleRequest(url, call, parameters, headers);
+                return await base.HandleRequest(url, call, parameters, headers, content);
             }
-            catch (UnAuthorizedException e)
+            catch (UnAuthorizedException)
             {
                 await RefreshToken();
-                return await base.HandleRequest(url, call, parameters, headers);
+                return await base.HandleRequest(url, call, parameters, headers, content);
             }
             
         }

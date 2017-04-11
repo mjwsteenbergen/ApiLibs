@@ -119,24 +119,12 @@ namespace ApiLibs.Outlook
 
     public class Torecipient
     {
-        public Emailaddress2 EmailAddress { get; set; }
-    }
-
-    public class Emailaddress2
-    {
-        public string Name { get; set; }
-        public string Address { get; set; }
+        public Emailaddress EmailAddress { get; set; }
     }
 
     public class Replyto
     {
-        public Emailaddress3 EmailAddress { get; set; }
-    }
-
-    public class Emailaddress3
-    {
-        public string Name { get; set; }
-        public string Address { get; set; }
+        public Emailaddress EmailAddress { get; set; }
     }
 
 
