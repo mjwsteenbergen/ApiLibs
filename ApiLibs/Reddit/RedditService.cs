@@ -111,6 +111,6 @@ namespace ApiLibs.Folder
         /// Get all saved posts by your user
         /// </summary>
         /// <returns></returns>
-        public async Task<List<PostWrapper>>  GetSaved() => (await MakeRequest<SavedObject>("/user/" + _user + "/saved")).data.children;
+        public async Task<List<ContentWrapper>>  GetSaved() => (await MakeRequest<SavedObject>("/user/" + _user + "/saved")).data.children;
     }
 }
