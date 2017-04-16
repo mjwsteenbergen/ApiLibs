@@ -48,6 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="General\Exceptions.cs" />
+    <Compile Include="General\SubService.cs" />
     <Compile Include="Reddit\RedditService.cs" />
     <Compile Include="General\IOAuth.cs" />
     <Compile Include="General\Memory.cs" />
@@ -67,6 +69,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="General\Service.cs" />
     <Compile Include="Reddit\ReturnClasses.cs" />
+    <Compile Include="Spotify\AlbumService.cs" />
+    <Compile Include="Spotify\PlayerService.cs" />
+    <Compile Include="Spotify\ReturnClasses.cs" />
+    <Compile Include="Spotify\SpotifyService.cs" />
+    <Compile Include="Spotify\TrackService.cs" />
     <Compile Include="Telegram\ReturnClasses.cs" />
     <Compile Include="Telegram\TelegramService.cs" />
     <Compile Include="Todoist\ReturnClasses.cs" />

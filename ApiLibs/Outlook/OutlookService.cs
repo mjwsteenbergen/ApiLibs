@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,15 +21,12 @@ namespace ApiLibs.Outlook
         public event RefreshChangedEventHandler Changed;
         public delegate void RefreshChangedEventHandler(OutlookService sender, RefreshArgs e);
 
-        private readonly string basePath = "https://outlook.office.com/api/beta/";
+        private static readonly string basePath = "https://outlook.office.com/api/beta/";
 
         /// <summary>
         /// Create the outlook service if you need to authenticate
         /// </summary>
-        public OutlookService()
-        {
-            SetUp("https://login.microsoftonline.com/common/oauth2/v2.0/");
-        }
+        public OutlookService() : base("https://login.microsoftonline.com/common/oauth2/v2.0/") { }
 
         /// <summary>
         /// Create a new outlook service if all tokens are available
@@ -37,18 +35,15 @@ namespace ApiLibs.Outlook
         /// <param name="outlookClientId"></param>
         /// <param name="outlookClientSecret"></param>
         /// <param name="emailAdress"></param>
-        public OutlookService(string refreshToken, string outlookClientId, string outlookClientSecret, string emailAdress)
+        public OutlookService(string refreshToken, string outlookClientId, string outlookClientSecret, string emailAdress): base(basePath)
         {
             _refreshToken = refreshToken;
             _outlookClientId = outlookClientId;
             _outlookClientSecret = outlookClientSecret;
 
-            SetUp(basePath);
-
             AddStandardHeader(new Param("Accept", "application/json"));
             AddStandardHeader(new Param("X-AnchorMailbox", emailAdress));
             AddStandardHeader(new Param("Authorization", "None"));
-
         }
 
         /// <summary>
@@ -131,7 +126,7 @@ namespace ApiLibs.Outlook
         }
 
 
-        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null)
+        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             try
             {

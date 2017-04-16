@@ -15,15 +15,14 @@ namespace ApiLibs.Travis
         /// <summary>
         /// WARNING: Only to be used when you don't have an access token and are about to call Connect.
         /// </summary>
-        public TravisService()
+        public TravisService() : base("https://api.travis-ci.org")
         {
 
         }
 
-        public TravisService(string travis_Token)
+        public TravisService(string travis_Token): base("https://api.travis-ci.org")
         {
             Travis_Token = travis_Token;
-            SetUp("https://api.travis-ci.org");
             Client.UserAgent = "Travis";
             AddStandardHeader(new Param("Accept", "application/vnd.travis-ci.2+json"));
             AddStandardHeader(new Param("User-Agent", "Travis"));
@@ -32,7 +31,6 @@ namespace ApiLibs.Travis
 
         public async Task<string> Connect(string GitHub_access_token)
         {
-            SetUp("https://api.travis-ci.org");
             Client.UserAgent = "Travis";
             AddStandardHeader(new Param("Accept", "application/vnd.travis-ci.2+json"));
             AddStandardHeader(new Param("User-Agent", "Travis"));

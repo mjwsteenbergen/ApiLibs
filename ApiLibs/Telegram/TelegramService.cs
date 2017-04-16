@@ -18,10 +18,10 @@ namespace ApiLibs.Telegram
 
         public string Telegram_token;
 
-        public TelegramService(string token, string applicationDirectory)
+        public TelegramService(string token, string applicationDirectory) : base("https://api.telegram.org/bot")
         {
             Telegram_token = token;
-            SetUp("https://api.telegram.org/bot" + Telegram_token);
+            SetBaseUrl("https://api.telegram.org/bot" + Telegram_token);
             mem = new Memory(applicationDirectory);
         }
 

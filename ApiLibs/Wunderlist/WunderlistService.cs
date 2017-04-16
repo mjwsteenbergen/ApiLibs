@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using RestSharp;
 
 namespace ApiLibs.Wunderlist
 {
@@ -10,33 +11,28 @@ namespace ApiLibs.Wunderlist
         /// <summary>
         /// Use this constructor if you don't have a wunderlist token
         /// </summary>
-        public WunderlistService()
-        {
-            SetUp("https://a.wunderlist.com/api/v1/");
-        }
+        public WunderlistService() : base("https://a.wunderlist.com/api/v1/") { }
 
         /// <summary>
         /// Use this constructor if you already have a wunderlist token
         /// </summary>
         /// <param name="wunderlistId"></param>
         /// <param name="wunderlistToken"></param>
-        public WunderlistService(string wunderlistId, string wunderlistToken)
+        public WunderlistService(string wunderlistId, string wunderlistToken) : base("https://a.wunderlist.com/api/v1/")
         {
-            SetUp("https://a.wunderlist.com/api/v1/");
-
             AddStandardHeader(new Param("X-Access-Token", wunderlistToken));
             AddStandardHeader(new Param("X-Client-ID", wunderlistId));
         }
 
         public void Connect(IOAuth authenticator, string WunderlistId)
         {
-            string url = "https://www.wunderlist.com/oauth/authorize?client_id=" + WunderlistId + "&redirect_uri=" + authenticator.RedirectUrl() + "&state=PleasCopyThis";
+            string url = "https://www.wunderlist.com/oauth/authorize?client_id=" + WunderlistId + "&redirect_uri=" + authenticator.RedirectUrl + "&state=PleasCopyThis";
             authenticator.ActivateOAuth(new Uri(url));
         }
 
         public async Task<string> ConvertToToken(string token, string wunderlistId, string wunderlistSecret)
         {
-            SetUp("https://www.wunderlist.com/oauth/access_token");
+            SetBaseUrl("https://www.wunderlist.com/oauth/access_token");
 
             Auth auth = await MakeRequest<Auth>("", Call.POST, new List<Param>
                 {
@@ -49,7 +45,8 @@ namespace ApiLibs.Wunderlist
 
             AddStandardHeader(new Param("X-Access-Token", wunderlistToken));
             AddStandardHeader(new Param("X-Client-ID", wunderlistId));
-            SetUp("https://a.wunderlist.com/api/v1/");
+            Client = new RestClient();
+            SetBaseUrl("https://a.wunderlist.com/api/v1/");
 
             return wunderlistToken;
         }

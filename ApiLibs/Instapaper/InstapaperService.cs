@@ -19,14 +19,10 @@ namespace ApiLibs.Instapaper
         /// Constructor to be called when you don't have a secret
         /// It is expected that <see cref="Connect"/> is called after
         /// </summary>
-        public InstapaperService()
-        {
-            SetUp("https://www.instapaper.com/api/1/");
-        }
+        public InstapaperService() : base("https://www.instapaper.com/api/1/") { }
 
-        public InstapaperService(string clientId, string clientSecret, string token, string tokenSecret)
+        public InstapaperService(string clientId, string clientSecret, string token, string tokenSecret) :base("https://www.instapaper.com/api/1.1/")
         {
-            SetUp("https://www.instapaper.com/api/1.1/");
             Client.Authenticator = OAuth1Authenticator.ForAccessToken(clientId, clientSecret, token, tokenSecret);
         }
 
