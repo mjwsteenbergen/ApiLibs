@@ -70,6 +70,8 @@
     <Compile Include="General\Service.cs" />
     <Compile Include="Reddit\ReturnClasses.cs" />
     <Compile Include="Spotify\AlbumService.cs" />
+    <Compile Include="Spotify\ArtistService.cs" />
+    <Compile Include="Spotify\ProfileService.cs" />
     <Compile Include="Spotify\PlayerService.cs" />
     <Compile Include="Spotify\ReturnClasses.cs" />
     <Compile Include="Spotify\SpotifyService.cs" />

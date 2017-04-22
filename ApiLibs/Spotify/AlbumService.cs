@@ -16,11 +16,6 @@ namespace ApiLibs.Spotify
             return await MakeRequest<Album>("albums/" + id);
         }
 
-        public async Task<List<Album>> GetAlbums(string artistID)
-        {
-            return await MakeRequest<List<Album>>("/artists/" + artistID + "/albums");
-        }
-
         public async Task<List<Album>> GetNewReleases()
         {
             return await MakeRequest<List<Album>>("/browse/new-releases");
@@ -33,7 +28,7 @@ namespace ApiLibs.Spotify
 
         public async Task<List<Track>> GetTracks(string albumId)
         {
-            return await MakeRequest<List<Track>>("/albums/" + albumId + "/tracks");
+            return (await MakeRequest<TrackResultsResponse>("/albums/" + albumId + "/tracks")).items;
         }
     }
 }

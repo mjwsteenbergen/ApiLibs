@@ -109,20 +109,27 @@ namespace ApiLibs
 
             if (parameters != null)
             {
-                if (request.Method == Method.GET || request.Method == Method.POST)
+                foreach (Param para in parameters)
                 {
-                    foreach (Param para in parameters)
+                    if (para is OParam)
                     {
+                        if (para.Value == null)
+                        {
+                            continue;
+                        }
+                    }
+
+                    if (request.Method == Method.GET || request.Method == Method.POST)
+                    {
+
                         request.AddParameter(para.Name, para.Value);
                     }
-                }
-                else
-                {
-                    foreach (Param para in parameters)
+                    else
                     {
                         request.AddParameter(para.Name, para.Value, ParameterType.QueryString);
                     }
                 }
+                
             }
 
             foreach (Param para in _standardParameter)

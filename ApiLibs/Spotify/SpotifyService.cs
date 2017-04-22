@@ -14,9 +14,11 @@ namespace ApiLibs.Spotify
     {
         private string _RefreshToken;
         private string _ClientBase64;
-        public TrackService TrackService { get; set; }
-        public AlbumService AlbumService { get; set; }
-        public PlayerService PlayerService { get; set; }
+        public TrackService TrackService { get; private set; }
+        public AlbumService AlbumService { get; private set; }
+        public PlayerService PlayerService { get; private set; }
+        public ArtistService ArtistService { get; private set; }
+        public ProfileService ProfileService { get; private set; }
 
         public class RefreshArgs : EventArgs
         {
@@ -33,6 +35,8 @@ namespace ApiLibs.Spotify
             TrackService = new TrackService(this);
             AlbumService = new AlbumService(this);
             PlayerService = new PlayerService(this);
+            ArtistService = new ArtistService(this);
+            ProfileService = new ProfileService(this);
 
             AddStandardHeader("Authorization", "To be filled in later");
         }

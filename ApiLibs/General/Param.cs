@@ -4,18 +4,18 @@ namespace ApiLibs
 {
     public class Param
     {
-        public Param(string nm, string val)
+        public Param(string name, string value)
         {
-            Name = nm;
-            Value = val;
+            Name = name;
+            Value = value;
         }
 
-        public Param(string nm, object val)
+        public Param(string name, object value)
         {
-            Name = nm;
+            Name = name;
             JsonSerializerSettings settings = new JsonSerializerSettings();
             settings.NullValueHandling = NullValueHandling.Ignore;
-            Value = JsonConvert.SerializeObject(val, settings);
+            Value = JsonConvert.SerializeObject(value, settings);
         }
 
         public string Name { get; }
@@ -27,5 +27,18 @@ namespace ApiLibs
             return "{" + Name + ":" + Value + "}";
         }
 
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class OParam : Param {
+        public OParam(string name, string value) : base(name, value)
+        {
+        }
+
+        public OParam(string name, object value) : base(name, value)
+        {
+        }
     }
 }

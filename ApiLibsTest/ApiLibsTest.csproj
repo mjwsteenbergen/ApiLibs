@@ -55,6 +55,8 @@
     <Compile Include="Spotify\AlbumsTest.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Spotify\ArtistServiceTest.cs" />
+    <Compile Include="Spotify\ProfileServiceTest.cs" />
     <Compile Include="Spotify\PlayerServiceTest.cs" />
     <Compile Include="Spotify\SpotifyTest.cs" />
     <Compile Include="Spotify\TrackServiceTest.cs" />

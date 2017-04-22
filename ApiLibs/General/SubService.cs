@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using RestSharp;
 
 namespace ApiLibs.General
 {
@@ -20,9 +21,9 @@ namespace ApiLibs.General
             return await Service.MakeRequest<T>(url, m, parameters, header, content, statusCode);
         }
 
-        internal async Task HandleRequest(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        internal async Task<IRestResponse> HandleRequest(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
-            await Service.HandleRequest(url, m, parameters, header, content, statusCode);
+            return await Service.HandleRequest(url, m, parameters, header, content, statusCode);
         }
     }
 }

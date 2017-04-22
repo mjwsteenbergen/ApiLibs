@@ -20,10 +20,10 @@ namespace ApiLibs.Spotify
 
     public class SearchObject
     {
-        public SearcTrackResults tracks { get; set; }
-        public SearchArtistResults artists { get; set; }
-        public SearchAlbumResults albums { get; set; }
-        public PlaylistResults playlists { get; set; }
+        public TrackResultsResponse tracks { get; set; }
+        public ArtistResultsResponse artists { get; set; }
+        public AlbumResultsResponse albums { get; set; }
+        public PlaylistResultsResponse playlists { get; set; }
 
     }
 
@@ -37,24 +37,24 @@ namespace ApiLibs.Spotify
         public int total { get; set; }
     }
 
-    public class SearcTrackResults : PagingObject
+    public class TrackResultsResponse : PagingObject
     {
         public List<Track> items { get; set; }
     }
 
-    public class SearchArtistResults : PagingObject
+    public class ArtistResultsResponse : PagingObject
     {
         public List<Artist> items { get; set; }
     }
 
-    public class SearchAlbumResults : PagingObject
+    public class AlbumResultsResponse : PagingObject
     {
-        public Playlist[] items { get; set; }
+        public List<Album> items { get; set; }
     }
 
-    public class PlaylistResults : PagingObject
+    public class PlaylistResultsResponse : PagingObject
     {
-        public Playlist[] items { get; set; }
+        public List<Playlist> items { get; set; }
     }
 
     public class Track
@@ -136,7 +136,7 @@ namespace ApiLibs.Spotify
 
     public class Followers
     {
-        public object href { get; set; }
+        public string href { get; set; }
         public int total { get; set; }
     }
 
@@ -348,5 +348,20 @@ namespace ApiLibs.Spotify
         public bool is_playing { get; set; }
         public Track item { get; set; }
         public Context context { get; set; }
+    }
+
+
+    public class MeObject
+    {
+        public string country { get; set; }
+        public object display_name { get; set; }
+        public External_Urls external_urls { get; set; }
+        public Followers followers { get; set; }
+        public string href { get; set; }
+        public string id { get; set; }
+        public object[] images { get; set; }
+        public string product { get; set; }
+        public string type { get; set; }
+        public string uri { get; set; }
     }
 }

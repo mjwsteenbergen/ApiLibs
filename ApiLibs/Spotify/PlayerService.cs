@@ -197,15 +197,11 @@ namespace ApiLibs.Spotify
         /// <returns></returns>
         public async Task Seek(int position, string deviceId = null)
         {
-            List<Param> param = new List<Param>
+            await HandleRequest("me/player/seek", Call.PUT, new List<Param>
             {
-                new Param("position_ms", position)
-            };
-            if (deviceId != null)
-            {
-                param.Add(new Param("device_id", deviceId));
-            }
-            await HandleRequest("me/player/seek", Call.PUT, param, statusCode: System.Net.HttpStatusCode.NoContent);
+                new Param("position_ms", position),
+                new OParam("device_id", deviceId)
+            }, statusCode: System.Net.HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -244,6 +240,21 @@ namespace ApiLibs.Spotify
                 param.Add(new Param("device_id", deviceId));
             }
             await HandleRequest("me/player/volume", Call.PUT, param, statusCode: System.Net.HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
+        /// Set the state of shuffle
+        /// </summary>
+        /// <param name="state">True for shuffling, False for not shuffling</param>
+        /// <param name="device_id">The id of the device this command is targeting.</param>
+        /// <returns></returns>
+        public async Task Shuffle(bool state, string device_id = null)
+        {
+            await HandleRequest("me/player/shuffle", Call.PUT, new List<Param>
+            {
+                new Param("state", state),
+                new OParam("device_id", device_id)
+            }, statusCode: System.Net.HttpStatusCode.NoContent);
         }
     }
 
