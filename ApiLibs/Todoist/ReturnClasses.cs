@@ -103,7 +103,7 @@ namespace ApiLibs.Todoist
     public class Item : ObjectSearcher
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
-        public string due_date { get; set; }
+        public DateTime due_date { get; set; }
         public int day_order { get; set; }
         public int? assigned_by_uid { get; set; }
         public string due_date_utc { get; set; }
@@ -111,7 +111,7 @@ namespace ApiLibs.Todoist
         public List<int> labels { get; set; }
         public int? sync_id { get; set; }
         public int in_history { get; set; }
-        public string date_added { get; set; }
+        public DateTime date_added { get; set; }
         public int @checked { get; set; }
         public string date_lang { get; set; }
         [JsonProperty]
