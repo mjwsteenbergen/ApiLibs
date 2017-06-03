@@ -68,7 +68,7 @@ namespace ApiLibs.Spotify
         /// <param name="track">The track you want to play</param>
         /// <param name="device">on which device you want to play it</param>
         /// <returns></returns>
-        public async Task Play(Track track, Device device)
+        public async Task Play(Track track, Device device = null)
         {
             await Play(new List<Track> {track}, device);
         }
@@ -81,7 +81,7 @@ namespace ApiLibs.Spotify
         /// <returns></returns>
         public async Task Play(List<Track> tracks, Device device)
         {
-            await Play(tracks.ConvertAll(i => i.id), device.id);
+            await Play(tracks.ConvertAll(i => i.id), device?.id);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace ApiLibs.Spotify
                 {"uris", trackIds.ConvertAll<string>(i => "spotify:track:" + i).ToArray()}
             };
             deviceId = deviceId == null ? "" : "?device_id = " + deviceId;
-            await Service.HandleRequest("me/player/play" + deviceId, Call.PUT, parameters: new List<Param>
+            await Service.HandleRequest("me/player/play" + deviceId, Call.PUT, new List<Param>
             {
 //                new Param("device_id", deviceId)
             }, content: kvp, statusCode: System.Net.HttpStatusCode.NoContent);

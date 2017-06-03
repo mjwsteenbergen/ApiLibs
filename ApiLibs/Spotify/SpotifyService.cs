@@ -55,6 +55,7 @@ namespace ApiLibs.Spotify
 
         public async Task<AccessTokenObject> ConvertToToken(string code, string redirectUrl, string clientId, string clientSecret)
         {
+
             AddStandardHeader("Authorization", "Basic " + Base64Encode(clientId + ":" + clientSecret));
 
             return await MakeRequest<AccessTokenObject>("api/token", Call.POST, new List<Param>
@@ -73,6 +74,10 @@ namespace ApiLibs.Spotify
             }
             catch (BadRequestException e)
             {
+                if (url == "api/token")
+                {
+                    throw;
+                }
                 await RefreshToken();
                 return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
             }
