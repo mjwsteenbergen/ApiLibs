@@ -76,6 +76,7 @@
     <Compile Include="Spotify\ReturnClasses.cs" />
     <Compile Include="Spotify\SpotifyService.cs" />
     <Compile Include="Spotify\TrackService.cs" />
+    <Compile Include="Telegram\InlineQueryResult.cs" />
     <Compile Include="Telegram\ReturnClasses.cs" />
     <Compile Include="Telegram\TelegramService.cs" />
     <Compile Include="Todoist\ReturnClasses.cs" />

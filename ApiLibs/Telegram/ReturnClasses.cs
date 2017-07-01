@@ -113,12 +113,7 @@ namespace ApiLibs.Telegram
 
     public class Update
     {
-        public Update()
-        {
-            update_id = -1;
-        }
-
-        public int update_id { get; set; }
+        public int? update_id { get; set; }
         public ConvertableMessage message { get; set; }
         public ConvertableMessage inline_query { get; set; }
         public ChosenInlineResult chosen_inline_result { get; set; }
@@ -147,6 +142,12 @@ namespace ApiLibs.Telegram
     {
         public bool ok { get; set; }
         public List<Update> result { get; set; }
+    }
+
+    public class TgSendUpdateObject
+    {
+        public bool ok { get; set; }
+        public TgMessage result { get; set; }
     }
 
     public class TgMessages
@@ -223,26 +224,12 @@ namespace ApiLibs.Telegram
         public string offset { get; set; }
     }
 
-    public class InlineQueryResultArticle
-    {
-        public string type { get; set; }
-        public string id { get; set; }
-        public string title { get; set; }
-        public InputTextMessageContent input_message_content { get; set; }
-
-        public InlineQueryResultArticle()
-        {
-            type = "article";
-        }
-
-        public override string ToString()
-        {
-            return id + ":" + title;
-        }
-    }
+    
 
     public class InputTextMessageContent
     {
         public string message_text { get; set; }
+        public ParseMode? parse_mode { get; set; } = null;
+        public bool? disable_web_page_preview { get; set; } = null;
     }
 }

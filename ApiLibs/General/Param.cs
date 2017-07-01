@@ -13,6 +13,11 @@ namespace ApiLibs
         public Param(string name, object value)
         {
             Name = name;
+            if (value == null)
+            {
+                Value = null;
+                return;
+            }
             JsonSerializerSettings settings = new JsonSerializerSettings();
             settings.NullValueHandling = NullValueHandling.Ignore;
             Value = JsonConvert.SerializeObject(value, settings);
