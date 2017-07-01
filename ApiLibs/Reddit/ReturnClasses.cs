@@ -148,7 +148,7 @@ namespace ApiLibs.Reddit
     public class Comment
     {
         public string subreddit_id { get; set; }
-        public bool edited { get; set; }
+        public object edited { get; set; }
         public object banned_by { get; set; }
         public object removal_reason { get; set; }
         public string link_id { get; set; }

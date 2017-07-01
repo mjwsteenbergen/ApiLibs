@@ -72,7 +72,7 @@ namespace ApiLibs.Todoist
         {
             foreach (Project p in await GetProjects())
             {
-                if (p.name == projectName)
+                if (p.name.ToLower() == projectName.ToLower())
                 {
                     return p;
                 }
