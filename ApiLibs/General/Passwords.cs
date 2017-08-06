@@ -34,6 +34,10 @@ namespace ApiLibs.General
         public string RedditToken { get; set; }
         public string RedditRefreshToken { get; set; }
 
+        public string SpotifyClientId { get; set; }
+        public string SpotifySecret { get; set; }
+        public string SpotifyRefreshToken { get; set; }
+
         public string Telegram_token { get; set; }
 
         public string TodoistKey { get; set; }

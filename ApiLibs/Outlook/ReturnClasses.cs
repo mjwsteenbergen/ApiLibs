@@ -28,12 +28,12 @@ namespace ApiLibs.Outlook
         public string odataid { get; set; }
         public string odataetag { get; set; }
         public string Id { get; set; }
-        public DateTime CreatedDateTime { get; set; }
-        public DateTime LastModifiedDateTime { get; set; }
+        public DateTime? CreatedDateTime { get; set; }
+        public DateTime? LastModifiedDateTime { get; set; }
         public string ChangeKey { get; set; }
         public object[] Categories { get; set; }
-        public DateTime ReceivedDateTime { get; set; }
-        public DateTime SentDateTime { get; set; }
+        public DateTime? ReceivedDateTime { get; set; }
+        public DateTime? SentDateTime { get; set; }
         public bool HasAttachments { get; set; }
         public string InternetMessageId { get; set; }
         public string Subject { get; set; }

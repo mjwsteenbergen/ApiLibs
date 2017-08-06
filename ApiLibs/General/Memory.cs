@@ -13,6 +13,9 @@ namespace ApiLibs.General
     {
         public readonly string DirectoryPath;
 
+        public static readonly string ApplicationPath =
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar;
+
         public Memory(string baseUrl)
         {
             DirectoryPath = baseUrl;

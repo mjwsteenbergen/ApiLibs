@@ -6,11 +6,17 @@ using System.Threading.Tasks;
 
 namespace ApiLibs
 {
-    public interface IOAuth
+    public abstract class IOAuth
     {
-        string RedirectUrl();
-        string ActivateOAuth(Uri url);
-        string ActivateOAuth(Uri url, string redirectUrl);
+        public abstract string RedirectUrl { get; }
+
+        public string ActivateOAuth(string url)
+        {
+            return ActivateOAuth(new Uri(url));
+        }
+
+        public abstract string ActivateOAuth(Uri url);
+        public abstract string ActivateOAuth(Uri url, string redirectUrl);
 
     }
 }

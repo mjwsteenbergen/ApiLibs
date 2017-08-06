@@ -20,7 +20,7 @@ namespace ApiLibs.Pocket
         /// Call Connect() to continue
         /// </summary>
         /// <param name="pocketKey"></param>
-        public PocketService(string pocketKey)
+        public PocketService(string pocketKey) : base("https://getpocket.com/v3/")
         {
             PocketKey = pocketKey;
         }
@@ -30,7 +30,7 @@ namespace ApiLibs.Pocket
         /// </summary>
         /// <param name="pocket_access_token"></param>
         /// <param name="pocketKey"></param>
-        public PocketService(string pocket_access_token, string pocketKey)
+        public PocketService(string pocket_access_token, string pocketKey) : base("https://getpocket.com/v3/")
         {
             Pocket_access_token = pocket_access_token;
             PocketKey = pocketKey;
@@ -38,7 +38,6 @@ namespace ApiLibs.Pocket
 
         public async Task<string> Connect(IOAuth authenticator, string GeneralRedirectUrl)
         {
-            SetUp("https://getpocket.com/v3/");
             if (Pocket_access_token != null)
             {
                 AddStandardParameter(new Param("access_token", Pocket_access_token));

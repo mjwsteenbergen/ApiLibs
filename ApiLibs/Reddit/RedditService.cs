@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using ApiLibs.General;
 using ApiLibs.Reddit;
 using RestSharp;
 using RestSharp.Authenticators;
@@ -27,12 +29,11 @@ namespace ApiLibs.Folder
         /// <param name="clientId"></param>
         /// <param name="clientSecret"></param>
         /// <param name="user"></param>
-        public RedditService(string redditToken, string refreshtoken, string clientId, string clientSecret, string user)
+        public RedditService(string redditToken, string refreshtoken, string clientId, string clientSecret, string user) : base("https://oauth.reddit.com")
         {
             Refreshtoken = refreshtoken;
             ClientSecret = clientSecret;
             _clientId = clientId;
-            SetUp("https://oauth.reddit.com");
             _user = user;
             AddStandardHeader(new Param("Authorization", "bearer " + redditToken));
         }
@@ -93,7 +94,7 @@ namespace ApiLibs.Folder
             AddStandardHeader("Authorization", "bearer " + returns.access_token);
         }
 
-        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null)
+        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             try
             {

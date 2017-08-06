@@ -39,14 +39,11 @@ namespace ApiLibs.GitHub
             AddStandardHeader(new Param("Authorization", "token " + GitHub_access_token));
         }
 
-        public GitHubService()
-        {
-            SetUp("https://api.github.com/");
-        }
+        public GitHubService() : base("https://api.github.com/") { }
 
         public void Connect(IOAuth _authenticator)
         {
-            var url = "https://github.com/login/oauth/authorize?redirect_uri=" + _authenticator.RedirectUrl() + "&client_id=" + GitHub_clientID + "&scope=repo,notifications,admin:org";
+            var url = "https://github.com/login/oauth/authorize?redirect_uri=" + _authenticator.RedirectUrl + "&client_id=" + GitHub_clientID + "&scope=repo,notifications,admin:org";
             _authenticator.ActivateOAuth(new Uri(url));
         }
 

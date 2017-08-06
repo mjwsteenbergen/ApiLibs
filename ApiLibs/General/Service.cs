@@ -16,9 +16,9 @@ namespace ApiLibs
         private readonly List<Param> _standardParameter = new List<Param>();
         private readonly List<Param> _standardHeader = new List<Param>();
 
-        public void SetUp(string hostUrl)
+        public Service(string hostUrl)
         {
-            Client = new RestClient {BaseUrl = new Uri(hostUrl)};
+            Client = new RestClient { BaseUrl = new Uri(hostUrl) };
         }
 
         internal void AddStandardParameter(Param p)
@@ -54,6 +54,11 @@ namespace ApiLibs
             }
         }
 
+        internal void UpdateHeaderIfExists(string name, string value)
+        {
+            UpdateHeaderIfExists(new Param(name, value));
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
         internal void UpdateHeaderIfExists(Param p)
         {
@@ -74,20 +79,20 @@ namespace ApiLibs
         }
         
 
-        internal async Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null)
+        internal async Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
-            IRestResponse response = await HandleRequest(url, m , parameters, header, content);
+            IRestResponse response = await HandleRequest(url, m , parameters, header, content, statusCode);
 
             return Convert<T>(response);
         }
 
-        internal virtual async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null)
+        internal virtual async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             RestRequest request = new RestRequest(url, Convert(call));
-            return await HandleRequest(request, parameters, headers, content);
+            return await HandleRequest(request, parameters, headers, content, statusCode);
         }
 
-        internal async Task<IRestResponse> HandleRequest(IRestRequest request, List <Param> parameters = null, List<Param> headers = null, object content = null)
+        internal async Task<IRestResponse> HandleRequest(IRestRequest request, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             if (headers != null)
             {
@@ -97,44 +102,63 @@ namespace ApiLibs
                 }
             }
 
-            if (content != null)
+            foreach (Param para in _standardHeader)
             {
-                JsonSerializerSettings settings = new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore
-                };
-                request.AddParameter("application/json", JsonConvert.SerializeObject(content, settings), ParameterType.RequestBody);
-                request.AddHeader("content-type", "application/json");
+                request.AddHeader(para.Name, para.Value);
             }
 
             if (parameters != null)
             {
                 foreach (Param para in parameters)
                 {
-                    request.AddParameter(para.Name, para.Value);
+                    if (para is OParam)
+                    {
+                        if (para.Value == null)
+                        {
+                            continue;
+                        }
+                    }
+
+                    if (request.Method == Method.GET || request.Method == Method.POST)
+                    {
+
+                        request.AddParameter(para.Name, para.Value);
+                    }
+                    else
+                    {
+                        request.AddParameter(para.Name, para.Value, ParameterType.QueryString);
+                    }
                 }
+                
             }
 
             foreach (Param para in _standardParameter)
             {
-                request.AddParameter(para.Name, para.Value);
+                request.AddParameter(para.Name, para.Value, ParameterType.QueryString);
             }
 
-            foreach (Param para in _standardHeader)
+            if (content != null)
             {
-                request.AddHeader(para.Name, para.Value);
+                JsonSerializerSettings settings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                };
+                //JsonConvert.SerializeObject(content, settings)
+                //                request.AddJsonBody(content);
+                request.AddParameter("application/json", JsonConvert.SerializeObject(content, settings), ParameterType.RequestBody);
+                request.AddHeader("Content-Type", "application/json");
             }
 
-            return await ExcecuteRequest(request);
+            return await ExcecuteRequest(request, statusCode);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
-        internal async Task<IRestResponse> ExcecuteRequest(IRestRequest request)
+        internal async Task<IRestResponse> ExcecuteRequest(IRestRequest request, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             Debug.Assert(Client != null, "Client != null");
             IRestResponse resp = await Client.ExecuteTaskAsync(request);
 
-            if (resp.StatusCode.ToString() != "OK" && resp.StatusCode.ToString() != "Created" && resp.StatusCode.ToString() != "ResetContent")
+            if (resp.StatusCode != statusCode && resp.StatusCode.ToString() != "Created" && resp.StatusCode.ToString() != "ResetContent")
             {
                 if (resp.ErrorException != null)
                 {
@@ -146,27 +170,26 @@ namespace ApiLibs
 
                     throw resp.ErrorException;
                 }
-                Exception toThrow;
-                RequestException e = new RequestException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
+                RequestException toThrow;
                 switch (resp.StatusCode)
                 {
                         case HttpStatusCode.NotFound:
-                            toThrow = new PageNotFoundException(e);
+                            toThrow = new PageNotFoundException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
                             break;
                         case HttpStatusCode.Unauthorized:
-                            toThrow = new UnAuthorizedException(e);
+                            toThrow = new UnAuthorizedException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
                             break;
                         case HttpStatusCode.BadRequest:
-                            toThrow = new BadRequestException(e);
+                            toThrow = new BadRequestException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
                             break;
                         default:
-                            toThrow = e;
+                            toThrow = new RequestException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
                         break;
 
                 }
                 Console.WriteLine("--Exception Log---");
                 Console.WriteLine("URL:\n" +  resp.ResponseUri);
-                Console.WriteLine("Status Code:\n" + e.StatusCode);
+                Console.WriteLine("Status Code:\n" + toThrow.StatusCode);
                 Console.WriteLine("Response Message:\n" + resp.Content);
                 Console.WriteLine("Full StackTrace:\n" + toThrow.StackTrace);
                 Console.WriteLine("---END---\n");
@@ -220,43 +243,6 @@ namespace ApiLibs
 
         
     }
-}
-
-public class NoInternetException : InvalidOperationException
-{
-    public NoInternetException(Exception inner) : base(inner.Message, inner) { }
-}
-
-public class PageNotFoundException : InvalidOperationException
-{
-    public PageNotFoundException(Exception inner) : base(inner.Message, inner) { }
-}
-
-public class UnAuthorizedException : InvalidOperationException
-{
-    public UnAuthorizedException(Exception inner) : base(inner.Message, inner) { }
-}
-
-public class BadRequestException : InvalidOperationException
-{
-    public BadRequestException(Exception inner) : base(inner.Message, inner) { }
-}
-
-public class RequestException : InvalidOperationException
-{
-    public readonly string ResponseUri;
-    public readonly HttpStatusCode StatusCode;
-    public readonly string Content;
-    public IRestResponse Response { get; set; }
-
-    public RequestException(IRestResponse response, string responseUri, HttpStatusCode statusCode, string content) : base("A problem occured while trying to access " + responseUri + ". Statuscode: " + statusCode + "\n" + content)
-    {
-        Response = response;
-        ResponseUri = responseUri;
-        StatusCode = statusCode;
-        Content = content;
-    }
-
 }
 
 enum Call

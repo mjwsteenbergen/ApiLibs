@@ -13,16 +13,14 @@ namespace ApiLibs.Todoist
     public class TodoistService : Service
     {
         private readonly SyncObject _syncObject = new SyncObject();
-        private bool firstcall = true;
 
         /// <summary>
         /// Get an access token by going to https://todoist.com/Users/viewPrefs?page=account
         /// </summary>
         /// <param name="todoistKey"></param>
         /// <param name="todoistUserAgent"></param>
-        public TodoistService(string todoistKey, string todoistUserAgent)
+        public TodoistService(string todoistKey, string todoistUserAgent) : base("https://todoist.com/API/v7/")
         {
-            SetUp("https://todoist.com/API/v7/");
             AddStandardParameter(new Param("user-agent", todoistUserAgent));
             AddStandardParameter(new Param("token", todoistKey));
             AddStandardParameter(new Param("sync_token", "*"));
@@ -74,7 +72,7 @@ namespace ApiLibs.Todoist
         {
             foreach (Project p in await GetProjects())
             {
-                if (p.name == projectName)
+                if (p.name.ToLower() == projectName.ToLower())
                 {
                     return p;
                 }
@@ -162,7 +160,7 @@ namespace ApiLibs.Todoist
                         TodoistError error = Convert<TodoistError>(e.Content);
                         throw new TodoistException(error, e);
                     }
-                    catch (JsonSerializationException notused)
+                    catch (JsonSerializationException)
                     {
                         throw e;
                     }

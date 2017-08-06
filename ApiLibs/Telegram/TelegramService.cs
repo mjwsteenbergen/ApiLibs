@@ -18,58 +18,94 @@ namespace ApiLibs.Telegram
 
         public string Telegram_token;
 
-        public TelegramService(string token, string applicationDirectory)
+        public TelegramService(string token, string applicationDirectory) : base("https://api.telegram.org/bot")
         {
             Telegram_token = token;
-            SetUp("https://api.telegram.org/bot" + Telegram_token);
+            SetBaseUrl("https://api.telegram.org/bot" + Telegram_token);
             mem = new Memory(applicationDirectory);
         }
 
-        //TODO
-        public async Task GetMe()
+        public async Task<TgMessages> GetMessages(int? timeout = null)
         {
-            await HandleRequest("/getMe", Call.POST, new List<Param>());
+            int? updateId = mem.ReadFile<Update>("data/telegram/lastID").update_id;
+
+            TgUpdateObject messages = await MakeRequest<TgUpdateObject>("/getUpdates", parameters: new List<Param>
+            {
+                new OParam("timeout", timeout.ToString()),
+                new OParam("offset", updateId.ToString())
+            });
+            messages.result.Reverse();
+
+            List<TgMessage> tgMessages = new List<TgMessage>();
+            List<TgInlineQuery> tgInlineQueries = new List<TgInlineQuery>();
+            List<ChosenInlineResult> chosenInlineResults = new List<ChosenInlineResult>();
+
+            List<From> inlineQueryHandled = new List<From>();
+
+            foreach (Update message in messages.result)
+            {
+                if (message.update_id == updateId)
+                {
+                    break;
+                }
+                if (message.IsTgMessage)
+                {
+                    TgMessage tgMessage = TgResult.Convert<TgMessage>(message.message);
+                    tgMessages.Add(tgMessage);
+                }
+                if (message.IsInlineQuery)
+                {
+                    if (inlineQueryHandled.Contains(message.inline_query.from))
+                    {
+                        continue;
+                    }
+
+                    tgInlineQueries.Add(TgResult.Convert<TgInlineQuery>(message.inline_query));
+                    inlineQueryHandled.Add(message.inline_query.from);
+                }
+                if (message.IsChosenInlineResult)
+                {
+                    chosenInlineResults.Add(message.chosen_inline_result);
+                }
+            }
+
+            TgMessages result = new TgMessages(tgMessages, tgInlineQueries, chosenInlineResults);
+
+            if (result.HasMessages())
+            {
+                mem.WriteFile("data/telegram/lastID", messages.result[0]);
+            }
+
+            return result;
         }
 
-        public async Task SendMessage(int id, string message, ParseMode mode = ParseMode.None, bool webPreview = true, int replyToMessageId = -1, object replyMarkup = null)
+        public async Task<TgMessage> SendMessage(int id, string message, ParseMode? mode = null, bool webPreview = true, int? replyToMessageId = null, object replyMarkup = null)
         {
             if (message.Length > 4096)
             {
                 message = message.Substring(4090);
             }
-            List<Param> param = new List<Param>
+
+            return (await MakeRequest<TgSendUpdateObject>("/sendMessage", Call.GET, new List<Param>
             {
                 new Param("chat_id", id.ToString()),
                 new Param("text", message),
                 new Param("disable_web_page_preview", (!webPreview).ToString()),
-            };
-            switch (mode)
-            {
-                case ParseMode.HTML:
-                    param.Add(new Param("parse_mode", "HTML"));
-                    break;
-                case ParseMode.Markdown:
-                    param.Add(new Param("parse_mode", "Markdown"));
-                    break;
-            }
-
-            if (replyToMessageId != -1)
-            {
-                param.Add(new Param("reply_to_message_id", replyToMessageId.ToString()));
-            }
-            if (replyMarkup != null)
-            {
-                param.Add(new Param("reply_markup", replyMarkup));
-            }
-
-            await HandleRequest("/sendMessage", Call.GET, param);
+                new OParam("parse_mode", mode.ToString()),
+                new OParam("reply_to_message_id", replyToMessageId),
+                new OParam("reply_markup", replyMarkup)
+            })).result;
         }
 
-        public async Task answerInlineQuery(string inline_query_id, IEnumerable<InlineQueryResultArticle> results)
+        public async Task AnswerInlineQuery(string inlineQueryId, IEnumerable<InlineQueryResultArticle> results)
         {
             try
             {
-                await HandleRequest("answerInlineQuery", parameters: new List<Param>() { new Param("inline_query_id", inline_query_id), new Param("results", results) });
+                await HandleRequest("answerInlineQuery", parameters: new List<Param>
+                {
+                    new Param("inline_query_id", inlineQueryId),
+                    new Param("results", results)
+                });
             }
             catch (BadRequestException e)
             {
@@ -79,7 +115,7 @@ namespace ApiLibs.Telegram
                 }
                 else
                 {
-                    Console.WriteLine(inline_query_id);
+                    Console.WriteLine(inlineQueryId);
                     results.ToList().ForEach(Console.WriteLine);
                 }
             }
@@ -112,88 +148,34 @@ namespace ApiLibs.Telegram
             t.Start();
         }
 
-        public async Task<TgMessages> GetMessages(int? timeout = null)
+        
+
+        public async Task<TgMessage> EditMessageText(TgMessage message, string newText, ParseMode? mode = null, bool? disableWebPagePreview = null)
         {
-            int updateId = mem.ReadFile<Update>("data/telegram/lastID").update_id;
-
-            List<Param> parameters = new List<Param>();
-
-            if (updateId != -1)
-            {
-                parameters.Add(new Param("offset", updateId.ToString()));
-            }
-
-            if (timeout != null)
-            {
-                parameters.Add(new Param("timeout", timeout.ToString()));
-            }
-
-            TgUpdateObject messages = await MakeRequest<TgUpdateObject>("/getUpdates", parameters: parameters);
-            messages.result.Reverse();
-
-            List<TgMessage> tgMessages = new List<TgMessage>();
-            List<TgInlineQuery> tgInlineQueries = new List<TgInlineQuery>();
-            List<ChosenInlineResult> chosenInlineResults = new List<ChosenInlineResult>();
-
-            List<From> alreadyInUse = new List<From>();
-
-            foreach (Update message in messages.result)
-            {
-                if (message.update_id == updateId)
-                {
-                    break;
-                }
-                if (message.IsTgMessage)
-                {
-                    TgMessage tgMessage = TgResult.Convert<TgMessage>(message.message);
-                    tgMessages.Add(tgMessage);
-                }
-                if (message.IsInlineQuery)
-                {
-                    if (alreadyInUse.Contains(message.inline_query.from))
-                    {
-                        continue;
-                    }
-
-                    tgInlineQueries.Add(TgResult.Convert<TgInlineQuery>(message.inline_query)); 
-                    alreadyInUse.Add(message.inline_query.from);
-                }
-                if (message.IsChosenInlineResult)
-                {
-                    chosenInlineResults.Add(message.chosen_inline_result);
-                }
-            }
-
-            TgMessages result = new TgMessages(tgMessages, tgInlineQueries, chosenInlineResults);
-
-            if (result.HasMessages())
-            {
-                mem.WriteFile("data/telegram/lastID", messages.result[0]);
-            }
-
-            return result;
+            return await EditMessageText(newText, message.chat.id, message.message_id, null, mode, disableWebPagePreview);
         }
-    }
 
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public class ReplyKeyboardMarkup
-    {
-        public KeyboardButton[][] keyboard { get; set; }
-        public bool resize_keyboard { get; set; }
-        public bool one_time_keyboard { get; set; }
-        public bool selective { get; set; }
-    }
+        public async Task<TgMessage> EditMessageText(string text, int chatId, int messageId, int? inlineMessageId = null, ParseMode? mode = null, bool? disableWebPagePreview = null)
+        {
+            return await MakeRequest<TgMessage>("/editMessageText", parameters: new List<Param>
+            {
+                new Param("text", text),
+                new Param("chat_id", chatId),
+                new Param("message_id", messageId),
+                new OParam("parse_mode", mode),
+                new OParam("disable_web_page_preview", disableWebPagePreview)
+            });
+        }
 
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public class KeyboardButton
-    {
-        public string text { get; set; }
-        public bool request_contact { get; set; }
-        public bool request_location { get; set; }
-    }
-
-    public enum ParseMode
-    {
-        None, Markdown, HTML
+        public async Task<TgMessage> EditMessageText(string text, int inlineMessageId, ParseMode? mode = null, bool? disableWebPagePreview = null)
+        {
+            return await MakeRequest<TgMessage>("/editMessageText", parameters: new List<Param>
+            {
+                new Param("text", text),
+                new Param("inline_message_id", inlineMessageId),
+                new OParam("parse_mode", mode),
+                new OParam("disable_web_page_preview", disableWebPagePreview)
+            });
+        }
     }
 }
