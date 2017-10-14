@@ -163,6 +163,13 @@ namespace ApiLibs.Telegram
             ChosenInlineResults = chosenInlineResults;
         }
 
+        public TgMessages()
+        {
+            Messages = new List<TgMessage>();
+            ChosenInlineResults = new List<ChosenInlineResult>();
+            tgInlineQueries = new List<TgInlineQuery>();
+        }
+
         public bool HasMessages()
         {
             return Messages.Count != 0 | tgInlineQueries.Count != 0 | ChosenInlineResults.Count != 0;

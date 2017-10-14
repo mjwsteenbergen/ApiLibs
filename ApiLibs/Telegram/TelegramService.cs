@@ -36,11 +36,9 @@ namespace ApiLibs.Telegram
             });
             messages.result.Reverse();
 
-            List<TgMessage> tgMessages = new List<TgMessage>();
-            List<TgInlineQuery> tgInlineQueries = new List<TgInlineQuery>();
-            List<ChosenInlineResult> chosenInlineResults = new List<ChosenInlineResult>();
-
             List<From> inlineQueryHandled = new List<From>();
+
+            TgMessages result = new TgMessages();
 
             foreach (Update message in messages.result)
             {
@@ -51,7 +49,7 @@ namespace ApiLibs.Telegram
                 if (message.IsTgMessage)
                 {
                     TgMessage tgMessage = TgResult.Convert<TgMessage>(message.message);
-                    tgMessages.Add(tgMessage);
+                    result.Messages.Add(tgMessage);
                 }
                 if (message.IsInlineQuery)
                 {
@@ -60,16 +58,15 @@ namespace ApiLibs.Telegram
                         continue;
                     }
 
-                    tgInlineQueries.Add(TgResult.Convert<TgInlineQuery>(message.inline_query));
+                    result.tgInlineQueries.Add(TgResult.Convert<TgInlineQuery>(message.inline_query));
                     inlineQueryHandled.Add(message.inline_query.from);
                 }
                 if (message.IsChosenInlineResult)
                 {
-                    chosenInlineResults.Add(message.chosen_inline_result);
+                    result.ChosenInlineResults.Add(message.chosen_inline_result);
                 }
             }
 
-            TgMessages result = new TgMessages(tgMessages, tgInlineQueries, chosenInlineResults);
 
             if (result.HasMessages())
             {

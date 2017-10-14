@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using ApiLibs.General;
 using Newtonsoft.Json;
-using RestSharp;
 
 
 namespace ApiLibs.Todoist
