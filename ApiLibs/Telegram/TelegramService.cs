@@ -10,70 +10,12 @@ namespace ApiLibs.Telegram
 {
     public class TelegramService : Service
     {
-        public event MessageHandler MessageRecieved;
-
-        public delegate void MessageHandler(TgMessages m, EventArgs e);
-
-        public Memory mem;
-
         public string Telegram_token;
 
         public TelegramService(string token, string applicationDirectory) : base("https://api.telegram.org/bot")
         {
             Telegram_token = token;
             SetBaseUrl("https://api.telegram.org/bot" + Telegram_token);
-            mem = new Memory(applicationDirectory);
-        }
-
-        public async Task<TgMessages> GetMessages(int? timeout = null)
-        {
-            int? updateId = mem.ReadFile<Update>("data/telegram/lastID").update_id;
-
-            TgUpdateObject messages = await MakeRequest<TgUpdateObject>("/getUpdates", parameters: new List<Param>
-            {
-                new OParam("timeout", timeout.ToString()),
-                new OParam("offset", updateId.ToString())
-            });
-            messages.result.Reverse();
-
-            List<From> inlineQueryHandled = new List<From>();
-
-            TgMessages result = new TgMessages();
-
-            foreach (Update message in messages.result)
-            {
-                if (message.update_id == updateId)
-                {
-                    break;
-                }
-                if (message.IsTgMessage)
-                {
-                    TgMessage tgMessage = TgResult.Convert<TgMessage>(message.message);
-                    result.Messages.Add(tgMessage);
-                }
-                if (message.IsInlineQuery)
-                {
-                    if (inlineQueryHandled.Contains(message.inline_query.from))
-                    {
-                        continue;
-                    }
-
-                    result.tgInlineQueries.Add(TgResult.Convert<TgInlineQuery>(message.inline_query));
-                    inlineQueryHandled.Add(message.inline_query.from);
-                }
-                if (message.IsChosenInlineResult)
-                {
-                    result.ChosenInlineResults.Add(message.chosen_inline_result);
-                }
-            }
-
-
-            if (result.HasMessages())
-            {
-                mem.WriteFile("data/telegram/lastID", messages.result[0]);
-            }
-
-            return result;
         }
 
         public async Task<TgMessage> SendMessage(int id, string message, ParseMode? mode = null, bool webPreview = true, int? replyToMessageId = null, object replyMarkup = null)
@@ -128,8 +70,8 @@ namespace ApiLibs.Telegram
                     {
                         try
                         {
-                            TgMessages mList = await GetMessages(1000);
-                            MessageRecieved?.Invoke(mList, EventArgs.Empty);
+                            //TgMessages mList = await GetMessages(1000);
+                            //MessageRecieved?.Invoke(mList, EventArgs.Empty);
                         }
                         catch (NoInternetException)
                         {
