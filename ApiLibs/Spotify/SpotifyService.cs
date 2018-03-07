@@ -72,7 +72,7 @@ namespace ApiLibs.Spotify
             {
                 return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
             }
-            catch (BadRequestException e)
+            catch (BadRequestException)
             {
                 if (url == "api/token")
                 {

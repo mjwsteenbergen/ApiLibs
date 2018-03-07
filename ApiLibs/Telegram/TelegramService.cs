@@ -62,7 +62,7 @@ namespace ApiLibs.Telegram
 
         public void LookForMessages()
         {
-            Thread t = new Thread(async () =>
+            Thread t = new Thread(() =>
             {
                 try
                 {

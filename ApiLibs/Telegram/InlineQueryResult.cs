@@ -49,7 +49,7 @@ namespace ApiLibs.Telegram
         public string gif_url { get; set; }
         public int gif_width { get; set; }
         public int gif_height { get; set; }
-        public int gif_duration{ get; set; }
+        public int gif_duration { get; set; }
         public string caption { get; set; }
 
         public InlineQueryResultGif()
