@@ -79,7 +79,7 @@ namespace ApiLibs.Telegram
             return result;
         }
 
-        public async Task<TgMessage> SendMessage(int id, string message, ParseMode? mode = null, bool webPreview = true, int? replyToMessageId = null, object replyMarkup = null)
+        public async Task<TgMessage> SendMessage(int id, string message, ParseMode? mode = null, bool webPreview = true, int? replyToMessageId = null, object replyMarkup = null, , bool? disableNotification = null)
         {
             if (message.Length > 4096)
             {
@@ -93,7 +93,8 @@ namespace ApiLibs.Telegram
                 new Param("disable_web_page_preview", (!webPreview).ToString()),
                 new OParam("parse_mode", mode.ToString()),
                 new OParam("reply_to_message_id", replyToMessageId),
-                new OParam("reply_markup", replyMarkup)
+                new OParam("reply_markup", replyMarkup),
+                new OParam("disable_notification", disableNotification)
             })).result;
         }
 
