@@ -79,7 +79,7 @@ namespace ApiLibs.Telegram
             return result;
         }
 
-        public async Task<TgMessage> SendMessage(int id, string message, ParseMode? mode = null, bool webPreview = true, int? replyToMessageId = null, object replyMarkup = null, , bool? disableNotification = null)
+        public async Task<TgMessage> SendMessage(int id, string message, ParseMode? mode = null, bool webPreview = true, int? replyToMessageId = null, object replyMarkup = null, bool? disableNotification = null)
         {
             if (message.Length > 4096)
             {
