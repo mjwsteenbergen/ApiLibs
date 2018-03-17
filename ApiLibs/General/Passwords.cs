@@ -44,6 +44,8 @@ namespace ApiLibs.General
 
         public string Instaper_ID { get => GetPasssword("Instaper_ID"); set => AddPassword("Instaper_ID", value); }
         public string Instaper_secret { get => GetPasssword("Instaper_secret"); set => AddPassword("Instaper_secret", value); }
+        public string Instaper_user_token { get => GetPasssword("Instaper_user_token"); set => AddPassword("Instaper_user_token", value); }
+        public string Instaper_user_secret { get => GetPasssword("Instaper_user_secret"); set => AddPassword("Instaper_user_secret", value); }
 
         public string OutlookClientSecret { get => GetPasssword("OutlookClientSecret"); set => AddPassword("OutlookClientSecret", value); }
         public string OutlookClientID { get => GetPasssword("OutlookClientID"); set => AddPassword("OutlookClientID", value); }
