@@ -192,6 +192,10 @@ namespace ApiLibs.Telegram
 
     public class ReplyKeyboardMarkup
     {
+        public ReplyKeyboardMarkup() {
+            one_time_keyboard = true;
+        }
+
         public KeyboardButton[][] keyboard { get; set; }
         public bool resize_keyboard { get; set; }
         public bool one_time_keyboard { get; set; }
