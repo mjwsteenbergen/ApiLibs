@@ -13,8 +13,12 @@ namespace ApiLibs.General
     {
         public readonly string DirectoryPath;
 
-        public static readonly string ApplicationPath =
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar;
+        private string ApplicationName => GetType().Assembly.GetName().Name;
+
+        public string ApplicationDataPath => DirectoryPath ?? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar +
+                                             ApplicationName + Path.DirectorySeparatorChar;
+
+        public Memory() { }
 
         public Memory(string baseUrl)
         {
@@ -40,13 +44,13 @@ namespace ApiLibs.General
 
         public string ReadFile(string filename)
         {
-            string filePath = DirectoryPath + filename;
+            string filePath = ApplicationDataPath + filename;
 
-            string FileDirectoryPath = Path.GetDirectoryName(filePath);
+            string fileDirectoryPath = Path.GetDirectoryName(filePath);
 
-            if (!Directory.Exists(FileDirectoryPath))
+            if (!Directory.Exists(fileDirectoryPath))
             {
-                Directory.CreateDirectory(FileDirectoryPath);
+                Directory.CreateDirectory(fileDirectoryPath);
             }
 
             FileStream stream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Read);
@@ -63,7 +67,7 @@ namespace ApiLibs.General
         public void WriteFile(string v, object obj)
         {
             var s = obj as string;
-            File.WriteAllText(DirectoryPath + v, s ?? JsonConvert.SerializeObject(obj, Formatting.Indented));
+            File.WriteAllText(ApplicationDataPath + v, s ?? JsonConvert.SerializeObject(obj, Formatting.Indented));
         }
     }
 }
