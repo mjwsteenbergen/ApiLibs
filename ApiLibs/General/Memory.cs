@@ -13,7 +13,7 @@ namespace ApiLibs.General
     {
         public readonly string DirectoryPath;
 
-        private string ApplicationName => GetType().Assembly.GetName().Name;
+        private string ApplicationName => AppDomain.CurrentDomain.FriendlyName;
 
         public string ApplicationDataPath => DirectoryPath ?? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar +
                                              ApplicationName + Path.DirectorySeparatorChar;
