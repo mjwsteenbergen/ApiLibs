@@ -21,6 +21,23 @@ namespace ApiLibsTest.Spotify
             spotify = new SpotifyService(passwords.SpotifyRefreshToken, passwords.SpotifyClientId, passwords.SpotifySecret);
         }
 
+        #region auth 
+
+        [Test]
+        [Ignore("Modifies State")]
+        public async Task Login()
+        {
+            Passwords passwords = Passwords.ReadPasswords(Memory.ApplicationPath + "Laurentia" + Path.DirectorySeparatorChar);
+            await spotify.Connect(new StupidOAuth(),
+            passwords.
+            );
+            Assert.IsNotEmpty(result.tracks.items);
+        }
+
+
+        #endregion
+        #region Search
+
         [Test]
         public async Task SearchTrackTest()
         {
@@ -48,5 +65,6 @@ namespace ApiLibsTest.Spotify
             var result = await spotify.Search("Rick Astley: Top Tracks", SpotifyService.SearchType.Playlist);
             Assert.IsNotEmpty(result.playlists.items);
         }
+    #endregion
     }
 }

@@ -42,7 +42,7 @@ namespace ApiLibsTest.Spotify
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task TransferPlayback()
         {
             Device d = (await playerService.GetDevices()).devices[1];
@@ -50,7 +50,7 @@ namespace ApiLibsTest.Spotify
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task PlayTest()
         {
             Track t = await spotify.TrackService.GetTrack("4uLU6hMCjMI75M1A2tKUQC");
@@ -59,7 +59,7 @@ namespace ApiLibsTest.Spotify
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task PlayAlbumTest()
         {
             Album album = await spotify.AlbumService.GetAlbum("30SqWqmSU9ww0Btb1j4rpU");
@@ -67,35 +67,35 @@ namespace ApiLibsTest.Spotify
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task PlayArtistTest()
         {
             await playerService.Play(new Artist { id= "5Pwc4xIPtQLFEnJriah9YJ" });
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task PlayPlaylistTest()
         {
             await playerService.Play(new Playlist { id= "37i9dQZEVXcGwXcYmYDANi", owner = new Owner {  id= "onerepublicofficial" }  });
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task PauseTest()
         {
             await playerService.Pause();
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task NextTest()
         {
             await playerService.Next();
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task NextWithIdTest()
         {
             var device = (await playerService.GetPlayer()).device;
@@ -103,14 +103,14 @@ namespace ApiLibsTest.Spotify
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task PreviousTest()
         {
             await playerService.Previous();
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task PreviousWithIdTest()
         {
             var device = (await playerService.GetPlayer()).device;
@@ -118,14 +118,14 @@ namespace ApiLibsTest.Spotify
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task SeekTest()
         {
             await playerService.Seek(0);
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task SeekWithIdTest()
         {
             var device = (await playerService.GetPlayer()).device;
@@ -133,14 +133,14 @@ namespace ApiLibsTest.Spotify
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task RepeatTest()
         {
             await playerService.Repeat(RepeatState.Off);
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task RepeatAllTest()
         {
             await playerService.Repeat(RepeatState.Context);
@@ -148,21 +148,22 @@ namespace ApiLibsTest.Spotify
             await playerService.Repeat(RepeatState.Off);
         }
 
-        [Test][Category("ModifyState")]
+        [Test]
+        [Ignore("Modifies State")]
         public async Task RepeatWithIdTest()
         {
             var device = (await playerService.GetPlayer()).device;
             await playerService.Repeat(RepeatState.Context, device.id);
         }
 
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         [Test]
         public async Task ShuffleTest()
         {
             await playerService.Shuffle(false);
         }
 
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         [Test]
         public async Task StartShuffleTest()
         {
@@ -170,7 +171,7 @@ namespace ApiLibsTest.Spotify
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task StartShuffleWithIdTest()
         {
             var device = (await playerService.GetPlayer()).device;

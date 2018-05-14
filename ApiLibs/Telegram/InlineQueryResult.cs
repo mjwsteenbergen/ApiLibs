@@ -209,6 +209,11 @@ namespace ApiLibs.Telegram
         public bool request_location { get; set; }
     }
 
+    public class HideKeyBoard : ReplyKeyboardMarkup
+    {
+        public bool hideKeyboard { get; set; }
+    }
+
     public enum ParseMode
     {
         Markdown, HTML

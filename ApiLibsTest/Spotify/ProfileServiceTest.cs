@@ -30,35 +30,35 @@ namespace ApiLibsTest.Spotify
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task FollowArtistTest()
         {
             await profileService.Follow(UserType.Artist, "32WkQRZEVKSzVAAYqukAEA");
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task UnfollowArtistTest()
         {
             await profileService.Unfollow(UserType.Artist, "32WkQRZEVKSzVAAYqukAEA");
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task FollowUserTest()
         {
             await profileService.Follow(UserType.User, "ohwondermusic");
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task UnfollowUserTest()
         {
             await profileService.Unfollow(UserType.User, "ohwondermusic");
         }
 
         [Test]
-        [Category("ModifyState")]
+        [Ignore("Modifies State")]
         public async Task CheckIfFollowingTest()
         {
             await profileService.CheckIfFollowing(UserType.User, new List<string> { "ohwondermusic" });
