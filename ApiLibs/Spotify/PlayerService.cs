@@ -81,7 +81,7 @@ namespace ApiLibs.Spotify
         /// <returns></returns>
         public async Task Play(List<Track> tracks, Device device)
         {
-            await Play(tracks.ConvertAll(i => i.id), device?.id);
+            await Play(tracks.ConvertAll(i => i.Id), device?.id);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace ApiLibs.Spotify
         /// <returns></returns>
         public async Task Play(Album album, string deviceId = null)
         {
-            await Play(album.id, "album", deviceId);
+            await Play(album.Id, "album", deviceId);
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace ApiLibs.Spotify
         /// <returns></returns>
         public async Task Play(Artist artist, string deviceId = null)
         {
-            await Play(artist.id, "artist", deviceId);
+            await Play(artist.Id, "artist", deviceId);
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace ApiLibs.Spotify
         /// <returns></returns>
         public async Task Play(Playlist playlist, string deviceId = null)
         {
-            await Play(playlist.id, "user:" + playlist.owner.id + ":playlist", deviceId);
+            await Play(playlist.Id, "user:" + playlist.Owner.Id + ":playlist", deviceId);
         }
 
         internal async Task Play(string contextUri, string type, string deviceId = null)

@@ -70,14 +70,14 @@ namespace ApiLibsTest.Spotify
         [Ignore("Modifies State")]
         public async Task PlayArtistTest()
         {
-            await playerService.Play(new Artist { id= "5Pwc4xIPtQLFEnJriah9YJ" });
+            await playerService.Play(new Artist { Id= "5Pwc4xIPtQLFEnJriah9YJ" });
         }
 
         [Test]
         [Ignore("Modifies State")]
         public async Task PlayPlaylistTest()
         {
-            await playerService.Play(new Playlist { id= "37i9dQZEVXcGwXcYmYDANi", owner = new Owner {  id= "onerepublicofficial" }  });
+            await playerService.Play(new Playlist { Id= "37i9dQZEVXcGwXcYmYDANi", Owner = new Owner {  Id= "onerepublicofficial" }  });
         }
 
         [Test]

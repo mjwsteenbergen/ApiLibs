@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using ApiLibs.General;
 using ApiLibs.Spotify;
 using NUnit.Framework;
+using RestSharp.Authenticators.OAuth;
 
 namespace ApiLibsTest.Spotify
 {
@@ -24,14 +25,26 @@ namespace ApiLibsTest.Spotify
         #region auth 
 
         [Test]
-        [Ignore("Modifies State")]
+       [Ignore("Modifies State")]
         public async Task Login()
         {
             Passwords passwords = Passwords.ReadPasswords(Memory.ApplicationPath + "Laurentia" + Path.DirectorySeparatorChar);
-            await spotify.Connect(new StupidOAuth(),
-            passwords.
-            );
-            Assert.IsNotEmpty(result.tracks.items);
+            spotify.Connect(new StupidOAuth(), passwords.SpotifyClientId, "https://www.nntn.nl/", new List<Scope>()
+            {
+                Scope.UserLibraryModify,Scope.PlaylistModifyPrivate,Scope.UserFollowRead,Scope.UserReadPrivate,Scope.UserTopRead
+            });
+        }
+
+        [Test]
+        [Ignore("Modifies State")]
+        public async Task GetKey()
+        {
+            spotify = new SpotifyService();
+            Passwords passwords = Passwords.ReadPasswords(Memory.ApplicationPath + "Laurentia" + Path.DirectorySeparatorChar);
+            string token =
+                "";
+            var s = await spotify.ConvertToToken(token, "https://www.nntn.nl/", passwords.SpotifyClientId,
+                passwords.SpotifySecret);
         }
 
 

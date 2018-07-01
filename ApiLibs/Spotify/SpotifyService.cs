@@ -14,11 +14,13 @@ namespace ApiLibs.Spotify
     {
         private string _RefreshToken;
         private string _ClientBase64;
-        public TrackService TrackService { get; private set; }
-        public AlbumService AlbumService { get; private set; }
-        public PlayerService PlayerService { get; private set; }
-        public ArtistService ArtistService { get; private set; }
-        public ProfileService ProfileService { get; private set; }
+        public TrackService TrackService { get; }
+        public AlbumService AlbumService { get; }
+        public PlayerService PlayerService { get; }
+        public ArtistService ArtistService { get; }
+        public ProfileService ProfileService { get; }
+        public LibraryService LibraryService { get; }
+        public PlaylistService PlaylistService { get; }
 
         public class RefreshArgs : EventArgs
         {
@@ -37,14 +39,16 @@ namespace ApiLibs.Spotify
             PlayerService = new PlayerService(this);
             ArtistService = new ArtistService(this);
             ProfileService = new ProfileService(this);
+            LibraryService = new LibraryService(this);
+            PlaylistService = new PlaylistService(this);
 
             AddStandardHeader("Authorization", "To be filled in later");
         }
 
-        public void Connect(IOAuth auth, string clientId, List<Scope> scopes, bool showDialog = false)
+        public void Connect(IOAuth auth, string clientId, string redirectUrl, List<Scope> scopes, bool showDialog = false)
         {
             auth.ActivateOAuth("https://accounts.spotify.com/authorize?response_type=code" + "&client_id=" + clientId + "&redirect_uri=" +
-                               auth.RedirectUrl + "&scope=" + String.Join(" ", scopes.Select(i => i.Value)) + "&show_dialog=" + showDialog);
+                               redirectUrl + "&scope=" + String.Join(" ", scopes.Select(i => i.Value)) + "&show_dialog=" + showDialog);
         }
 
         private string Base64Encode(string plainText)

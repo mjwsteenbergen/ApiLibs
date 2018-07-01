@@ -36,5 +36,10 @@ namespace ApiLibs.Spotify
         }
 
 
+        public async Task<AudioFeatureList> GetAudioFeatures(IEnumerable<Track> tracks)
+        {
+            return await MakeRequest<AudioFeatureList>("audio-features/?ids=" +
+                                                       tracks.Select(i => i.Id).Aggregate((i, j) => i + "," + j));
+        }
     }
 }

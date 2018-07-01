@@ -25,7 +25,7 @@ namespace ApiLibsTest.Spotify
         [Test]
         public async Task GetTrackTest()
         {
-            Assert.AreEqual("Never Gonna Give You Up", (await trackService.GetTrack("4uLU6hMCjMI75M1A2tKUQC")).name);
+            Assert.AreEqual("Never Gonna Give You Up", (await trackService.GetTrack("4uLU6hMCjMI75M1A2tKUQC")).Name);
         }
 
         [Test]

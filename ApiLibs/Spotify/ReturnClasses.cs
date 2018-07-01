@@ -3,10 +3,306 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+
 // ReSharper disable InconsistentNaming
 
 namespace ApiLibs.Spotify
 {
+    public partial class PlaylistRoot
+    {
+        [JsonProperty("href")]
+        public string Href { get; set; }
+
+        [JsonProperty("items")]
+        public List<Playlist> Items { get; set; }
+
+        [JsonProperty("limit")]
+        public long Limit { get; set; }
+
+        [JsonProperty("next")]
+        public string Next { get; set; }
+
+        [JsonProperty("offset")]
+        public long Offset { get; set; }
+
+        [JsonProperty("previous")]
+        public object Previous { get; set; }
+
+        [JsonProperty("total")]
+        public long Total { get; set; }
+    }
+
+    public partial class Playlist
+    {
+        [JsonProperty("collaborative")]
+        public bool Collaborative { get; set; }
+
+        [JsonProperty("external_urls")]
+        public ExternalUrls ExternalUrls { get; set; }
+
+        [JsonProperty("href")]
+        public string Href { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("images")]
+        public List<Image> Images { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("owner")]
+        public Owner Owner { get; set; }
+
+        [JsonProperty("primary_color")]
+        public object PrimaryColor { get; set; }
+
+        [JsonProperty("public")]
+        public bool Public { get; set; }
+
+        [JsonProperty("snapshot_id")]
+        public string SnapshotId { get; set; }
+
+        [JsonProperty("tracks")]
+        public Tracks Tracks { get; set; }
+
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
+        [JsonProperty("uri")]
+        public string Uri { get; set; }
+
+        public override string ToString()
+        {
+            return Name + " from " + Owner.Href;
+        }
+    }
+
+    public partial class Owner
+    {
+        [JsonProperty("display_name")]
+        public object DisplayName { get; set; }
+
+        [JsonProperty("external_urls")]
+        public ExternalUrls ExternalUrls { get; set; }
+
+        [JsonProperty("href")]
+        public string Href { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
+        [JsonProperty("uri")]
+        public string Uri { get; set; }
+    }
+
+    public partial class Tracks
+    {
+        [JsonProperty("href")]
+        public string Href { get; set; }
+
+        [JsonProperty("total")]
+        public long Total { get; set; }
+    }
+    public class AudioFeatureList
+    {
+        [JsonProperty("audio_features")]
+        public List<AudioFeatures> AudioFeatures { get; set; }
+    }
+
+
+    public partial class MyTrackResponse
+    {
+        [JsonProperty("href")]
+        public string Href { get; set; }
+
+        [JsonProperty("items")]
+        public List<Item> Items { get; set; }
+
+        [JsonProperty("limit")]
+        public long Limit { get; set; }
+
+        [JsonProperty("next")]
+        public string Next { get; set; }
+
+        [JsonProperty("offset")]
+        public long Offset { get; set; }
+
+        [JsonProperty("previous")]
+        public object Previous { get; set; }
+
+        [JsonProperty("total")]
+        public long Total { get; set; }
+    }
+
+    public partial class Item
+    {
+        [JsonProperty("added_at")]
+        public DateTimeOffset AddedAt { get; set; }
+
+        [JsonProperty("track")]
+        public Track Track { get; set; }
+    }
+
+    public partial class Track
+    {
+        [JsonProperty("album")]
+        public Album Album { get; set; }
+
+        [JsonProperty("artists")]
+        public List<Artist> Artists { get; set; }
+
+        [JsonProperty("available_markets")]
+        public List<string> AvailableMarkets { get; set; }
+
+        [JsonProperty("disc_number")]
+        public long DiscNumber { get; set; }
+
+        [JsonProperty("duration_ms")]
+        public long DurationMs { get; set; }
+
+        [JsonProperty("explicit")]
+        public bool Explicit { get; set; }
+
+        [JsonProperty("external_ids")]
+        public External_Ids ExternalIds { get; set; }
+
+        [JsonProperty("external_urls")]
+        public ExternalUrls ExternalUrls { get; set; }
+
+        [JsonProperty("href")]
+        public string Href { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("is_local")]
+        public bool IsLocal { get; set; }
+
+        public bool is_playable { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("popularity")]
+        public long Popularity { get; set; }
+
+        [JsonProperty("preview_url")]
+        public string PreviewUrl { get; set; }
+
+        [JsonProperty("track_number")]
+        public long TrackNumber { get; set; }
+
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
+        [JsonProperty("uri")]
+        public string Uri { get; set; }
+    }
+
+    public partial class Album
+    {
+        [JsonProperty("album_type")]
+        public AlbumType AlbumType { get; set; }
+
+        [JsonProperty("artists")]
+        public List<Artist> Artists { get; set; }
+
+        [JsonProperty("available_markets")]
+        public List<string> AvailableMarkets { get; set; }
+
+        [JsonProperty("external_urls")]
+        public ExternalUrls ExternalUrls { get; set; }
+
+        public List<string> genres { get; set; }
+
+        [JsonProperty("href")]
+        public string Href { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("images")]
+        public List<Image> Images { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        public string label { get; set; }
+
+        public int popularity { get; set; }
+
+        [JsonProperty("release_date")]
+        public string ReleaseDate { get; set; }
+
+        [JsonProperty("release_date_precision")]
+        public string ReleaseDatePrecision { get; set; }
+
+        public Tracks tracks { get; set; }
+
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
+        [JsonProperty("uri")]
+        public string Uri { get; set; }
+    }
+
+    public partial class Artist
+    {
+        [JsonProperty("external_urls")]
+        public ExternalUrls ExternalUrls { get; set; }
+
+        public Followers followers { get; set; }
+        public List<string> genres { get; set; }
+
+        [JsonProperty("href")]
+        public string Href { get; set; }
+
+        public List<Image> images { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        public int popularity { get; set; }
+
+
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
+        [JsonProperty("uri")]
+        public string Uri { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+
+    public partial class ExternalUrls
+    {
+        [JsonProperty("spotify")]
+        public string Spotify { get; set; }
+    }
+
+    public partial class Image
+    {
+        [JsonProperty("height")]
+        public long? Height { get; set; }
+
+        [JsonProperty("url")]
+        public string Url { get; set; }
+
+        [JsonProperty("width")]
+        public long? Width { get; set; }
+    }
 
     public class AccessTokenObject
     {
@@ -57,76 +353,9 @@ namespace ApiLibs.Spotify
         public List<Playlist> items { get; set; }
     }
 
-    public class Track
-    {
-        public Album album { get; set; }
-        public List<Artist> artists { get; set; }
-        public List<string> available_markets { get; set; }
-        public int disc_number { get; set; }
-        public int duration_ms { get; set; }
-        public bool _explicit { get; set; }
-        public External_Ids external_ids { get; set; }
-        public External_Urls external_urls { get; set; }
-        public string href { get; set; }
-        public string id { get; set; }
-        public bool is_playable { get; set; }
-        public string name { get; set; }
-        public int popularity { get; set; }
-        public string preview_url { get; set; }
-        public int track_number { get; set; }
-        public string type { get; set; }
-        public string uri { get; set; }
-    }
-
-    public class Album
-    {
-        public string album_type { get; set; }
-        public List<Artist> artists { get; set; }
-        public List<string> available_markets { get; set; }
-        public External_Urls external_urls { get; set; }
-        public List<string> genres { get; set; }
-        public string href { get; set; }
-        public string id { get; set; }
-        public List<Image> images { get; set; }
-        public string label { get; set; }
-        public string name { get; set; }
-        public int popularity { get; set; }
-        public string release_date { get; set; }
-        public string release_date_precision { get; set; }
-        public Tracks tracks { get; set; }
-        public string type { get; set; }
-        public string uri { get; set; }
-    }
-
     public class External_Urls
     {
         public string spotify { get; set; }
-    }
-
-    public class Artist
-    {
-        public External_Urls external_urls { get; set; }
-        public Followers followers { get; set; }
-        public List<string> genres { get; set; }
-        public string href { get; set; }
-        public string id { get; set; }
-        public List<Image> images { get; set; }
-        public string name { get; set; }
-        public int popularity { get; set; }
-        public string type { get; set; }
-        public string uri { get; set; }
-
-        public override string ToString()
-        {
-            return name;
-        }
-    }
-
-    public class Image
-    {
-        public int? height { get; set; }
-        public string url { get; set; }
-        public int? width { get; set; }
     }
 
     public class External_Ids
@@ -139,44 +368,6 @@ namespace ApiLibs.Spotify
         public string href { get; set; }
         public int total { get; set; }
     }
-
-    public class Playlist
-    {
-        public bool collaborative { get; set; }
-        public External_Urls external_urls { get; set; }
-        public string href { get; set; }
-        public string id { get; set; }
-        public List<Image> images { get; set; }
-        public string name { get; set; }
-        public Owner owner { get; set; }
-        public object _public { get; set; }
-        public string snapshot_id { get; set; }
-        public Tracks tracks { get; set; }
-        public string type { get; set; }
-        public string uri { get; set; }
-
-        public override string ToString()
-        {
-            return name + " from " + owner.href;
-        }
-    }
-
-    public class Owner
-    {
-        public External_Urls external_urls { get; set; }
-        public string href { get; set; }
-        public string id { get; set; }
-        public string type { get; set; }
-        public string uri { get; set; }
-    }
-
-    public class Tracks
-    {
-        public string href { get; set; }
-        public int total { get; set; }
-    }
-
-
 
     public class AudioAnalysis
     {

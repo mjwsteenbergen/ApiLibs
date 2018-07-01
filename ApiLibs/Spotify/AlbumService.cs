@@ -23,7 +23,7 @@ namespace ApiLibs.Spotify
 
         public async Task<List<Track>> GetTracks(Album album)
         {
-            return await GetTracks(album.id);
+            return await GetTracks(album.Id);
         }
 
         public async Task<List<Track>> GetTracks(string albumId)
