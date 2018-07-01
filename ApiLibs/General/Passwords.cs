@@ -87,21 +87,26 @@ namespace ApiLibs.General
 
         public void WriteToFile()
         {
-            WritePasswords(this, mem.DirectoryPath);
+            WritePasswords(this);
         }
 
-        public static Passwords ReadPasswords(string baseUrl)
+        public static Passwords ReadPasswords()
         {
-            Memory mem = new Memory(baseUrl);
+            Memory mem = new Memory() {
+                Application = "Laurentia"
+            };
             Passwords passwords = new Passwords(mem.ReadFile<Dictionary<string, string>>(Passwords.FileName));
             passwords.mem = mem;
             return passwords;
         }
 
 
-        public static void WritePasswords(Passwords pass, string baseUrl)
+        public static void WritePasswords(Passwords pass)
         {
-            Memory mem = new Memory(baseUrl);
+            Memory mem = new Memory()
+            {
+                Application = "Laurentia"
+            };
             mem.WriteFile(Passwords.FileName, pass);
         }
 

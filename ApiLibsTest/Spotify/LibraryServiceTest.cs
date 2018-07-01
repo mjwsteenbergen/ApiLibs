@@ -17,7 +17,7 @@ namespace ApiLibsTest.Spotify
         [OneTimeSetUp]
         public void SetUp()
         {
-            Passwords passwords = Passwords.ReadPasswords(Memory.ApplicationPath + "Laurentia" + Path.DirectorySeparatorChar);
+            Passwords passwords = Passwords.ReadPasswords();
             spotify = new SpotifyService(passwords.SpotifyRefreshToken, passwords.SpotifyClientId, passwords.SpotifySecret);
             libraryService = spotify.LibraryService;
         }

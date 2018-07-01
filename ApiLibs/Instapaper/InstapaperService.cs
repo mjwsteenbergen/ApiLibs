@@ -162,14 +162,14 @@ namespace ApiLibs.Instapaper
         /// Moves the specified bookmark to the top of the Unread folder.
         /// </summary>
         /// <param name="bookmarkId"></param>
-        public async void UnarchiveBookmark(int bookmarkId)
+        public async Task UnarchiveBookmark(int bookmarkId)
         {
             await HandleRequest("bookmarks/unarchive", parameters: new List<Param> { new Param("bookmark_id", bookmarkId.ToString()) });
         }
 
-        public async void MoveBookmark(int bookmarkId, int folderId)
+        public async Task MoveBookmark(int bookmarkId, int folderId)
         {
-            await HandleRequest("bookmars/unarchive", parameters: new List<Param>
+            await HandleRequest("bookmarks/move", parameters: new List<Param>
             {
                 new Param("bookmark_id", bookmarkId.ToString()),
                 new Param("folder_id", folderId.ToString())
