@@ -158,9 +158,6 @@ namespace ApiLibs.Pocket
         public string is_article { get; set; }
         public string used_fallback { get; set; }
         public string lang { get; set; }
-        public object[] authors { get; set; }
-        public object[] images { get; set; }
-        public object[] videos { get; set; }
         public string resolved_normal_url { get; set; }
         public string given_url { get; set; }
 

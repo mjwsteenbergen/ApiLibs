@@ -107,35 +107,30 @@ namespace ApiLibs
                 request.AddHeader(para.Name, para.Value);
             }
 
-            if (parameters != null)
+            parameters = parameters ?? new List<Param>();
+            parameters.AddRange(_standardParameter);
+
+            foreach (Param para in parameters)
             {
-                foreach (Param para in parameters)
+                if (para is OParam)
                 {
-                    if (para is OParam)
+                    if (para.Value == null)
                     {
-                        if (para.Value == null)
-                        {
-                            continue;
-                        }
-                    }
-
-                    if (request.Method == Method.GET || request.Method == Method.POST)
-                    {
-
-                        request.AddParameter(para.Name, para.Value);
-                    }
-                    else
-                    {
-                        request.AddParameter(para.Name, para.Value, ParameterType.QueryString);
+                        continue;
                     }
                 }
-                
+
+                if (request.Method == Method.GET || request.Method == Method.POST)
+                {
+
+                    request.AddParameter(para.Name, para.Value);
+                }
+                else
+                {
+                    request.AddParameter(para.Name, para.Value, ParameterType.QueryString);
+                }
             }
 
-            foreach (Param para in _standardParameter)
-            {
-                request.AddParameter(para.Name, para.Value, ParameterType.QueryString);
-            }
 
             if (content != null)
             {

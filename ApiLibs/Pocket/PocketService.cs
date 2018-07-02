@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -32,19 +33,12 @@ namespace ApiLibs.Pocket
         /// <param name="pocketKey"></param>
         public PocketService(string pocket_access_token, string pocketKey) : base("https://getpocket.com/v3/")
         {
-            Pocket_access_token = pocket_access_token;
-            PocketKey = pocketKey;
+            AddStandardParameter(new Param("access_token", pocket_access_token));
+            AddStandardParameter(new Param("consumer_key", pocketKey));
         }
 
-        public async Task<string> Connect(IOAuth authenticator, string GeneralRedirectUrl)
+        public async Task<string> Connect(IOAuth authenticator, string generalRedirectUrl)
         {
-            if (Pocket_access_token != null)
-            {
-                AddStandardParameter(new Param("access_token", Pocket_access_token));
-                AddStandardParameter(new Param("consumer_key", PocketKey));
-                return Pocket_access_token;
-            }
-
             List<Param> parameters = new List<Param>
             {
                 new Param("consumer_key", PocketKey),
@@ -55,19 +49,22 @@ namespace ApiLibs.Pocket
             
             string code = resp.Content.Replace("code=", "");
 
-            authenticator.ActivateOAuth(new Uri("https://getpocket.com/auth/authorize?request_token=" + code + "&redirect_uri=" + GeneralRedirectUrl));
+            authenticator.ActivateOAuth(new Uri("https://getpocket.com/auth/authorize?request_token=" + code + "&redirect_uri=" + generalRedirectUrl));
+            return code;
+        }
 
-            parameters = new List<Param>
+        public async Task<string> ConvertToToken(string code)
+        {
+            var parameters = new List<Param>
             {
                 new Param("consumer_key", PocketKey),
                 new Param("code", code)
             };
 
-            resp = await HandleRequest("oauth/authorize.php", Call.POST, parameters: parameters);
+            var resp = await HandleRequest("oauth/authorize.php", Call.POST, parameters: parameters);
 
             var noAccessToken = resp.Content.Replace("access_token=", "");
             string accessToken = noAccessToken.Remove(30, resp.Content.Length - 13 - 30);
-
             return accessToken;
         }
 
