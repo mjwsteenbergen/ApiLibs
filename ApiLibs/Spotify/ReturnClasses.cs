@@ -9,29 +9,7 @@ using Newtonsoft.Json;
 
 namespace ApiLibs.Spotify
 {
-    public partial class PlaylistRoot
-    {
-        [JsonProperty("href")]
-        public string Href { get; set; }
-
-        [JsonProperty("items")]
-        public List<Playlist> Items { get; set; }
-
-        [JsonProperty("limit")]
-        public long Limit { get; set; }
-
-        [JsonProperty("next")]
-        public string Next { get; set; }
-
-        [JsonProperty("offset")]
-        public long Offset { get; set; }
-
-        [JsonProperty("previous")]
-        public object Previous { get; set; }
-
-        [JsonProperty("total")]
-        public long Total { get; set; }
-    }
+    
 
     public partial class Playlist
     {
@@ -325,12 +303,53 @@ namespace ApiLibs.Spotify
 
     public class PagingObject
     {
-        public string href { get; set; }
-        public int limit { get; set; }
-        public string next { get; set; }
-        public int offset { get; set; }
-        public object previous { get; set; }
-        public int total { get; set; }
+        [JsonProperty("href")]
+        public string Href { get; set; }
+
+        [JsonProperty("limit")]
+        public long Limit { get; set; }
+
+        [JsonProperty("next")]
+        public string Next { get; set; }
+
+        [JsonProperty("offset")]
+        public long Offset { get; set; }
+
+        [JsonProperty("previous")]
+        public object Previous { get; set; }
+
+        [JsonProperty("total")]
+        public long Total { get; set; }
+    }
+
+    public partial class PlaylistResultsResponse : PagingObject
+    {
+        [JsonProperty("items")]
+        public List<Playlist> Items { get; set; }
+    }
+
+    public partial class PlaylistTrackResponse : PagingObject
+    {
+        [JsonProperty("items")]
+        public List<PlayListTrack> Items { get; set; }
+    }
+
+    public partial class PlayListTrack
+    {
+        [JsonProperty("added_at")]
+        public DateTimeOffset AddedAt { get; set; }
+
+        [JsonProperty("added_by")]
+        public Owner AddedBy { get; set; }
+
+        [JsonProperty("is_local")]
+        public bool IsLocal { get; set; }
+
+        [JsonProperty("primary_color")]
+        public object PrimaryColor { get; set; }
+
+        [JsonProperty("track")]
+        public Track Track { get; set; }
     }
 
     public class TrackResultsResponse : PagingObject
@@ -346,11 +365,6 @@ namespace ApiLibs.Spotify
     public class AlbumResultsResponse : PagingObject
     {
         public List<Album> items { get; set; }
-    }
-
-    public class PlaylistResultsResponse : PagingObject
-    {
-        public List<Playlist> items { get; set; }
     }
 
     public class External_Urls
