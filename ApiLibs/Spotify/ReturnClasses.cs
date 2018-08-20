@@ -307,7 +307,7 @@ namespace ApiLibs.Spotify
         public string Href { get; set; }
 
         [JsonProperty("limit")]
-        public long Limit { get; set; }
+        public int Limit { get; set; }
 
         [JsonProperty("next")]
         public string Next { get; set; }
@@ -319,7 +319,7 @@ namespace ApiLibs.Spotify
         public object Previous { get; set; }
 
         [JsonProperty("total")]
-        public long Total { get; set; }
+        public int Total { get; set; }
     }
 
     public partial class PlaylistResultsResponse : PagingObject

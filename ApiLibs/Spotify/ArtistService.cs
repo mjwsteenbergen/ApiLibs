@@ -30,9 +30,19 @@ namespace ApiLibs.Spotify
             })).artists;
         }
 
-        public async Task<List<Album>> GetAlbumFromArtist(string artistId)
+        public async Task<List<Album>> GetAlbumFromArtist(Artist artist, string includeGroups = null, int? limit = null, int? offset = null)
         {
-            return (await MakeRequest<AlbumResultsResponse>("artists/" + artistId + "/albums")).items;
+            return await GetAlbumFromArtist(artist.Id, includeGroups, limit, offset);
+        }
+
+        public async Task<List<Album>> GetAlbumFromArtist(string artistId, string includeGroups = null, int? limit = null, int? offset = null)
+        {
+            return (await MakeRequest<AlbumResultsResponse>("artists/" + artistId + "/albums", parameters:
+            new List<Param> {
+                new OParam("include_groups", includeGroups),
+                new OParam("limit", limit),
+                new OParam("offset", offset)
+            })).items;
         }
 
         public async Task<List<Track>> GetTopTracks(string artistId)
