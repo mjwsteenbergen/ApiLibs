@@ -13,7 +13,7 @@ namespace ApiLibs.Spotify
 
         public async Task<PlaylistResultsResponse> GetMyPlaylists()
         {
-            return await MakeRequest<PlaylistResultsResponse>("me/playlists");
+            return await MakeRequest<PlaylistResultsResponse>("me/playlists?limit=50");
         }
 
         public async Task DeletePlaylist(string ownerId, string playlistId)

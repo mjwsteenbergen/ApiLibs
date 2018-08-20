@@ -61,7 +61,7 @@ namespace ApiLibs.Spotify
     public partial class Owner
     {
         [JsonProperty("display_name")]
-        public object DisplayName { get; set; }
+        public string DisplayName { get; set; }
 
         [JsonProperty("external_urls")]
         public ExternalUrls ExternalUrls { get; set; }
@@ -559,7 +559,7 @@ namespace ApiLibs.Spotify
     public class MeObject
     {
         public string country { get; set; }
-        public object display_name { get; set; }
+        public string display_name { get; set; }
         public External_Urls external_urls { get; set; }
         public Followers followers { get; set; }
         public string href { get; set; }
