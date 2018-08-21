@@ -8,25 +8,31 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using ApiLibs.General;
 
 namespace ApiLibs.Outlook
 {
-    public class OutlookService : Service
+    public class GraphService : Service
     {
         private string _refreshToken;
         private string _outlookClientId;
         private string _outlookClientSecret;
 
         public event RefreshChangedEventHandler Changed;
-        public delegate void RefreshChangedEventHandler(OutlookService sender, RefreshArgs e);
+        public delegate void RefreshChangedEventHandler(GraphService sender, RefreshArgs e);
 
-        private static readonly string basePath = "https://outlook.office.com/api/beta/";
+        public CalendarService CalendarService { get; }
+        public ContactService ContactService { get; private set; }
+
+        private static readonly string basePath = "https://graph.microsoft.com/v1.0/";
 
         /// <summary>
         /// Create the outlook service if you need to authenticate
         /// </summary>
-        public OutlookService() : base("https://login.microsoftonline.com/common/oauth2/v2.0/") { }
+        public GraphService() : base("https://login.microsoftonline.com/common/oauth2/v2.0/")
+        {
+        }
 
         /// <summary>
         /// Create a new outlook service if all tokens are available
@@ -35,7 +41,7 @@ namespace ApiLibs.Outlook
         /// <param name="outlookClientId"></param>
         /// <param name="outlookClientSecret"></param>
         /// <param name="emailAdress"></param>
-        public OutlookService(string refreshToken, string outlookClientId, string outlookClientSecret, string emailAdress): base(basePath)
+        public GraphService(string refreshToken, string outlookClientId, string outlookClientSecret, string emailAdress): base(basePath)
         {
             _refreshToken = refreshToken;
             _outlookClientId = outlookClientId;
@@ -44,7 +50,10 @@ namespace ApiLibs.Outlook
             AddStandardHeader(new Param("Accept", "application/json"));
             AddStandardHeader(new Param("X-AnchorMailbox", emailAdress));
             AddStandardHeader(new Param("Authorization", "None"));
+            CalendarService = new CalendarService(this);
+            ContactService = new ContactService(this);
         }
+
 
         /// <summary>
         /// Execute a call to the website to get an access token
@@ -53,16 +62,25 @@ namespace ApiLibs.Outlook
         /// <param name="redirectUrl"></param>
         /// <param name="auth"></param>
         /// <returns></returns>
-        public Task Connect(string outlookId, string redirectUrl, IOAuth auth)
+        public void Connect(string outlookId, string redirectUrl, IOAuth auth, List<Scopes> scopes)
         {
             var uri =
-                new Uri("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=" + outlookId +
-                        "&redirect_uri=" + redirectUrl +
-                        "&response_type=code&scope=https%3A%2F%2Foutlook.office.com%2FMail.ReadWrite+https%3A%2F%2Foutlook.office.com%2FCalendars.ReadWrite+" +
-                        "offline_access");
+                new Uri("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?" + 
+                        "client_id=" + outlookId +
+                        "&redirect_uri=" + HttpUtility.UrlEncode(redirectUrl)  +
+                        "&response_type=code" +
+                        "&response_mode=query" +
+                        "&scope=" + scopes.Select(i => i.ToString().Replace("_", ".")).Aggregate((i, j) => i + "+" + j) +
+                        "+offline_access");
             auth.ActivateOAuth(uri);
-            return new Task(() => {});
         }
+
+        public enum Scopes
+        {
+            Calendars_ReadWrite, Calendars_ReadWrite_Shared, Contacts_ReadWrite, Device_ReadWrite_All, Directory_ReadWrite_All, Files_ReadWrite_All, Mail_ReadWrite, Mail_Send, Notes_ReadWrite_All, People_Read_All, User_ReadWrite_All,
+            Device_Read
+        }
+
 
         /// <summary>
         /// Convert the login code to a token
@@ -90,6 +108,7 @@ namespace ApiLibs.Outlook
             SetBaseUrl(basePath);
             return token;
         }
+
 
         /// <summary>
         /// Refresh the accestoken

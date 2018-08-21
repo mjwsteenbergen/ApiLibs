@@ -62,7 +62,7 @@ namespace ApiLibs.Outlook
 
         public async Task SetFlag(FlagStatus status)
         {
-            await (service as OutlookService).SetFlagged(this, status);
+            await (service as GraphService).SetFlagged(this, status);
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace ApiLibs.Outlook
         /// <returns></returns>
         public async Task SetRead(bool read)
         {
-            await (service as OutlookService).SetRead(this, read);
+            await (service as GraphService).SetRead(this, read);
         }
     }
 
@@ -160,9 +160,11 @@ namespace ApiLibs.Outlook
 
         public async Task<List<Message>> GetMessages(OData odata)
         {
-            return await (service as OutlookService).GetMessages(this, odata);
+            return await (service as GraphService).GetMessages(this, odata);
         }
     }
+
+
 
 
 
