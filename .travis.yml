@@ -1,4 +1,8 @@
 language: csharp
 mono: none
-dotnet: 2.0
+dotnet: 2.1.401
 solution: ApiLibs.sln
+script:
+ - dotnet restore
+ - dotnet build
+ - dotnet test
