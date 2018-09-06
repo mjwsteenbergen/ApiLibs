@@ -11,7 +11,7 @@ namespace ApiLibs.Todoist
 {
     public class TodoistService : Service
     {
-        private readonly SyncObject _syncObject = new SyncObject();
+        private readonly SyncRoot _syncObject = new SyncRoot();
 
         /// <summary>
         /// Get an access token by going to https://todoist.com/Users/viewPrefs?page=account
@@ -28,8 +28,8 @@ namespace ApiLibs.Todoist
         private async Task Sync()
         {
             List<Param> parameters = new List<Param> { new Param("resource_types", @"[""all""]") };
-            SyncObject syncobject = await MakeRequest<SyncObject>("sync", parameters: parameters);
-            UpdateParameterIfExists(new Param("sync_token", syncobject.sync_token));
+            SyncRoot syncobject = await MakeRequest<SyncRoot>("sync", parameters: parameters);
+            UpdateParameterIfExists(new Param("sync_token", syncobject.SyncToken));
             this._syncObject.Projects = Merger.Merge(_syncObject.Projects, syncobject.Projects);
             this._syncObject.Labels = Merger.Merge(_syncObject.Labels, syncobject.Labels);
             this._syncObject.Items = Merger.Merge(_syncObject.Items, syncobject.Items);
@@ -57,7 +57,7 @@ namespace ApiLibs.Todoist
         {
             foreach (Label label in await GetLabels())
             {
-                if (label.name == name)
+                if (label.Name == name)
                 {
                     return label;
                 }
@@ -71,7 +71,7 @@ namespace ApiLibs.Todoist
         {
             foreach (Project p in await GetProjects())
             {
-                if (p.name.ToLower() == projectName.ToLower())
+                if (p.Name.ToLower() == projectName.ToLower())
                 {
                     return p;
                 }
@@ -79,45 +79,45 @@ namespace ApiLibs.Todoist
             throw new KeyNotFoundException(projectName + " was not found");
         }
 
-        public async Task<RootObject> Search(string s)
+        public async Task<SearchResult> Search(string s)
         {
             List<Param> parameters = new List<Param>
             {
                 new Param("queries", s)
             };
 
-            List<RootObject> obj = await MakeRequest<List<RootObject>>("query", parameters: parameters);
+            List<SearchResult> obj = await MakeRequest<List<SearchResult>>("query", parameters: parameters);
 
-            return obj[0] ?? new RootObject();
+            return obj[0] ?? new SearchResult();
         }
 
         public async Task MarkTodoAsDone(Item todo)
         {
-            List<Param> parameters = new List<Param>();
-            parameters.Add(new Param("commands",
-                "[{\"type\": \"item_close\", \"uuid\": \"" + (new Random()).Next(0, 10000) + "\", \"args\": {\"id\": " +
-                todo.id + "}}]"));
-
-            //new Param("commands",@"[{""type"": ""item_complete"", ""uuid"": """ + DateTime.Now + @""", ""args"": {""project_id"": " + todo.project_id + @", ""ids"": [" + todo.id + "]}}]"));
-
-            await HandleRequest("sync", Call.GET, parameters);
+            List<Param> parameters = new List<Param>
+            {
+                new TodoistCommand("item_close", new ItemUpdate()
+                {
+                    Id = todo.Id
+                }).ToParam()
+            };
+            await HandleRequest("sync", parameters: parameters);
         }
 
         public async Task AddNote(string note, Item todo)
         {
-            await AddNote(note, todo.id);
+            await AddNote(note, todo.Id);
         }
 
         public async Task AddNote(string note, long itemId)
         {
-            Note noteObject = new Note { content = note, item_id = itemId};
+            Note noteObject = new Note { Content = note, ItemId = itemId};
             await MakeRequest<Note>("sync",
-                parameters: new List<Param> {new Param("commands", "[" + new TodoistCommand("note_add", noteObject).ToCommand() + "]")});
+                parameters: new List<Param> { new TodoistCommand("note_add", noteObject).ToParam() });
         }
-
+    
         public async Task<Item> AddTodo(string name, Project project = null, List<Label> labels = null, string date =null)
         {
-            long id = project?.id ?? -1;
+            long id = project?.Id ?? -1;
             return await AddTodo(name, id, labels, date);
         }
 
@@ -136,7 +136,7 @@ namespace ApiLibs.Todoist
                 string labelParameter = "[";
                 foreach (Label label in labels)
                 {
-                    labelParameter += label.id + ",";
+                    labelParameter += label.Id + ",";
                 }
                 labelParameter = labelParameter.Substring(0, labelParameter.Length - 1);
                 labelParameter += "]";
@@ -166,6 +166,14 @@ namespace ApiLibs.Todoist
                 }
                 throw e;
             }
+        }
+
+        public async Task Update(ItemUpdate update)
+        {
+            var res = await HandleRequest("sync", parameters: new List<Param>
+            {
+                new TodoistCommand("item_update", update).ToParam()
+            });
         }
     }
 
@@ -201,5 +209,52 @@ namespace ApiLibs.Todoist
             string serializedObject = JsonConvert.SerializeObject(this, jsonSerializerSettings);
             return serializedObject;
         }
+
+        public Param ToParam()
+        {
+            return new Param("commands", "[" + ToCommand() + "]");
+        }
+    }
+
+    public class ItemUpdate
+    {
+        [JsonProperty("id")]
+        public long Id { get; set; }
+
+        [JsonProperty("content")]
+        public string Content { get; set; }
+
+        [JsonProperty("date_string")]
+        public string DateString { get; set; }
+
+        [JsonProperty("date_lang")]
+        public string DateLang { get; set; }
+
+        [JsonProperty("due_date_utc")]
+        public string DueDateUtc { get; set; }
+
+        [JsonProperty("priority")]
+        public long? Priority { get; set; }
+
+        [JsonProperty("indent")]
+        public long? Indent { get; set; }
+
+        [JsonProperty("item_order")]
+        public long? ItemOrder { get; set; }
+
+        [JsonProperty("day_order")]
+        public long? DayOrder { get; set; }
+
+        [JsonProperty("collapsed")]
+        public long? Collapsed { get; set; }
+
+        [JsonProperty("labels")]
+        public List<long> Labels { get; set; }
+
+        [JsonProperty("assigned_by_uid")]
+        public string AssignedByUid { get; set; }
+
+        [JsonProperty("responsible_uid")]
+        public string ResponsibleUid { get; set; }
     }
 }

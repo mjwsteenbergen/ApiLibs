@@ -64,9 +64,14 @@ namespace ApiLibs.Spotify
             return bool.Parse(output.Replace("[", "").Replace("]", ""));
         }
 
-        public async Task<List<Artist>> GetFollowingArtists()
+        public async Task<ArtistResultsResponse> GetFollowingArtists(int? limit = null, string after = null)
         {
-            return (await MakeRequest<ArtistResultsResponse>("me/following")).items;
+            return (await MakeRequest<SearchObject>("me/following", parameters: new List<Param>
+            {
+                new Param("type", "artist"),
+                new OParam("limit", limit),
+                new OParam("after", after)
+            })).artists;
         }
 
         public async Task<List<Artist>> GetTopArtists()

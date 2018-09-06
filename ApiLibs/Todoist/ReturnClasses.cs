@@ -1,413 +1,555 @@
-﻿using System;
-using System.Collections;
+﻿using ApiLibs.General;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ApiLibs.General;
-//using System.Windows.Media;
-using Newtonsoft.Json;
 
-// ReSharper disable InconsistentNaming
+using System.Globalization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace ApiLibs.Todoist
 {
-    public class Note
+    public partial class SyncRoot
     {
-        public int? is_deleted { get; set; }
-        public int? is_archived { get; set; }
-        public string content { get; set; }
-        public int? posted_uid { get; set; }
-        public object uids_to_notify { get; set; }
-        public long? item_id { get; set; }
-        public long? project_id { get; set; }
-        public long? id { get; set; }
-        public string posted { get; set; }
-    }
+        [JsonProperty("full_sync")]
+        public bool FullSync { get; set; }
 
-    public class Label
-    {
-        public int item_order { get; set; }
-        public int is_deleted { get; set; }
-        public string name { get; set; }
-        public int color { get; set; }
-        public long id { get; set; }
-        public int uid { get; set; }
-
-        public string colorHex => TodoistLabelColor.Convert(color);
-//        public Brush brush
-//        {
-//            get { return (Brush)new BrushConverter().ConvertFrom(colorHex); }
-//        }
-    }
-
-    public class LiveNotification
-    {
-        public int completed_last_month { get; set; }
-        public string promo_img { get; set; }
-        public int created { get; set; }
-        public object seq_no { get; set; }
-        public string notification_key { get; set; }
-        public string notification_type { get; set; }
-        public int is_deleted { get; set; }
-        public int karma_level { get; set; }
-        public int? completed_in_days { get; set; }
-        public int? completed_tasks { get; set; }
-    }
-
-    public class User
-    {
-        public string start_page { get; set; }
-        public bool is_premium { get; set; }
-        public int sort_order { get; set; }
-        public string full_name { get; set; }
-        public int auto_reminder { get; set; }
-        public bool has_push_reminders { get; set; }
-        public long id { get; set; }
-        public int next_week { get; set; }
-        public int completed_count { get; set; }
-        public List<object> tz_offset { get; set; }
-        public string timezone { get; set; }
-        public string email { get; set; }
-        public double karma { get; set; }
-        public int start_day { get; set; }
-        public int date_format { get; set; }
-        public int inbox_project { get; set; }
-        public int time_format { get; set; }
-        public object image_id { get; set; }
-        public int beta { get; set; }
-        public string karma_trend { get; set; }
-        public object business_account_id { get; set; }
-        public object mobile_number { get; set; }
-        public object mobile_host { get; set; }
-        public int is_dummy { get; set; }
-        public string premium_until { get; set; }
-        public bool guide_mode { get; set; }
-        public string join_date { get; set; }
-        public string token { get; set; }
-        public bool is_biz_admin { get; set; }
-        public string default_reminder { get; set; }
-    }
-
-    public class Filter
-    {
-        public int user_id { get; set; }
-        public string name { get; set; }
-        public int color { get; set; }
-        public int item_order { get; set; }
-        public string query { get; set; }
-        public int is_deleted { get; set; }
-        public long id { get; set; }
-    }
-
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-    public class Item : ObjectSearcher
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-    {
-        public DateTime due_date { get; set; }
-        public int day_order { get; set; }
-        public int? assigned_by_uid { get; set; }
-        public string due_date_utc { get; set; }
-        public int is_archived { get; set; }
-        public List<int> labels { get; set; }
-        public int? sync_id { get; set; }
-        public int in_history { get; set; }
-        public DateTime date_added { get; set; }
-        public int @checked { get; set; }
-        public string date_lang { get; set; }
-        [JsonProperty]
-        public long id { get; set; }
-        public string content { get; set; }
-        public int indent { get; set; }
-        public int user_id { get; set; }
-        public int is_deleted { get; set; }
-        public int priority { get; set; }
-        public int item_order { get; set; }
-        public object responsible_uid { get; set; }
-        public long project_id { get; set; }
-        public int collapsed { get; set; }
-        public string date_string { get; set; }
-
-        //Added by me
-
-        public override string ToString()
-        {
-            return content + "[" + id + "]";
-        }
-
-        public override bool Equals(object obj)
-        {
-            return (obj as Item)?.id == this.id;
-        }
-
-
-        public List<Label> labelList = new List<Label>();
-
-        public async Task complete()
-        {
-            await (service as TodoistService).MarkTodoAsDone(this);
-        }
-
-        public async Task AddNote(string note)
-        {
-            await (service as TodoistService).AddNote(note, this);
-        }
-    }
-
-    public class TempIdMapping
-    {
-    }
-
-    public class Reminder
-    {
-        public int is_deleted { get; set; }
-        public string service { get; set; }
-        public long id { get; set; }
-        public string due_date_utc { get; set; }
-        public int minute_offset { get; set; }
-        public int item_id { get; set; }
-        public int notify_uid { get; set; }
-        public string type { get; set; }
-        public string date_lang { get; set; }
-    }
-
-
-
-    public class SyncObject : ObjectSearcher
-    {
-        public long seq_no_global { get; set; }
-        public List<object> CollaboratorStates { get; set; }
-        public List<object> ProjectNotes { get; set; }
-        public string DayOrdersTimestamp { get; set; }
-        public Note[] Notes { get; set; }
-        public Label[] Labels { get; set; }
-        public long UserId { get; set; }
-        public List<object> Locations { get; set; }
-        public List<object> Collaborators { get; set; }
-        public LiveNotification[] LiveNotifications { get; set; }
-        public User User { get; set; }
-        public Filter[] Filters { get; set; }
-        public Item[] Items { get; set; }
+        [JsonProperty("temp_id_mapping")]
         public TempIdMapping TempIdMapping { get; set; }
-        public Reminder[] Reminders { get; set; }
-        public Project[] Projects { get; set; }
-        public long LiveNotificationsLastRead { get; set; }
-        public string sync_token { get; set; }
-        public bool full_sync { get; set; }
 
+        [JsonProperty("labels")]
+        public List<Label> Labels { get; set; }
 
-        //Added by me
+        [JsonProperty("locations")]
+        public List<List<string>> Locations { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S100:Method name should comply with a naming convention", Justification = "Is returnClass")]
-        public Project getProjectById(long id)
-        {
-            foreach (var proj in Projects)
-            {
-                if (id == proj.id)
-                {
-                    return proj;
-                }
-            }
-            throw new Exception("Project Id not found. Was:" + id);
-        }
+        [JsonProperty("project_notes")]
+        public List<object> ProjectNotes { get; set; }
 
-        internal Label GetLabelbyId(int lb)
-        {
-            foreach (Label label in Labels)
-            {
-                if (label.id == lb)
-                {
-                    return label;
-                }
-            }
-            throw new Exception("id was not found");
-        }
+        [JsonProperty("user")]
+        public User User { get; set; }
 
-        public void SortProjects()
-        {
-            List<Project> projects = Projects.ToList();
-            projects.Sort((p1, p2) => p1.item_order.CompareTo(p2.item_order));
-            Projects = projects.ToArray();
-        }
+        [JsonProperty("filters")]
+        public List<Filter> Filters { get; set; }
+
+        [JsonProperty("sync_token")]
+        public string SyncToken { get; set; }
+
+        [JsonProperty("day_orders")]
+        public Dictionary<long, long> DayOrders { get; set; }
+
+        [JsonProperty("projects")]
+        public List<Project> Projects { get; set; }
+
+        [JsonProperty("collaborators")]
+        public List<object> Collaborators { get; set; }
+
+        [JsonProperty("day_orders_timestamp")]
+        public string DayOrdersTimestamp { get; set; }
+
+        [JsonProperty("live_notifications_last_read_id")]
+        public long LiveNotificationsLastReadId { get; set; }
+
+        [JsonProperty("items")]
+        public List<Item> Items { get; set; }
+
+        [JsonProperty("notes")]
+        public List<Note> Notes { get; set; }
+
+        [JsonProperty("reminders")]
+        public List<Reminder> Reminders { get; set; }
+
+        [JsonProperty("live_notifications")]
+        public List<LiveNotification> LiveNotifications { get; set; }
+
+        [JsonProperty("collaborator_states")]
+        public List<object> CollaboratorStates { get; set; }
     }
 
-    public class Project : ObjectSearcher
+    public partial class Filter
     {
-        public int user_id { get; set; }
-        public string name { get; set; }
-        public int color { get; set; }
-        public int is_deleted { get; set; }
-        public int collapsed { get; set; }
-        public long id { get; set; }
-        public object archived_date { get; set; }
-        public int item_order { get; set; }
-        public int indent { get; set; }
-        public int archived_timestamp { get; set; }
-        public bool shared { get; set; }
-        public int is_archived { get; set; }
-        public bool? inbox_project { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
 
+        [JsonProperty("color")]
+        public long Color { get; set; }
 
-        //Added by me
+        [JsonProperty("item_order")]
+        public long ItemOrder { get; set; }
 
-        public string colorHex => TodoistProjectColor.Convert(color);
-//        public Brush brush
-//        {
-//            get { return (Brush)new BrushConverter().ConvertFrom(colorHex); }
-//        }
+        [JsonProperty("is_favorite")]
+        public long IsFavorite { get; set; }
 
-        public async Task<List<Item>> GetItems()
-        {
-            return (await ((TodoistService) service).GetItems()).Where(t => t.project_id == id).ToList();
-        }
+        [JsonProperty("query", NullValueHandling = NullValueHandling.Ignore)]
+        public string Query { get; set; }
 
-        public override string ToString()
-        {
-            return name + "[" + id + "]";
-        }
+        [JsonProperty("is_deleted")]
+        public long IsDeleted { get; set; }
+
+        [JsonProperty("id")]
+        public long Id { get; set; }
     }
 
-    public class Datum
+
+    public partial class Label
     {
-        public string due_date { get; set; }
-        public int? assigned_by_uid { get; set; }
-        public int is_archived { get; set; }
-        public List<object> labels { get; set; }
-        public int? sync_id { get; set; }
-        public int postpone_count { get; set; }
-        public int in_history { get; set; }
-        public int indent { get; set; }
-        public int @checked { get; set; }
-        public string date_added { get; set; }
-        public string date_lang { get; set; }
-        public long id { get; set; }
-        public int priority { get; set; }
-        public int complete_count { get; set; }
-        public int user_id { get; set; }
-        public int mm_offset { get; set; }
-        public int is_deleted { get; set; }
-        public string content { get; set; }
-        public int item_order { get; set; }
-        public object seq_no { get; set; }
-        public object responsible_uid { get; set; }
-        public int project_id { get; set; }
-        public int collapsed { get; set; }
-        public string date_string { get; set; }
-        public int? day_order { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("color")]
+        public long Color { get; set; }
+
+        [JsonProperty("item_order")]
+        public long ItemOrder { get; set; }
+
+        [JsonProperty("is_favorite")]
+        public long IsFavorite { get; set; }
+
+        [JsonProperty("is_deleted")]
+        public long IsDeleted { get; set; }
+
+        [JsonProperty("id")]
+        public long Id { get; set; }
     }
 
-    public class RootObject
+    public partial class Item
+    {
+        [JsonProperty("day_order")]
+        public long DayOrder { get; set; }
+
+        [JsonProperty("assigned_by_uid")]
+        public object AssignedByUid { get; set; }
+
+        [JsonProperty("is_archived")]
+        public long IsArchived { get; set; }
+
+        [JsonProperty("labels")]
+        public List<int> Labels { get; set; }
+
+        [JsonProperty("sync_id")]
+        public object SyncId { get; set; }
+
+        [JsonProperty("date_completed")]
+        public DateTime? DateCompleted { get; set; }
+
+        [JsonProperty("all_day")]
+        public bool AllDay { get; set; }
+
+        [JsonProperty("in_history")]
+        public long InHistory { get; set; }
+
+        [JsonProperty("date_added")]
+        public string DateAdded { get; set; }
+
+        [JsonProperty("indent")]
+        public long Indent { get; set; }
+
+        [JsonProperty("date_lang")]
+        public string DateLang { get; set; }
+
+        [JsonProperty("id")]
+        public long Id { get; set; }
+
+        [JsonProperty("priority")]
+        public long Priority { get; set; }
+
+        [JsonProperty("checked")]
+        public long Checked { get; set; }
+
+        [JsonProperty("user_id")]
+        public long UserId { get; set; }
+
+        [JsonProperty("has_more_notes")]
+        public bool HasMoreNotes { get; set; }
+
+        [JsonProperty("due_date_utc")]
+        public DateTime? DueDateUtc { get; set; }
+
+        [JsonProperty("content")]
+        public string Content { get; set; }
+
+        [JsonProperty("parent_id")]
+        public object ParentId { get; set; }
+
+        [JsonProperty("item_order")]
+        public long ItemOrder { get; set; }
+
+        [JsonProperty("is_deleted")]
+        public long IsDeleted { get; set; }
+
+        [JsonProperty("responsible_uid")]
+        public object ResponsibleUid { get; set; }
+
+        [JsonProperty("project_id")]
+        public long ProjectId { get; set; }
+
+        [JsonProperty("collapsed")]
+        public long Collapsed { get; set; }
+
+        [JsonProperty("date_string")]
+        public string DateString { get; set; }
+    }
+
+    public partial class LiveNotification
+    {
+        [JsonProperty("created")]
+        public long Created { get; set; }
+
+        [JsonProperty("is_deleted")]
+        public long IsDeleted { get; set; }
+
+        [JsonProperty("top_procent", NullValueHandling = NullValueHandling.Ignore)]
+        public double? TopProcent { get; set; }
+
+        [JsonProperty("completed_tasks", NullValueHandling = NullValueHandling.Ignore)]
+        public long? CompletedTasks { get; set; }
+
+        [JsonProperty("notification_key")]
+        public string NotificationKey { get; set; }
+
+        [JsonProperty("notification_type")]
+        public string NotificationType { get; set; }
+
+        [JsonProperty("promo_img")]
+        public Uri PromoImg { get; set; }
+
+        [JsonProperty("date_reached", NullValueHandling = NullValueHandling.Ignore)]
+        public long? DateReached { get; set; }
+
+        [JsonProperty("karma_level")]
+        public long KarmaLevel { get; set; }
+
+        [JsonProperty("id")]
+        public long Id { get; set; }
+
+        [JsonProperty("is_unread")]
+        public long IsUnread { get; set; }
+
+        [JsonProperty("completed_last_month", NullValueHandling = NullValueHandling.Ignore)]
+        public long? CompletedLastMonth { get; set; }
+
+        [JsonProperty("completed_in_days", NullValueHandling = NullValueHandling.Ignore)]
+        public long? CompletedInDays { get; set; }
+    }
+
+    public partial class Note
+    {
+        [JsonProperty("reactions")]
+        public object Reactions { get; set; }
+
+        [JsonProperty("is_deleted")]
+        public long IsDeleted { get; set; }
+
+        [JsonProperty("is_archived")]
+        public long IsArchived { get; set; }
+
+        [JsonProperty("file_attachment")]
+        public FileAttachment FileAttachment { get; set; }
+
+        [JsonProperty("content")]
+        public string Content { get; set; }
+
+        [JsonProperty("posted_uid")]
+        public long PostedUid { get; set; }
+
+        [JsonProperty("uids_to_notify")]
+        public object UidsToNotify { get; set; }
+
+        [JsonProperty("item_id")]
+        public long ItemId { get; set; }
+
+        [JsonProperty("project_id")]
+        public long ProjectId { get; set; }
+
+        [JsonProperty("id")]
+        public long Id { get; set; }
+
+        [JsonProperty("posted")]
+        public string Posted { get; set; }
+    }
+
+    public partial class FileAttachment
+    {
+        [JsonProperty("url")]
+        public Uri Url { get; set; }
+
+        [JsonProperty("description")]
+        public string Description { get; set; }
+
+        [JsonProperty("resource_type")]
+        public string ResourceType { get; set; }
+
+        [JsonProperty("title")]
+        public string Title { get; set; }
+    }
+
+    public partial class Project
+    {
+        [JsonProperty("color")]
+        public long Color { get; set; }
+
+        [JsonProperty("collapsed")]
+        public long Collapsed { get; set; }
+
+        [JsonProperty("inbox_project", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? InboxProject { get; set; }
+
+        [JsonProperty("is_favorite")]
+        public long IsFavorite { get; set; }
+
+        [JsonProperty("indent")]
+        public long Indent { get; set; }
+
+        [JsonProperty("is_deleted")]
+        public long IsDeleted { get; set; }
+
+        [JsonProperty("id")]
+        public long Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("has_more_notes")]
+        public bool HasMoreNotes { get; set; }
+
+        [JsonProperty("parent_id")]
+        public object ParentId { get; set; }
+
+        [JsonProperty("item_order")]
+        public long ItemOrder { get; set; }
+
+        [JsonProperty("shared")]
+        public bool Shared { get; set; }
+
+        [JsonProperty("is_archived")]
+        public long IsArchived { get; set; }
+    }
+
+    public partial class Reminder
+    {
+        [JsonProperty("is_deleted")]
+        public long IsDeleted { get; set; }
+
+        [JsonProperty("service", NullValueHandling = NullValueHandling.Ignore)]
+        public string Service { get; set; }
+
+        [JsonProperty("id")]
+        public long Id { get; set; }
+
+        [JsonProperty("due_date_utc", NullValueHandling = NullValueHandling.Ignore)]
+        public string DueDateUtc { get; set; }
+
+        [JsonProperty("minute_offset", NullValueHandling = NullValueHandling.Ignore)]
+        public long? MinuteOffset { get; set; }
+
+        [JsonProperty("item_id")]
+        public long ItemId { get; set; }
+
+        [JsonProperty("notify_uid")]
+        public long NotifyUid { get; set; }
+
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
+        [JsonProperty("date_lang", NullValueHandling = NullValueHandling.Ignore)]
+        public string DateLang { get; set; }
+
+        [JsonProperty("date_string", NullValueHandling = NullValueHandling.Ignore)]
+        public string DateString { get; set; }
+
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [JsonProperty("sync_id")]
+        public object SyncId { get; set; }
+
+        [JsonProperty("loc_long", NullValueHandling = NullValueHandling.Ignore)]
+        public string LocLong { get; set; }
+
+        [JsonProperty("loc_lat", NullValueHandling = NullValueHandling.Ignore)]
+        public string LocLat { get; set; }
+
+        [JsonProperty("radius", NullValueHandling = NullValueHandling.Ignore)]
+        public long? Radius { get; set; }
+
+        [JsonProperty("project_id", NullValueHandling = NullValueHandling.Ignore)]
+        public long? ProjectId { get; set; }
+
+        [JsonProperty("loc_trigger", NullValueHandling = NullValueHandling.Ignore)]
+        public string LocTrigger { get; set; }
+    }
+
+    public partial class TempIdMapping
+    {
+    }
+
+    public partial class User
+    {
+        [JsonProperty("start_page")]
+        public string StartPage { get; set; }
+
+        [JsonProperty("features")]
+        public Features Features { get; set; }
+
+        [JsonProperty("completed_today")]
+        public long CompletedToday { get; set; }
+
+        [JsonProperty("is_premium")]
+        public bool IsPremium { get; set; }
+
+        [JsonProperty("sort_order")]
+        public long SortOrder { get; set; }
+
+        [JsonProperty("full_name")]
+        public string FullName { get; set; }
+
+        [JsonProperty("auto_reminder")]
+        public long AutoReminder { get; set; }
+
+        [JsonProperty("id")]
+        public long Id { get; set; }
+
+        [JsonProperty("share_limit")]
+        public long ShareLimit { get; set; }
+
+        [JsonProperty("days_off")]
+        public List<long> DaysOff { get; set; }
+
+        [JsonProperty("magic_num_reached")]
+        public bool MagicNumReached { get; set; }
+
+        [JsonProperty("next_week")]
+        public long NextWeek { get; set; }
+
+        [JsonProperty("completed_count")]
+        public long CompletedCount { get; set; }
+
+        [JsonProperty("daily_goal")]
+        public long DailyGoal { get; set; }
+
+        [JsonProperty("theme")]
+        public long Theme { get; set; }
+
+        [JsonProperty("tz_info")]
+        public TzInfo TzInfo { get; set; }
+
+        [JsonProperty("email")]
+        public string Email { get; set; }
+
+        [JsonProperty("start_day")]
+        public long StartDay { get; set; }
+
+        [JsonProperty("weekly_goal")]
+        public long WeeklyGoal { get; set; }
+
+        [JsonProperty("date_format")]
+        public long DateFormat { get; set; }
+
+        [JsonProperty("websocket_url")]
+        public string WebsocketUrl { get; set; }
+
+        [JsonProperty("inbox_project")]
+        public long InboxProject { get; set; }
+
+        [JsonProperty("time_format")]
+        public long TimeFormat { get; set; }
+
+        [JsonProperty("image_id")]
+        public object ImageId { get; set; }
+
+        [JsonProperty("karma_trend")]
+        public string KarmaTrend { get; set; }
+
+        [JsonProperty("business_account_id")]
+        public object BusinessAccountId { get; set; }
+
+        [JsonProperty("mobile_number")]
+        public object MobileNumber { get; set; }
+
+        [JsonProperty("mobile_host")]
+        public object MobileHost { get; set; }
+
+        [JsonProperty("premium_until")]
+        public string PremiumUntil { get; set; }
+
+        [JsonProperty("karma_vacation")]
+        public long KarmaVacation { get; set; }
+
+        [JsonProperty("dateist_lang")]
+        public object DateistLang { get; set; }
+
+        [JsonProperty("join_date")]
+        public string JoinDate { get; set; }
+
+        [JsonProperty("karma")]
+        public long Karma { get; set; }
+
+        [JsonProperty("is_biz_admin")]
+        public bool IsBizAdmin { get; set; }
+
+        [JsonProperty("default_reminder")]
+        public string DefaultReminder { get; set; }
+
+        [JsonProperty("dateist_inline_disabled")]
+        public bool DateistInlineDisabled { get; set; }
+
+        [JsonProperty("token")]
+        public string Token { get; set; }
+    }
+
+    public partial class Features
+    {
+        [JsonProperty("karma_disabled")]
+        public bool KarmaDisabled { get; set; }
+
+        [JsonProperty("restriction")]
+        public long Restriction { get; set; }
+
+        [JsonProperty("karma_vacation")]
+        public long KarmaVacation { get; set; }
+
+        [JsonProperty("dateist_lang")]
+        public object DateistLang { get; set; }
+
+        [JsonProperty("beta")]
+        public long Beta { get; set; }
+
+        [JsonProperty("has_push_reminders")]
+        public bool HasPushReminders { get; set; }
+
+        [JsonProperty("dateist_inline_disabled")]
+        public bool DateistInlineDisabled { get; set; }
+    }
+
+    public partial class TzInfo
+    {
+        [JsonProperty("hours")]
+        public long Hours { get; set; }
+
+        [JsonProperty("timezone")]
+        public string Timezone { get; set; }
+
+        [JsonProperty("is_dst")]
+        public long IsDst { get; set; }
+
+        [JsonProperty("minutes")]
+        public long Minutes { get; set; }
+
+        [JsonProperty("gmt_string")]
+        public string GmtString { get; set; }
+    }
+
+    public class SearchResult
     {
         public string query { get; set; }
         public string type { get; set; }
-        public List<Datum> data { get; set; }
+        public List<Item> data { get; set; }
     }
-
-    public static class TodoistProjectColor
-    {
-        public static string Convert(int color)
-        {
-            switch (color)
-            {
-                case 0:
-                    return "#95ef63";
-                case 1:
-                    return "#ff8581";
-                case 2:
-                    return "#ffc471";
-                case 3:
-                    return "#f9ec75";
-                case 4:
-                    return "#a8c8e4";
-                case 5:
-                    return "#d2b8a3";
-                case 6:
-                    return "#e2a8e4";
-                case 7:
-                    return "#cccccc";
-                case 8:
-                    return "#fb886e";
-                case 9:
-                    return "#ffcc00";
-                case 10:
-                    return "#74e8d3";
-                case 11:
-                    return "#3bd5fb";
-                case 12:
-                    return "#dc4fad";
-                case 13:
-                    return "#ac193d";
-                case 14:
-                    return "#d24726";
-                case 15:
-                    return "#82ba00";
-                case 16:
-                    return "#03b3b2";
-                case 17:
-                    return "#008299";
-                case 18:
-                    return "#5db2ff";
-                case 19:
-                    return "#0072c6";
-                case 20:
-                    return "#000000";
-                case 21:
-                    return "#777777";
-                default:
-                    return "#000000";
-            }
-        }
-    }
-
-    public static class TodoistLabelColor
-    {
-        public static string Convert(int color)
-        {
-            switch (color)
-            {
-                case 0:
-                    return "#019412";
-                case 1:
-                    return "#a39d01";
-                case 2:
-                    return "#e73d02";
-                case 3:
-                    return "#e702a4";
-                case 4:
-                    return "#9902e7";
-                case 5:
-                    return "#1d02e7";
-                case 6:
-                    return "#0082c5";
-                case 7:
-                    return "#555555";
-                case 8:
-                    return "#008299";
-                case 9:
-                    return "#03b3b2";
-                case 10:
-                    return "#ac193d";
-                case 11:
-                    return "#82ba00";
-                case 12:
-                    return "#111111";
-                default:
-                    return "#000000";
-
-            }
-        }
-    }
-
 
     public class TodoistError
     {
         public string error_tag { get; set; }
         public int error_code { get; set; }
-        public Error_Extra error_extra { get; set; }
         public string error { get; set; }
-    }
-
-    public class Error_Extra
-    {
     }
 
     public class TodoistException : Exception
@@ -420,5 +562,4 @@ namespace ApiLibs.Todoist
             Error = error;
         }
     }
-
 }

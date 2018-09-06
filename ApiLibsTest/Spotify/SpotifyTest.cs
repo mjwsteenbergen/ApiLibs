@@ -76,7 +76,7 @@ namespace ApiLibsTest.Spotify
         public async Task SearchPlayListTest()
         {
             var result = await spotify.Search("Rick Astley: Top Tracks", SpotifyService.SearchType.Playlist);
-            Assert.IsNotEmpty(result.playlists.items);
+            Assert.IsNotEmpty(result.playlists.Items);
         }
     #endregion
     }
