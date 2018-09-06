@@ -107,8 +107,7 @@ namespace ApiLibs.General
             {
                 Application = "Laurentia"
             };
-            mem.WriteFile(Passwords.FileName, pass);
+            mem.WriteFile(Passwords.FileName, pass.passwords);
         }
-
     }
 }
