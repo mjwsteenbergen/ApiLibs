@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using ApiLibs.General;
 using Newtonsoft.Json;
+using RestSharp;
 
 
 namespace ApiLibs.Todoist
@@ -33,6 +35,22 @@ namespace ApiLibs.Todoist
             this._syncObject.Projects = Merger.Merge(_syncObject.Projects, syncobject.Projects);
             this._syncObject.Labels = Merger.Merge(_syncObject.Labels, syncobject.Labels);
             this._syncObject.Items = Merger.Merge(_syncObject.Items, syncobject.Items);
+        }
+
+        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null,
+            HttpStatusCode statusCode = HttpStatusCode.OK)
+        {
+            var res = await base.HandleRequest(url, call, parameters, headers, content, statusCode);
+            if (url.ToLower() == "sync")
+            {
+                var result = JsonConvert.DeserializeObject<SyncResult>(res.Content);
+                if (result.SyncStatus?.Values.Any(i => i != "ok") ?? false)
+                {
+                    throw new TodoistException(null, null);
+                }
+            }
+
+            return res;
         }
 
         public async Task<List<Project>> GetProjects()
@@ -115,57 +133,27 @@ namespace ApiLibs.Todoist
                 parameters: new List<Param> { new TodoistCommand("note_add", noteObject).ToParam() });
         }
     
-        public async Task<Item> AddTodo(string name, Project project = null, List<Label> labels = null, string date =null)
+        public async Task<long> AddTodo(string name, Project project = null, string date = null, int? priority = null, int? indent = null, string note = null, List<Label> labels = null)
         {
-            long id = project?.Id ?? -1;
-            return await AddTodo(name, id, labels, date);
+            return await AddTodo(name, project?.Id, date, priority, indent, note, labels);
         }
 
-        public async Task<Item> AddTodo(string name, long id, List<Label> labels = null, string date = null)
+        public async Task<long> AddTodo(string name, long? project_id = null, string date = null, int? priority = null, int? indent = null, string note = null, List<Label> labels = null)
         {
-            List<Param> parameters = new List<Param>
+            var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
             {
-                new Param("content", name),
-            };
-            if (id != -1)
-            {
-                parameters.Add(new Param("project_id", id.ToString()));
-            }
-            if (labels != null && labels.Count > 0)
-            {
-                string labelParameter = "[";
-                foreach (Label label in labels)
+                new TodoistCommand("item_add", new
                 {
-                    labelParameter += label.Id + ",";
-                }
-                labelParameter = labelParameter.Substring(0, labelParameter.Length - 1);
-                labelParameter += "]";
-                parameters.Add(new Param("labels", labelParameter));
-            }
-            if (date != null)
-            {
-                parameters.Add(new Param("date_string", date));
-            }
-            try
-            {
-                return await MakeRequest<Item>("add_item", parameters: parameters);
-            }
-            catch(RequestException e)
-            {
-                if (e.Content != "")
-                {
-                    try
-                    {
-                        TodoistError error = Convert<TodoistError>(e.Content);
-                        throw new TodoistException(error, e);
-                    }
-                    catch (JsonSerializationException)
-                    {
-                        throw e;
-                    }
-                }
-                throw e;
-            }
+                    content = name,
+                    project_id,
+                    date_string = date,
+                    priority,
+                    indent,
+                    note,
+                    labels = labels?.Select(i => i.Id).ToArray()
+                }).ToParam()
+            });
+            return res.TempIdMapping.Values.FirstOrDefault();
         }
 
         public async Task Update(ItemUpdate update)
@@ -173,6 +161,38 @@ namespace ApiLibs.Todoist
             var res = await HandleRequest("sync", parameters: new List<Param>
             {
                 new TodoistCommand("item_update", update).ToParam()
+            });
+        }
+
+        public async Task<long> CreateProject(string name, int? color = null, int? indent = null, int? itemOrder = null, bool? isFavorite = null)
+        {
+            var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
+            {
+                new TodoistCommand("project_add", new
+                {
+                    name,
+                    color,
+                    indent,
+                    item_order = itemOrder,
+                    is_favorite = isFavorite
+                }).ToParam()
+            });
+            return res.TempIdMapping.Values.FirstOrDefault();
+        }
+
+        public async Task RemoveProject(Project project)
+        {
+            await RemoveProject(project.Id);
+        }
+
+        public async Task RemoveProject(long projectId)
+        {
+            var res = await MakeRequest<string>("sync", parameters: new List<Param>
+            {
+                new TodoistCommand("project_delete", new
+                {
+                    ids = new [] {projectId.ToString()}
+                }).ToParam()
             });
         }
     }
@@ -186,7 +206,7 @@ namespace ApiLibs.Todoist
         public int Uuid { get; set; }
 
         [JsonProperty(PropertyName = "temp_id")]
-        public int? Temp_id { get; set; }
+        public string TempId { get; set; }
 
         [JsonProperty(PropertyName = "args")]
         public Object Arguments { get; set; }
@@ -194,11 +214,11 @@ namespace ApiLibs.Todoist
         public TodoistCommand(string type, object args)
         {
             Uuid = (new Random()).Next(0, 10000);
-            if (type.Contains("add"))
-            {
-                Temp_id = (new Random()).Next(0, 10000);
-            }
             this.Type = type;
+            if (Type != null && Type.Contains("add"))
+            {
+                TempId = $"{RandomString(8)}-{RandomString(4)}-{RandomString(4)}-{RandomString(4)}-{RandomString(12)}";
+            }
             Arguments = args;
         }
 
@@ -213,6 +233,14 @@ namespace ApiLibs.Todoist
         public Param ToParam()
         {
             return new Param("commands", "[" + ToCommand() + "]");
+        }
+
+        private static Random random = new Random();
+        private static string RandomString(int length)
+        {
+            const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 

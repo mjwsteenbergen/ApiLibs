@@ -123,7 +123,7 @@ namespace ApiLibs.Todoist
         public long IsArchived { get; set; }
 
         [JsonProperty("labels")]
-        public List<int> Labels { get; set; }
+        public List<long> Labels { get; set; }
 
         [JsonProperty("sync_id")]
         public object SyncId { get; set; }
@@ -561,5 +561,20 @@ namespace ApiLibs.Todoist
         {
             Error = error;
         }
+    }
+
+    public partial class SyncResult
+    {
+        [JsonProperty("sync_status")]
+        public Dictionary<string, string> SyncStatus { get; set; }
+
+        [JsonProperty("temp_id_mapping", NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, long> TempIdMapping { get; set; }
+
+        [JsonProperty("full_sync")]
+        public bool FullSync { get; set; }
+
+        [JsonProperty("sync_token")]
+        public string SyncToken { get; set; }
     }
 }
