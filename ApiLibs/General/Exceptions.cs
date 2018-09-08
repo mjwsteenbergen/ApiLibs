@@ -10,19 +10,13 @@ namespace ApiLibs.General
 {
     public class RequestException : InvalidOperationException
     {
-        public readonly string ResponseUri;
-        public readonly HttpStatusCode StatusCode;
-        public readonly string Content;
+        public override string Message => $"Got {(int)Response.StatusCode}:{Response.StatusDescription} while trying to access \"{Response.ResponseUri}\". {Response.ErrorMessage} \n {Response.Content}";
         public IRestResponse Response { get; set; }
 
-        public RequestException(IRestResponse response, string responseUri, HttpStatusCode statusCode, string content) : base("A problem occured while trying to access " + responseUri + ". Statuscode: " + statusCode + "\n" + content)
+        public RequestException(IRestResponse response) : base()
         {
             Response = response;
-            ResponseUri = responseUri;
-            StatusCode = statusCode;
-            Content = content;
         }
-
     }
 
     public class NoInternetException : InvalidOperationException
@@ -32,21 +26,21 @@ namespace ApiLibs.General
 
     public class PageNotFoundException : RequestException
     {
-        public PageNotFoundException(IRestResponse response, string responseUri, HttpStatusCode statusCode, string content) : base(response, responseUri, statusCode, content)
+        public PageNotFoundException(IRestResponse response) : base(response)
         {
         }
     }
 
     public class UnAuthorizedException : RequestException
     {
-        public UnAuthorizedException(IRestResponse response, string responseUri, HttpStatusCode statusCode, string content) : base(response, responseUri, statusCode, content)
+        public UnAuthorizedException(IRestResponse response) : base(response)
         {
         }
     }
 
     public class BadRequestException : RequestException
     {
-        public BadRequestException(IRestResponse response, string responseUri, HttpStatusCode statusCode, string content) : base(response, responseUri, statusCode, content)
+        public BadRequestException(IRestResponse response) : base(response)
         {
         }
     }

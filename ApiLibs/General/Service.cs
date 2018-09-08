@@ -138,8 +138,7 @@ namespace ApiLibs
                 {
                     NullValueHandling = NullValueHandling.Ignore
                 };
-                //JsonConvert.SerializeObject(content, settings)
-                //                request.AddJsonBody(content);
+
                 request.AddParameter("application/json", JsonConvert.SerializeObject(content, settings), ParameterType.RequestBody);
                 request.AddHeader("Content-Type", "application/json");
             }
@@ -165,30 +164,18 @@ namespace ApiLibs
 
                     throw resp.ErrorException;
                 }
-                RequestException toThrow;
+
                 switch (resp.StatusCode)
                 {
-                        case HttpStatusCode.NotFound:
-                            toThrow = new PageNotFoundException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
-                            break;
-                        case HttpStatusCode.Unauthorized:
-                            toThrow = new UnAuthorizedException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
-                            break;
-                        case HttpStatusCode.BadRequest:
-                            toThrow = new BadRequestException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
-                            break;
-                        default:
-                            toThrow = new RequestException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
-                        break;
-
+                    case HttpStatusCode.NotFound:
+                        throw new PageNotFoundException(resp);
+                    case HttpStatusCode.Unauthorized:
+                        throw new UnAuthorizedException(resp);
+                    case HttpStatusCode.BadRequest:
+                        throw new BadRequestException(resp);
+                    default:
+                        throw new RequestException(resp);
                 }
-                Console.WriteLine("--Exception Log---");
-                Console.WriteLine("URL:\n" +  resp.ResponseUri);
-                Console.WriteLine("Status Code:\n" + toThrow.StatusCode);
-                Console.WriteLine("Response Message:\n" + resp.Content);
-                Console.WriteLine("Full StackTrace:\n" + toThrow.StackTrace);
-                Console.WriteLine("---END---\n");
-                throw toThrow;
             }
             return resp;
         }
