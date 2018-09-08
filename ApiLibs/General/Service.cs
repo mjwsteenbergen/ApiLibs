@@ -200,6 +200,11 @@ namespace ApiLibs
 
         internal T Convert<T>(string text)
         {
+            if (typeof(T) == typeof(string))
+            {
+                return (T) (object) text;
+            }
+
             T returnObj = JsonConvert.DeserializeObject<T>(text);
             if (returnObj is ObjectSearcher)
             {

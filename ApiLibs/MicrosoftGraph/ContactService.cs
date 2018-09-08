@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using ApiLibs.General;
 
-namespace ApiLibs.Outlook
+namespace ApiLibs.MicrosoftGraph
 {
     public class ContactService : SubService
     {

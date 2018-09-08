@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using ApiLibs.General;
 
-namespace ApiLibs.Outlook
+namespace ApiLibs.MicrosoftGraph
 {
     public class CalendarService : SubService
     {

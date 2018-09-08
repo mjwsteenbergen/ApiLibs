@@ -1,29 +1,27 @@
-﻿using Newtonsoft.Json;
-using RestSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using ApiLibs.General;
+using RestSharp;
 
-namespace ApiLibs.Outlook
+namespace ApiLibs.MicrosoftGraph
 {
     public class GraphService : Service
     {
         private string _refreshToken;
-        private string _outlookClientId;
-        private string _outlookClientSecret;
+        private readonly string _clientId;
+        private readonly string _clientSecret;
 
         public event RefreshChangedEventHandler Changed;
         public delegate void RefreshChangedEventHandler(GraphService sender, RefreshArgs e);
 
         public CalendarService CalendarService { get; }
         public ContactService ContactService { get; private set; }
+        public OneDriveService OneDriveService { get; private set; }
+        public MailService MailService { get; private set; }
 
         private static readonly string basePath = "https://graph.microsoft.com/v1.0/";
 
@@ -38,20 +36,22 @@ namespace ApiLibs.Outlook
         /// Create a new outlook service if all tokens are available
         /// </summary>
         /// <param name="refreshToken"></param>
-        /// <param name="outlookClientId"></param>
-        /// <param name="outlookClientSecret"></param>
+        /// <param name="clientId"></param>
+        /// <param name="clientSecret"></param>
         /// <param name="emailAdress"></param>
-        public GraphService(string refreshToken, string outlookClientId, string outlookClientSecret, string emailAdress): base(basePath)
+        public GraphService(string refreshToken, string clientId, string clientSecret, string emailAdress): base(basePath)
         {
             _refreshToken = refreshToken;
-            _outlookClientId = outlookClientId;
-            _outlookClientSecret = outlookClientSecret;
+            _clientId = clientId;
+            _clientSecret = clientSecret;
 
             AddStandardHeader(new Param("Accept", "application/json"));
             AddStandardHeader(new Param("X-AnchorMailbox", emailAdress));
             AddStandardHeader(new Param("Authorization", "None"));
             CalendarService = new CalendarService(this);
             ContactService = new ContactService(this);
+            OneDriveService = new OneDriveService(this);
+            MailService = new MailService(this);
         }
 
 
@@ -122,8 +122,8 @@ namespace ApiLibs.Outlook
 
             List<Param> parameters = new List<Param>
             {
-                new Param("client_id", _outlookClientId),
-                new Param("client_secret", _outlookClientSecret),
+                new Param("client_id", _clientId),
+                new Param("client_secret", _clientSecret),
                 new Param("refresh_token", _refreshToken),
                 new Param("redirect_uri", "https://www.microsoft.com"),
                 new Param("grant_type", "refresh_token")
@@ -145,7 +145,9 @@ namespace ApiLibs.Outlook
         }
 
 
-        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET,
+            List<Param> parameters = null, List<Param> headers = null, object content = null,
+            HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             try
             {
@@ -158,92 +160,6 @@ namespace ApiLibs.Outlook
             }
 
         }
-
-        /// <summary>
-        /// Gets flagged data
-        /// </summary>
-        /// <param name="data"><see cref="OData"/> arguments</param>
-        /// <returns>A list of <see cref="Message"/> objects</returns>
-        public async Task<List<Message>> GetFlaggedEmail(OData data)
-        {
-            data.Filter = "Flag/FlagStatus eq 'Flagged'";
-            MessageRoot root = (await MakeRequest<MessageRoot>("me/messages" + data.ConvertToUrl()));
-            root.value.ToList().ForEach(message => message.service = root.service);
-            return root.value.ToList();
-        }
-
-        private class Flagger
-        {
-            public Flag Flag;
-        }
-
-        /// <summary>
-        /// Sets the flagstatus of a message
-        /// </summary>
-        /// <param name="m">A <see cref="Message"/> object</param>
-        /// <param name="status">Status to set it to</param>
-        /// <returns></returns>
-        public async Task<Message> SetFlagged(Message m, FlagStatus status)
-        {
-            return await MakeRequest<Message>("me/messages/" + m.Id, Call.PATCH, content: new Flagger { Flag = new Flag { FlagStatus = status.ToString() }});
-        }
-
-        /// <summary>
-        /// Mark a <see cref="Message"/> as read or unread
-        /// </summary>
-        /// <param name="m">A <see cref="Message"/> object</param>
-        /// <param name="read">If the item should be marked as read (true) or unread (false)</param>
-        /// <returns></returns>
-        public async Task<Message> SetRead(Message m, bool read)
-        {
-            return await SetRead(m.Id, read);
-        }
-
-        /// <summary>
-        /// Mark a <see cref="Message"/> as read or unread
-        /// </summary>
-        /// <param name="id">Message id</param>
-        /// <param name="read">If the item should be marked as read (true) or unread (false)</param>
-        /// <returns></returns>
-        public async Task<Message> SetRead(string id, bool read)
-        {
-            return await MakeRequest<Message>("me/messages/" + id, Call.PATCH, content: new MessageChange { IsRead = read, Categories = new string[0] });
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="oData"><see cref="OData"/> arguments</param>
-        /// <returns></returns>
-        public async Task<List<Folder>> GetFolders(OData oData)
-        {
-            var returns =  (await MakeRequest<FolderRoot>("me/MailFolders" + oData.ConvertToUrl())).value.ToList();
-            return returns;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="folderName">Name of the folder</param>
-        /// <param name="oData"><see cref="OData"/> arguments</param>
-        /// <returns></returns>
-        public async Task<Folder> GetFolder(string folderName, OData oData)
-        {
-            return (await GetFolders(oData)).Find(folder => folder.DisplayName == folderName);
-        }
-
-        /// <summary>
-        /// Gets messages from a <see cref="Folder"/>
-        /// </summary>
-        /// <param name="folder">A <see cref="Folder"/> object</param>
-        /// <param name="data"><see cref="OData"/> arguments</param>
-        /// <returns></returns>
-        public async Task<List<Message>> GetMessages(Folder folder, OData data)
-        {
-            return (await MakeRequest<MessageRoot>("me/MailFolders/" + folder.Id + "/messages" + data.ConvertToUrl())).value.ToList();
-        }
-
-        
     }
 
     public enum FlagStatus
