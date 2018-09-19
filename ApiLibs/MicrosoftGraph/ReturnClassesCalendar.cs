@@ -199,6 +199,11 @@ namespace ApiLibs.MicrosoftGraph
 
         [JsonProperty("Calendar@odata.navigationLink")]
         public string CalendarOdataNavigationLink { get; set; }
+
+        public override string ToString()
+        {
+            return Subject;
+        }
     }
 
     public partial class Attendee
@@ -367,7 +372,7 @@ namespace ApiLibs.MicrosoftGraph
         public long NumberOfOccurrences { get; set; }
     }
 
-    public enum Response { Accepted, None, Organizer };
+    public enum Response { Accepted, None, Organizer, NotResponded };
 
     public partial class NewEvent
     {
@@ -390,4 +395,69 @@ namespace ApiLibs.MicrosoftGraph
         public List<Attendee> Attendees { get; set; }
     }
 
+    public partial class BatchResponse
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("status")]
+        public long Status { get; set; }
+
+        [JsonProperty("headers")]
+        public Headers Headers { get; set; }
+
+        [JsonProperty("body")]
+        public ResponseBody Body { get; set; }
+    }
+
+    public partial class ResponseBody
+    {
+        [JsonProperty("error", NullValueHandling = NullValueHandling.Ignore)]
+        public Error Error { get; set; }
+
+        [JsonProperty("@odata.context", NullValueHandling = NullValueHandling.Ignore)]
+        public Uri OdataContext { get; set; }
+
+        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        public List<Event> Value { get; set; }
+    }
+
+    public partial class Error
+    {
+        [JsonProperty("code")]
+        public string Code { get; set; }
+
+        [JsonProperty("message")]
+        public string Message { get; set; }
+
+        [JsonProperty("innerError")]
+        public InnerError InnerError { get; set; }
+    }
+
+    public partial class InnerError
+    {
+        [JsonProperty("request-id")]
+        public Guid RequestId { get; set; }
+
+        [JsonProperty("date")]
+        public DateTimeOffset Date { get; set; }
+    }
+
+    public partial class Headers
+    {
+        [JsonProperty("Cache-Control")]
+        public string CacheControl { get; set; }
+
+        [JsonProperty("OData-Version", NullValueHandling = NullValueHandling.Ignore)]
+        public string ODataVersion { get; set; }
+
+        [JsonProperty("Content-Type", NullValueHandling = NullValueHandling.Ignore)]
+        public string ContentType { get; set; }
+    }
+
+    public partial class BatchResult
+    {
+        [JsonProperty("responses")]
+        public List<BatchResponse> Responses { get; set; }
+    }
 }

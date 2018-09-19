@@ -13,7 +13,6 @@ namespace ApiLibsTest.MicrosoftGraph
         [SetUp]
         public void SetUp()
         {
-            Passwords passwords = Passwords.ReadPasswords();
             _graph = GetGraphService();
         }
 
