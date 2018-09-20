@@ -92,6 +92,11 @@ namespace ApiLibs.MicrosoftGraph
         {
             return await (service as GraphService).MailService.GetMessages(this, odata);
         }
+
+        public override string ToString()
+        {
+            return DisplayName;
+        }
     }
 
     public class MessageRoot : ObjectSearcher

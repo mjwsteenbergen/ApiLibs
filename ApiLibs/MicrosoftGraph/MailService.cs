@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApiLibs.General;
@@ -107,6 +108,38 @@ namespace ApiLibs.MicrosoftGraph
         public async Task<List<Message>> GetMessages(EmailFolder folder, OData data)
         {
             return (await MakeRequest<MessageRoot>("me/MailFolders/" + folder.Id + "/messages" + data.ConvertToUrl())).value.ToList();
+        }
+
+
+        /// <summary>
+        /// Move a message to a folder. This creates a new copy of the message in the destination folder and removes the original message.
+        /// </summary>
+        /// <param name="message">A <see cref="Message"/> object</param>
+        /// <param name="folder">A <see cref="DriveItem"/> object</param>
+        /// <returns></returns>
+        public async Task Move(Message message, EmailFolder folder)
+        {
+            await Move(message.Id, folder.Id);
+        }
+
+        /// <summary>
+        /// Move a message to a folder. This creates a new copy of the message in the destination folder and removes the original message.
+        /// </summary>
+        /// <param name="messageId">Id of the message</param>
+        /// <param name="folderId">Id of the folder</param>
+        /// <returns></returns>
+        private async Task Move(string messageId, string folderId)
+        {
+            await MakeRequest<string>($"/me/messages/{messageId}/move", Call.POST, content: new
+            {
+                destinationId = folderId
+            });
+        }
+
+        public async Task Archive(Message message)
+        {
+            EmailFolder archiveFolder = await GetFolder("Archive", new OData().GetMaxItems());
+            await Move(message, archiveFolder);
         }
     }
 }
