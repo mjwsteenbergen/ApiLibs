@@ -195,6 +195,17 @@ namespace ApiLibs.Todoist
                 }).ToParam()
             });
         }
+
+        public async Task RemoveTodo(Item other)
+        {
+            var res = await MakeRequest<string>("sync", parameters: new List<Param>
+            {
+                new TodoistCommand("item_delete", new
+                {
+                    ids = new [] {other.Id.ToString()}
+                }).ToParam()
+            });
+        }
     }
 
     public class TodoistCommand
