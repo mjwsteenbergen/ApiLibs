@@ -22,7 +22,7 @@ namespace ApiLibs.Telegram
         {
             if (message.Length > 4096)
             {
-                message = message.Substring(4090);
+                message = message.Substring(4090).Replace("_", "%5F");
             }
 
             return (await MakeRequest<TgSendUpdateObject>("/sendMessage", Call.GET, new List<Param>
