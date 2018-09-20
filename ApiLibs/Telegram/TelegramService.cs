@@ -25,7 +25,7 @@ namespace ApiLibs.Telegram
                 message = message.Substring(4090);
             }
 
-            message = message..Replace("_", "%5F");
+            message = message.Replace("_", "%5F");
 
             return (await MakeRequest<TgSendUpdateObject>("/sendMessage", Call.GET, new List<Param>
             {
