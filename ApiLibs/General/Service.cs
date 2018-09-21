@@ -12,12 +12,14 @@ namespace ApiLibs
 {
     public abstract class Service
     {
+        private readonly bool _debug;
         internal RestClient Client;
         private readonly List<Param> _standardParameter = new List<Param>();
         private readonly List<Param> _standardHeader = new List<Param>();
 
-        public Service(string hostUrl)
+        public Service(string hostUrl, bool debug = false)
         {
+            _debug = debug;
             Client = new RestClient { BaseUrl = new Uri(hostUrl) };
         }
 
@@ -41,14 +43,13 @@ namespace ApiLibs
             _standardHeader.RemoveAll(p => p.Name == name);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
         internal void UpdateParameterIfExists(Param p)
         {
             foreach (Param para in _standardParameter)
             {
                 if (para.Name == p.Name)
                 {
-                    Console.WriteLine(para.Name + " was: " + para.Value + " is: " + p.Value);
+                    Print(para.Name + " was: " + para.Value + " is: " + p.Value);
                     para.Value = p.Value;
                 }
             }
@@ -59,14 +60,13 @@ namespace ApiLibs
             UpdateHeaderIfExists(new Param(name, value));
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
         internal void UpdateHeaderIfExists(Param p)
         {
             foreach (Param para in _standardHeader)
             {
                 if (para.Name == p.Name)
                 {
-                    Console.WriteLine(para.Name + " was: " + para.Value + " is: " + p.Value);
+                    Print(para.Name + " was: " + para.Value + " is: " + p.Value);
                     para.Value = p.Value;
 
                 }
@@ -146,7 +146,6 @@ namespace ApiLibs
             return await ExcecuteRequest(request, statusCode);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
         internal async Task<IRestResponse> ExcecuteRequest(IRestRequest request, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             Debug.Assert(Client != null, "Client != null");
@@ -223,12 +222,13 @@ namespace ApiLibs
             Client.BaseUrl = new Uri(baseurl);
         }
 
-        internal void Print(IRestResponse resp)
+        internal void Print(string s)
         {
-            Console.WriteLine(resp.Content);
+            if (_debug)
+            {
+                Console.WriteLine(s);
+            }
         }
-
-        
     }
 }
 
