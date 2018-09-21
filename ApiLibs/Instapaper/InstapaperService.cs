@@ -33,7 +33,7 @@ namespace ApiLibs.Instapaper
         /// <param name="password">password of the user</param>
         /// <param name="clientId">the id of your application</param>
         /// <param name="clientSecret">secret of your application</param>
-        public void Connect(string username, string password, string clientId, string clientSecret)
+        public (string token, string secret) Connect(string username, string password, string clientId, string clientSecret)
         {
             var client = new RestClient("https://www.instapaper.com/api/1/")
             {
@@ -49,6 +49,8 @@ namespace ApiLibs.Instapaper
             string token = respParameters[1].Replace("oauth_token=", "");
 
             client.Authenticator = OAuth1Authenticator.ForAccessToken(clientId, clientSecret, token, tokenSecret);
+
+            return (token, tokenSecret);
         }
 
         /// <summary>
