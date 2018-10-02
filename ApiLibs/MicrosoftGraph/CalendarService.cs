@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using ApiLibs.General;
 
-namespace ApiLibs.Outlook
+namespace ApiLibs.MicrosoftGraph
 {
     public class CalendarService : SubService
     {
@@ -28,10 +27,10 @@ namespace ApiLibs.Outlook
             await HandleRequest("/me/events", Call.POST, content: ev);
         }
 
-        public async Task GetAllEventsOfAllCalendars(DateTime startTime, DateTime endTime)
+        public async Task<List<Event>> GetAllEventsOfAllCalendars(DateTime startTime, DateTime endTime)
         {
             var myCals = await GetMyCalendars();
-            var res = await HandleRequest("$batch", Call.POST, content: new
+            var res = await MakeRequest<BatchResult>("$batch", Call.POST, content: new
             {
                 requests = myCals.Select(i => new
                     {
@@ -41,6 +40,8 @@ namespace ApiLibs.Outlook
                         id = i.Name
                     })
             });
+
+            return res.Responses.Select(i => i.Body).Where(i => i.Error == null).SelectMany(i => i.Value).ToList();
         }
     }
 }

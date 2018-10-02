@@ -12,12 +12,14 @@ namespace ApiLibs
 {
     public abstract class Service
     {
+        private readonly bool _debug;
         internal RestClient Client;
         private readonly List<Param> _standardParameter = new List<Param>();
         private readonly List<Param> _standardHeader = new List<Param>();
 
-        public Service(string hostUrl)
+        public Service(string hostUrl, bool debug = false)
         {
+            _debug = debug;
             Client = new RestClient { BaseUrl = new Uri(hostUrl) };
         }
 
@@ -41,14 +43,13 @@ namespace ApiLibs
             _standardHeader.RemoveAll(p => p.Name == name);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
         internal void UpdateParameterIfExists(Param p)
         {
             foreach (Param para in _standardParameter)
             {
                 if (para.Name == p.Name)
                 {
-                    Console.WriteLine(para.Name + " was: " + para.Value + " is: " + p.Value);
+                    Print(para.Name + " was: " + para.Value + " is: " + p.Value);
                     para.Value = p.Value;
                 }
             }
@@ -59,14 +60,13 @@ namespace ApiLibs
             UpdateHeaderIfExists(new Param(name, value));
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
         internal void UpdateHeaderIfExists(Param p)
         {
             foreach (Param para in _standardHeader)
             {
                 if (para.Name == p.Name)
                 {
-                    Console.WriteLine(para.Name + " was: " + para.Value + " is: " + p.Value);
+                    Print(para.Name + " was: " + para.Value + " is: " + p.Value);
                     para.Value = p.Value;
 
                 }
@@ -138,8 +138,7 @@ namespace ApiLibs
                 {
                     NullValueHandling = NullValueHandling.Ignore
                 };
-                //JsonConvert.SerializeObject(content, settings)
-                //                request.AddJsonBody(content);
+
                 request.AddParameter("application/json", JsonConvert.SerializeObject(content, settings), ParameterType.RequestBody);
                 request.AddHeader("Content-Type", "application/json");
             }
@@ -147,7 +146,6 @@ namespace ApiLibs
             return await ExcecuteRequest(request, statusCode);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S2228:Console logging should not be used", Justification = "I can")]
         internal async Task<IRestResponse> ExcecuteRequest(IRestRequest request, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             Debug.Assert(Client != null, "Client != null");
@@ -165,30 +163,18 @@ namespace ApiLibs
 
                     throw resp.ErrorException;
                 }
-                RequestException toThrow;
+
                 switch (resp.StatusCode)
                 {
-                        case HttpStatusCode.NotFound:
-                            toThrow = new PageNotFoundException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
-                            break;
-                        case HttpStatusCode.Unauthorized:
-                            toThrow = new UnAuthorizedException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
-                            break;
-                        case HttpStatusCode.BadRequest:
-                            toThrow = new BadRequestException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
-                            break;
-                        default:
-                            toThrow = new RequestException(resp, resp.ResponseUri.Host, resp.StatusCode, resp.Content);
-                        break;
-
+                    case HttpStatusCode.NotFound:
+                        throw new PageNotFoundException(resp);
+                    case HttpStatusCode.Unauthorized:
+                        throw new UnAuthorizedException(resp);
+                    case HttpStatusCode.BadRequest:
+                        throw new BadRequestException(resp);
+                    default:
+                        throw new RequestException(resp);
                 }
-                Console.WriteLine("--Exception Log---");
-                Console.WriteLine("URL:\n" +  resp.ResponseUri);
-                Console.WriteLine("Status Code:\n" + toThrow.StatusCode);
-                Console.WriteLine("Response Message:\n" + resp.Content);
-                Console.WriteLine("Full StackTrace:\n" + toThrow.StackTrace);
-                Console.WriteLine("---END---\n");
-                throw toThrow;
             }
             return resp;
         }
@@ -200,6 +186,11 @@ namespace ApiLibs
 
         internal T Convert<T>(string text)
         {
+            if (typeof(T) == typeof(string))
+            {
+                return (T) (object) text;
+            }
+
             T returnObj = JsonConvert.DeserializeObject<T>(text);
             if (returnObj is ObjectSearcher)
             {
@@ -231,12 +222,13 @@ namespace ApiLibs
             Client.BaseUrl = new Uri(baseurl);
         }
 
-        internal void Print(IRestResponse resp)
+        internal void Print(string s)
         {
-            Console.WriteLine(resp.Content);
+            if (_debug)
+            {
+                Console.WriteLine(s);
+            }
         }
-
-        
     }
 }
 

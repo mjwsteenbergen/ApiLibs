@@ -1,29 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
-using ApiLibs;
 using ApiLibs.General;
-using ApiLibs.Outlook;
+using ApiLibs.MicrosoftGraph;
 using NUnit.Framework;
 
-namespace ApiLibsTest.Outlook
+namespace ApiLibsTest.MicrosoftGraph
 {
     class CalendarServiceTest
     {
-        GraphService _graph;
         private CalendarService calendar;
 
 
         [OneTimeSetUp]
         public void SetUp()
         {
-            Passwords passwords =
-                Passwords.ReadPasswords(Memory.ApplicationPath + "Laurentia" + Path.DirectorySeparatorChar);
-            _graph = new GraphService(passwords.OutlookRefreshToken, passwords.OutlookClientID,
-                passwords.OutlookClientSecret, passwords.OutlookEmail);
-            calendar = _graph.CalendarService;
+            calendar = GraphTest.GetGraphService().CalendarService;
         }
 
         [Test]
