@@ -23,7 +23,7 @@ namespace ApiLibsTest.Instapaper
 
         [Test]
         [Ignore("Overrides some stuff")]
-        public async Task ConnectTest()
+        public void ConnectTest()
         {
             Passwords passwords = Passwords.ReadPasswords();
             var insta = new InstapaperService();

@@ -7,12 +7,12 @@ namespace ApiLibsTest.MicrosoftGraph
 {
     class ContactServiceTest
     {
-        private ContactService contacts;
+        private PeopleService contacts;
 
         [OneTimeSetUp]
         public void SetUp()
         {
-            contacts = GraphTest.GetGraphService().ContactService;
+            contacts = GraphTest.GetGraphService().PeopleService;
         }
 
         [Test]

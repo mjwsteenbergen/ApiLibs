@@ -40,7 +40,8 @@ namespace ApiLibsTest.MicrosoftGraph
                 GraphService.Scopes.Contacts_ReadWrite,
                 GraphService.Scopes.Device_Read,
                 GraphService.Scopes.Mail_ReadWrite,
-                GraphService.Scopes.Notes_ReadWrite_All
+                GraphService.Scopes.Notes_ReadWrite_All,
+                GraphService.Scopes.People_Read
             });
         }
 
