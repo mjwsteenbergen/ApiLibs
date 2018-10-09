@@ -19,7 +19,7 @@ namespace ApiLibs.MicrosoftGraph
         public delegate void RefreshChangedEventHandler(GraphService sender, RefreshArgs e);
 
         public CalendarService CalendarService { get; }
-        public ContactService ContactService { get; private set; }
+        public PeopleService PeopleService { get; private set; }
         public OneDriveService OneDriveService { get; private set; }
         public MailService MailService { get; private set; }
 
@@ -49,7 +49,7 @@ namespace ApiLibs.MicrosoftGraph
             AddStandardHeader(new Param("X-AnchorMailbox", emailAdress));
             AddStandardHeader(new Param("Authorization", "None"));
             CalendarService = new CalendarService(this);
-            ContactService = new ContactService(this);
+            PeopleService = new PeopleService(this);
             OneDriveService = new OneDriveService(this);
             MailService = new MailService(this);
         }
@@ -77,7 +77,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public enum Scopes
         {
-            Calendars_ReadWrite, Calendars_ReadWrite_Shared, Contacts_ReadWrite, Device_ReadWrite_All, Directory_ReadWrite_All, Files_ReadWrite_All, Mail_ReadWrite, Mail_Send, Notes_ReadWrite_All, People_Read_All, User_ReadWrite_All,
+            Calendars_ReadWrite, Calendars_ReadWrite_Shared, Contacts_ReadWrite, Device_ReadWrite_All, Directory_ReadWrite_All, Files_ReadWrite_All, Mail_ReadWrite, Mail_Send, Notes_ReadWrite_All, People_Read, People_Read_All, User_ReadWrite_All,
             Device_Read
         }
 
