@@ -90,9 +90,10 @@ namespace ApiLibs.General
             WritePasswords(this);
         }
 
-        public static Passwords ReadPasswords()
+        public static Passwords ReadPasswords(Memory mem = null)
         {
-            Memory mem = new Memory() {
+            mem = mem ?? new Memory
+            {
                 Application = "Laurentia"
             };
             Passwords passwords = new Passwords(mem.ReadFile<Dictionary<string, string>>(Passwords.FileName));
