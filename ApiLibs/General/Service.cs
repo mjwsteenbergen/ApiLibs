@@ -168,6 +168,7 @@ namespace ApiLibs
                 {
                     case HttpStatusCode.NotFound:
                         throw new PageNotFoundException(resp);
+                    case HttpStatusCode.Forbidden:
                     case HttpStatusCode.Unauthorized:
                         throw new UnAuthorizedException(resp);
                     case HttpStatusCode.BadRequest:

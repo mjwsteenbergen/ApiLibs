@@ -9,13 +9,17 @@ using ApiLibs.Reddit;
 using RestSharp;
 using RestSharp.Authenticators;
 
-namespace ApiLibs.Folder
+namespace ApiLibs.Reddit
 {
     /// <summary>
     /// For more explanation see the reddit documentation: https://www.reddit.com/dev/api/
     /// </summary>
     public class RedditService : Service
     {
+        public UserService UserService => new UserService(this, _user);
+        public SubredditService SubredditService => new SubredditService(this, _user);
+
+
         private string Refreshtoken { get; }
         private string ClientSecret { get; }
         private readonly string _user;
@@ -29,13 +33,12 @@ namespace ApiLibs.Folder
         /// <param name="clientId"></param>
         /// <param name="clientSecret"></param>
         /// <param name="user"></param>
-        public RedditService(string redditToken, string refreshtoken, string clientId, string clientSecret, string user) : base("https://oauth.reddit.com")
+        public RedditService(string refreshtoken, string clientId, string clientSecret, string user) : base("https://oauth.reddit.com")
         {
             Refreshtoken = refreshtoken;
             ClientSecret = clientSecret;
             _clientId = clientId;
             _user = user;
-            AddStandardHeader(new Param("Authorization", "bearer " + redditToken));
         }
 
         /// <summary>
@@ -108,10 +111,32 @@ namespace ApiLibs.Folder
             
         }
 
-        /// <summary>
-        /// Get all saved posts by your user
-        /// </summary>
-        /// <returns></returns>
-        public async Task<List<ContentWrapper>>  GetSaved() => (await MakeRequest<SavedObject>("/user/" + _user + "/saved")).data.children;
+    }
+
+    public class RedditScopes
+    {
+        public static string Account => "account";
+        public static string Creddits => "creddits";
+        public static string Edit => "edit";
+        public static string Flair => "flair";
+        public static string History => "history";
+        public static string Identity => "identity";
+        public static string LiveManage => "livemanage";
+        public static string ModConfig => "modconfig";
+        public static string ModContributors => "modcontributors";
+        public static string ModLog => "modlog";
+        public static string ModMail => "modmail";
+        public static string ModWiki => "modwiki";
+        public static string MySubreddits => nameof(MySubreddits).ToLower();
+        public static string PrivateMessages => nameof(PrivateMessages).ToLower();
+        public static string Read => "read";
+        public static string Report => nameof(Report).ToLower();
+        public static string Save => nameof(Save).ToLower();
+        public static string StructuredStyles => nameof(StructuredStyles).ToLower();
+        public static string Submit => nameof(Submit).ToLower();
+        public static string Subscribe => nameof(Subscribe).ToLower();
+        public static string Vote => nameof(Vote).ToLower();
+        public static string WikiEdit => nameof(WikiEdit).ToLower();
+        public static string WikiRead => nameof(WikiRead).ToLower();
     }
 }
