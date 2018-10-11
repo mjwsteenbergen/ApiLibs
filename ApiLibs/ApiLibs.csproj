@@ -8,7 +8,6 @@
     <Description>An easily extendable restclient library for csharp </Description>
     <Authors>Martijn Steenbergen</Authors>
     <Version>1.0.0</Version>
-</PropertyGroup>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.JSON" Version="10.0.3" />
