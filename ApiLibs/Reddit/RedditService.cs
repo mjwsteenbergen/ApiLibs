@@ -17,7 +17,7 @@ namespace ApiLibs.Reddit
     public class RedditService : Service
     {
         public UserService UserService => new UserService(this, _user);
-        public SubredditService SubredditService => new SubredditService(this, _user);
+        public PostService PostService => new PostService(this, _user);
 
 
         private string Refreshtoken { get; }

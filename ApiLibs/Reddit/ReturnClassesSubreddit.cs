@@ -39,10 +39,10 @@ namespace ApiLibs.Reddit
         public string Kind { get; set; }
 
         [JsonProperty("data")]
-        public ChildData Data { get; set; }
+        public RedditPost Data { get; set; }
     }
 
-    public partial class ChildData
+    public partial class RedditPost
     {
         [JsonProperty("approved_at_utc")]
         public object ApprovedAtUtc { get; set; }
@@ -316,6 +316,8 @@ namespace ApiLibs.Reddit
 
         [JsonProperty("created_utc")]
         public double CreatedUtc { get; set; }
+
+        public DateTime CreatedDt => DateTimeOffset.FromUnixTimeSeconds((long)CreatedUtc).DateTime;
 
         [JsonProperty("media")]
         public DataMedia Media { get; set; }
@@ -821,5 +823,365 @@ namespace ApiLibs.Reddit
 
         public static implicit operator Edited(bool Bool) => new Edited { Bool = Bool };
         public static implicit operator Edited(double Double) => new Edited { Double = Double };
+    }
+
+    public partial class CommentsResult
+    {
+        [JsonProperty("kind")]
+        public string Kind { get; set; }
+
+        [JsonProperty("data")]
+        public CommentsResultData Data { get; set; }
+    }
+
+    public partial class CommentsResultData
+    {
+        [JsonProperty("modhash")]
+        public object Modhash { get; set; }
+
+        [JsonProperty("dist")]
+        public long? Dist { get; set; }
+
+        [JsonProperty("children")]
+        public List<CommentChild> Children { get; set; }
+
+        [JsonProperty("after")]
+        public object After { get; set; }
+
+        [JsonProperty("before")]
+        public object Before { get; set; }
+    }
+
+    public partial class CommentChild
+    {
+        [JsonProperty("kind")]
+        public string Kind { get; set; }
+
+        [JsonProperty("data")]
+        public ChildData Data { get; set; }
+    }
+
+    public partial class ChildData
+    {
+        [JsonProperty("approved_at_utc")]
+        public object ApprovedAtUtc { get; set; }
+
+        [JsonProperty("subreddit")]
+        public string Subreddit { get; set; }
+
+        [JsonProperty("selftext", NullValueHandling = NullValueHandling.Ignore)]
+        public string Selftext { get; set; }
+
+        [JsonProperty("user_reports")]
+        public List<object> UserReports { get; set; }
+
+        [JsonProperty("saved")]
+        public bool Saved { get; set; }
+
+        [JsonProperty("mod_reason_title")]
+        public object ModReasonTitle { get; set; }
+
+        [JsonProperty("gilded")]
+        public long Gilded { get; set; }
+
+        [JsonProperty("clicked", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Clicked { get; set; }
+
+        [JsonProperty("title", NullValueHandling = NullValueHandling.Ignore)]
+        public string Title { get; set; }
+
+        [JsonProperty("link_flair_richtext", NullValueHandling = NullValueHandling.Ignore)]
+        public List<object> LinkFlairRichtext { get; set; }
+
+        [JsonProperty("subreddit_name_prefixed")]
+        public string SubredditNamePrefixed { get; set; }
+
+        [JsonProperty("hidden", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Hidden { get; set; }
+
+        [JsonProperty("pwls")]
+        public object Pwls { get; set; }
+
+        [JsonProperty("link_flair_css_class")]
+        public object LinkFlairCssClass { get; set; }
+
+        [JsonProperty("downs")]
+        public long Downs { get; set; }
+
+        [JsonProperty("thumbnail_height")]
+        public object ThumbnailHeight { get; set; }
+
+        [JsonProperty("parent_whitelist_status")]
+        public object ParentWhitelistStatus { get; set; }
+
+        [JsonProperty("hide_score", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? HideScore { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("quarantine", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Quarantine { get; set; }
+
+        [JsonProperty("link_flair_text_color", NullValueHandling = NullValueHandling.Ignore)]
+        public string LinkFlairTextColor { get; set; }
+
+        [JsonProperty("upvote_ratio", NullValueHandling = NullValueHandling.Ignore)]
+        public double? UpvoteRatio { get; set; }
+
+        [JsonProperty("author_flair_background_color")]
+        public object AuthorFlairBackgroundColor { get; set; }
+
+        [JsonProperty("subreddit_type")]
+        public string SubredditType { get; set; }
+
+        [JsonProperty("ups")]
+        public long Ups { get; set; }
+
+        [JsonProperty("domain", NullValueHandling = NullValueHandling.Ignore)]
+        public string Domain { get; set; }
+
+        [JsonProperty("media_embed", NullValueHandling = NullValueHandling.Ignore)]
+        public MediaEmbed MediaEmbed { get; set; }
+
+        [JsonProperty("thumbnail_width")]
+        public object ThumbnailWidth { get; set; }
+
+        [JsonProperty("author_flair_template_id")]
+        public object AuthorFlairTemplateId { get; set; }
+
+        [JsonProperty("is_original_content", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsOriginalContent { get; set; }
+
+        [JsonProperty("author_fullname")]
+        public string AuthorFullname { get; set; }
+
+        [JsonProperty("secure_media")]
+        public object SecureMedia { get; set; }
+
+        [JsonProperty("is_reddit_media_domain", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsRedditMediaDomain { get; set; }
+
+        [JsonProperty("is_meta", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsMeta { get; set; }
+
+        [JsonProperty("category")]
+        public object Category { get; set; }
+
+        [JsonProperty("secure_media_embed", NullValueHandling = NullValueHandling.Ignore)]
+        public MediaEmbed SecureMediaEmbed { get; set; }
+
+        [JsonProperty("link_flair_text")]
+        public object LinkFlairText { get; set; }
+
+        [JsonProperty("can_mod_post")]
+        public bool CanModPost { get; set; }
+
+        [JsonProperty("score")]
+        public long Score { get; set; }
+
+        [JsonProperty("approved_by")]
+        public object ApprovedBy { get; set; }
+
+        [JsonProperty("thumbnail", NullValueHandling = NullValueHandling.Ignore)]
+        public string Thumbnail { get; set; }
+
+        [JsonProperty("edited")]
+        public Edited Edited { get; set; }
+
+        [JsonProperty("author_flair_css_class")]
+        public object AuthorFlairCssClass { get; set; }
+
+        [JsonProperty("author_flair_richtext")]
+        public List<object> AuthorFlairRichtext { get; set; }
+
+        [JsonProperty("gildings")]
+        public Gildings Gildings { get; set; }
+
+        [JsonProperty("content_categories")]
+        public object ContentCategories { get; set; }
+
+        [JsonProperty("is_self", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsSelf { get; set; }
+
+        [JsonProperty("mod_note")]
+        public object ModNote { get; set; }
+
+        [JsonProperty("created")]
+        public double Created { get; set; }
+
+        [JsonProperty("link_flair_type", NullValueHandling = NullValueHandling.Ignore)]
+        public string LinkFlairType { get; set; }
+
+        [JsonProperty("wls")]
+        public object Wls { get; set; }
+
+        [JsonProperty("banned_by")]
+        public object BannedBy { get; set; }
+
+        [JsonProperty("author_flair_type")]
+        public string AuthorFlairType { get; set; }
+
+        [JsonProperty("contest_mode", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? ContestMode { get; set; }
+
+        [JsonProperty("selftext_html", NullValueHandling = NullValueHandling.Ignore)]
+        public string SelftextHtml { get; set; }
+
+        [JsonProperty("likes")]
+        public object Likes { get; set; }
+
+        [JsonProperty("suggested_sort")]
+        public object SuggestedSort { get; set; }
+
+        [JsonProperty("banned_at_utc")]
+        public object BannedAtUtc { get; set; }
+
+        [JsonProperty("view_count")]
+        public object ViewCount { get; set; }
+
+        [JsonProperty("archived")]
+        public bool Archived { get; set; }
+
+        [JsonProperty("no_follow")]
+        public bool NoFollow { get; set; }
+
+        [JsonProperty("is_crosspostable", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsCrosspostable { get; set; }
+
+        [JsonProperty("pinned", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Pinned { get; set; }
+
+        [JsonProperty("over_18", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Over18 { get; set; }
+
+        [JsonProperty("media")]
+        public object Media { get; set; }
+
+        [JsonProperty("media_only", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? MediaOnly { get; set; }
+
+        [JsonProperty("link_flair_template_id")]
+        public object LinkFlairTemplateId { get; set; }
+
+        [JsonProperty("can_gild")]
+        public bool CanGild { get; set; }
+
+        [JsonProperty("spoiler", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Spoiler { get; set; }
+
+        [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Locked { get; set; }
+
+        [JsonProperty("author_flair_text")]
+        public object AuthorFlairText { get; set; }
+
+        [JsonProperty("visited", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Visited { get; set; }
+
+        [JsonProperty("num_reports")]
+        public object NumReports { get; set; }
+
+        [JsonProperty("distinguished")]
+        public object Distinguished { get; set; }
+
+        [JsonProperty("subreddit_id")]
+        public string SubredditId { get; set; }
+
+        [JsonProperty("mod_reason_by")]
+        public object ModReasonBy { get; set; }
+
+        [JsonProperty("removal_reason")]
+        public object RemovalReason { get; set; }
+
+        [JsonProperty("link_flair_background_color", NullValueHandling = NullValueHandling.Ignore)]
+        public string LinkFlairBackgroundColor { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("is_robot_indexable", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsRobotIndexable { get; set; }
+
+        [JsonProperty("report_reasons")]
+        public object ReportReasons { get; set; }
+
+        [JsonProperty("author")]
+        public string Author { get; set; }
+
+        [JsonProperty("num_crossposts", NullValueHandling = NullValueHandling.Ignore)]
+        public long? NumCrossposts { get; set; }
+
+        [JsonProperty("num_comments", NullValueHandling = NullValueHandling.Ignore)]
+        public long? NumComments { get; set; }
+
+        [JsonProperty("send_replies")]
+        public bool SendReplies { get; set; }
+
+        [JsonProperty("author_flair_text_color")]
+        public object AuthorFlairTextColor { get; set; }
+
+        [JsonProperty("permalink")]
+        public string Permalink { get; set; }
+
+        [JsonProperty("whitelist_status")]
+        public object WhitelistStatus { get; set; }
+
+        [JsonProperty("stickied")]
+        public bool Stickied { get; set; }
+
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        public Uri Url { get; set; }
+
+        [JsonProperty("subreddit_subscribers", NullValueHandling = NullValueHandling.Ignore)]
+        public long? SubredditSubscribers { get; set; }
+
+        [JsonProperty("created_utc")]
+        public double CreatedUtc { get; set; }
+
+        [JsonProperty("mod_reports")]
+        public List<object> ModReports { get; set; }
+
+        [JsonProperty("is_video", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsVideo { get; set; }
+
+        [JsonProperty("link_id", NullValueHandling = NullValueHandling.Ignore)]
+        public string LinkId { get; set; }
+
+        [JsonProperty("replies", NullValueHandling = NullValueHandling.Ignore)]
+        public string Replies { get; set; }
+
+        [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Ignore)]
+        public string ParentId { get; set; }
+
+        [JsonProperty("body", NullValueHandling = NullValueHandling.Ignore)]
+        public string Body { get; set; }
+
+        [JsonProperty("collapsed", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Collapsed { get; set; }
+
+        [JsonProperty("is_submitter", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsSubmitter { get; set; }
+
+        [JsonProperty("collapsed_reason")]
+        public object CollapsedReason { get; set; }
+
+        [JsonProperty("body_html", NullValueHandling = NullValueHandling.Ignore)]
+        public string BodyHtml { get; set; }
+
+        [JsonProperty("score_hidden", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? ScoreHidden { get; set; }
+
+        [JsonProperty("controversiality", NullValueHandling = NullValueHandling.Ignore)]
+        public long? Controversiality { get; set; }
+
+        [JsonProperty("depth", NullValueHandling = NullValueHandling.Ignore)]
+        public long? Depth { get; set; }
+
+        public DateTime CreatedDt => DateTimeOffset.FromUnixTimeSeconds((long) CreatedUtc).DateTime;
+    }
+
+    public partial class MediaEmbed
+    {
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ApiLibs.General;
@@ -48,9 +49,17 @@ namespace ApiLibsTest.Reddit
         }
 
         [Test]
-        public async Task TestSubreddit()
+        public async Task TestPosts()
         {
-            var res = await reddit.SubredditService.GetPosts("cortex");
+            var res = await reddit.PostService.GetPosts("cortex", "new", 10);
+        }
+
+        [Test]
+        public async Task TestComments()
+        {
+            var post = await reddit.PostService.GetPosts("cortex", "new", 10);
+            var res = await reddit.PostService.GetComments(post.First());
+            var s = res.First().CreatedUtc;
         }
     }
 }
