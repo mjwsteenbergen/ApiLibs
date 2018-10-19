@@ -156,6 +156,23 @@ namespace ApiLibs.Todoist
             return res.TempIdMapping.Values.FirstOrDefault();
         }
 
+        public async Task<long> AddTodo(IEnumerable<Item> items)
+        {
+            var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
+            {
+                TodoistCommand.ToParam(items.Select(i => new TodoistCommand("item_add", new
+                {
+                    content = i.Content,
+                    project_id = i.ProjectId,
+                    date_string = i.DateString,
+                    priority = i.Priority,
+                    indent =i.Indent,
+                    labels = i.Labels?.ToArray()
+                })))
+            });
+            return res.TempIdMapping.Values.FirstOrDefault();
+        }
+
         public async Task Update(ItemUpdate update)
         {
             var res = await HandleRequest("sync", parameters: new List<Param>
@@ -241,9 +258,14 @@ namespace ApiLibs.Todoist
             return serializedObject;
         }
 
+        public static Param ToParam(IEnumerable<TodoistCommand> commands)
+        {
+            return new Param("commands", "[" + commands.Select(i => i.ToCommand()).Aggregate((i,j) => $"{i},{j}") + "]");
+        }
+
         public Param ToParam()
         {
-            return new Param("commands", "[" + ToCommand() + "]");
+            return ToParam(new List<TodoistCommand> { this });
         }
 
         private static Random random = new Random();
