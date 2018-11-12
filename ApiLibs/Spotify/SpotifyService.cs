@@ -14,6 +14,9 @@ namespace ApiLibs.Spotify
     {
         private string _RefreshToken;
         private string _ClientBase64;
+
+        private bool? premiumUser = null;
+
         public TrackService TrackService { get; }
         public AlbumService AlbumService { get; }
         public PlayerService PlayerService { get; }
@@ -118,7 +121,18 @@ namespace ApiLibs.Spotify
             Album, Artist, Playlist, Track
         }
 
+        public async Task<bool> IsPremiumUser()
+        {
+            premiumUser = premiumUser ?? (await ProfileService.GetMe()).product == "premium";
+            return premiumUser.Value;
+        }
 
+        public async Task<string> GetUserProfile()
+        {
+            var res = await MakeRequest<string>("me");
+
+            return res;
+        }
 
     }
 
