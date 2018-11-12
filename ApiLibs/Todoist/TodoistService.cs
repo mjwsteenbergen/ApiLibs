@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using ApiLibs.General;
 using Newtonsoft.Json;
+using RestSharp;
 
 
 namespace ApiLibs.Todoist
 {
     public class TodoistService : Service
     {
-        private readonly SyncObject _syncObject = new SyncObject();
+        private readonly SyncRoot _syncObject = new SyncRoot();
 
         /// <summary>
         /// Get an access token by going to https://todoist.com/Users/viewPrefs?page=account
@@ -28,11 +30,27 @@ namespace ApiLibs.Todoist
         private async Task Sync()
         {
             List<Param> parameters = new List<Param> { new Param("resource_types", @"[""all""]") };
-            SyncObject syncobject = await MakeRequest<SyncObject>("sync", parameters: parameters);
-            UpdateParameterIfExists(new Param("sync_token", syncobject.sync_token));
+            SyncRoot syncobject = await MakeRequest<SyncRoot>("sync", parameters: parameters);
+            UpdateParameterIfExists(new Param("sync_token", syncobject.SyncToken));
             this._syncObject.Projects = Merger.Merge(_syncObject.Projects, syncobject.Projects);
             this._syncObject.Labels = Merger.Merge(_syncObject.Labels, syncobject.Labels);
             this._syncObject.Items = Merger.Merge(_syncObject.Items, syncobject.Items);
+        }
+
+        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null,
+            HttpStatusCode statusCode = HttpStatusCode.OK)
+        {
+            var res = await base.HandleRequest(url, call, parameters, headers, content, statusCode);
+            if (url.ToLower() == "sync")
+            {
+                var result = JsonConvert.DeserializeObject<SyncResult>(res.Content);
+                if (result.SyncStatus?.Values.Any(i => i != "ok") ?? false)
+                {
+                    throw new TodoistException(null, null);
+                }
+            }
+
+            return res;
         }
 
         public async Task<List<Project>> GetProjects()
@@ -57,7 +75,7 @@ namespace ApiLibs.Todoist
         {
             foreach (Label label in await GetLabels())
             {
-                if (label.name == name)
+                if (label.Name == name)
                 {
                     return label;
                 }
@@ -71,7 +89,7 @@ namespace ApiLibs.Todoist
         {
             foreach (Project p in await GetProjects())
             {
-                if (p.name.ToLower() == projectName.ToLower())
+                if (p.Name.ToLower() == projectName.ToLower())
                 {
                     return p;
                 }
@@ -79,93 +97,131 @@ namespace ApiLibs.Todoist
             throw new KeyNotFoundException(projectName + " was not found");
         }
 
-        public async Task<RootObject> Search(string s)
+        public async Task<SearchResult> Search(string s)
         {
             List<Param> parameters = new List<Param>
             {
                 new Param("queries", s)
             };
 
-            List<RootObject> obj = await MakeRequest<List<RootObject>>("query", parameters: parameters);
+            List<SearchResult> obj = await MakeRequest<List<SearchResult>>("query", parameters: parameters);
 
-            return obj[0] ?? new RootObject();
+            return obj[0] ?? new SearchResult();
         }
 
         public async Task MarkTodoAsDone(Item todo)
         {
-            List<Param> parameters = new List<Param>();
-            parameters.Add(new Param("commands",
-                "[{\"type\": \"item_close\", \"uuid\": \"" + (new Random()).Next(0, 10000) + "\", \"args\": {\"id\": " +
-                todo.id + "}}]"));
-
-            //new Param("commands",@"[{""type"": ""item_complete"", ""uuid"": """ + DateTime.Now + @""", ""args"": {""project_id"": " + todo.project_id + @", ""ids"": [" + todo.id + "]}}]"));
-
-            await HandleRequest("sync", Call.GET, parameters);
+            List<Param> parameters = new List<Param>
+            {
+                new TodoistCommand("item_close", new ItemUpdate()
+                {
+                    Id = todo.Id
+                }).ToParam()
+            };
+            await HandleRequest("sync", parameters: parameters);
         }
 
         public async Task AddNote(string note, Item todo)
         {
-            await AddNote(note, todo.id);
+            await AddNote(note, todo.Id);
         }
 
         public async Task AddNote(string note, long itemId)
         {
-            Note noteObject = new Note { content = note, item_id = itemId};
+            Note noteObject = new Note { Content = note, ItemId = itemId};
             await MakeRequest<Note>("sync",
-                parameters: new List<Param> {new Param("commands", "[" + new TodoistCommand("note_add", noteObject).ToCommand() + "]")});
+                parameters: new List<Param> { new TodoistCommand("note_add", noteObject).ToParam() });
+        }
+    
+        public async Task<long> AddTodo(string name, Project project = null, string date = null, int? priority = null, int? indent = null, string note = null, List<Label> labels = null)
+        {
+            return await AddTodo(name, project?.Id, date, priority, indent, note, labels);
         }
 
-        public async Task<Item> AddTodo(string name, Project project = null, List<Label> labels = null, string date =null)
+        public async Task<long> AddTodo(string name, long? project_id = null, string date = null, int? priority = null, int? indent = null, string note = null, List<Label> labels = null)
         {
-            long id = project?.id ?? -1;
-            return await AddTodo(name, id, labels, date);
+            var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
+            {
+                new TodoistCommand("item_add", new
+                {
+                    content = name,
+                    project_id,
+                    date_string = date,
+                    priority,
+                    indent,
+                    note,
+                    labels = labels?.Select(i => i.Id).ToArray()
+                }).ToParam()
+            });
+            return res.TempIdMapping.Values.FirstOrDefault();
         }
 
-        public async Task<Item> AddTodo(string name, long id, List<Label> labels = null, string date = null)
+        public async Task<long> AddTodo(IEnumerable<Item> items)
         {
-            List<Param> parameters = new List<Param>
+            var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
             {
-                new Param("content", name),
-            };
-            if (id != -1)
-            {
-                parameters.Add(new Param("project_id", id.ToString()));
-            }
-            if (labels != null && labels.Count > 0)
-            {
-                string labelParameter = "[";
-                foreach (Label label in labels)
+                TodoistCommand.ToParam(items.Select(i => new TodoistCommand("item_add", new
                 {
-                    labelParameter += label.id + ",";
-                }
-                labelParameter = labelParameter.Substring(0, labelParameter.Length - 1);
-                labelParameter += "]";
-                parameters.Add(new Param("labels", labelParameter));
-            }
-            if (date != null)
+                    content = i.Content,
+                    project_id = i.ProjectId,
+                    date_string = i.DateString,
+                    priority = i.Priority,
+                    indent =i.Indent,
+                    labels = i.Labels?.ToArray()
+                })))
+            });
+            return res.TempIdMapping.Values.FirstOrDefault();
+        }
+
+        public async Task Update(ItemUpdate update)
+        {
+            var res = await HandleRequest("sync", parameters: new List<Param>
             {
-                parameters.Add(new Param("date_string", date));
-            }
-            try
+                new TodoistCommand("item_update", update).ToParam()
+            });
+        }
+
+        public async Task<long> CreateProject(string name, int? color = null, int? indent = null, int? itemOrder = null, bool? isFavorite = null)
+        {
+            var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
             {
-                return await MakeRequest<Item>("add_item", parameters: parameters);
-            }
-            catch(RequestException e)
-            {
-                if (e.Content != "")
+                new TodoistCommand("project_add", new
                 {
-                    try
-                    {
-                        TodoistError error = Convert<TodoistError>(e.Content);
-                        throw new TodoistException(error, e);
-                    }
-                    catch (JsonSerializationException)
-                    {
-                        throw e;
-                    }
-                }
-                throw e;
-            }
+                    name,
+                    color,
+                    indent,
+                    item_order = itemOrder,
+                    is_favorite = isFavorite
+                }).ToParam()
+            });
+            return res.TempIdMapping.Values.FirstOrDefault();
+        }
+
+        public async Task RemoveProject(Project project)
+        {
+            await RemoveProject(project.Id);
+        }
+
+        public async Task RemoveProject(long projectId)
+        {
+            var res = await MakeRequest<string>("sync", parameters: new List<Param>
+            {
+                new TodoistCommand("project_delete", new
+                {
+                    ids = new [] {projectId.ToString()}
+                }).ToParam()
+            });
+        }
+
+        public async Task RemoveTodo(Item other)
+        {
+            var res = await MakeRequest<string>("sync", parameters: new List<Param>
+            {
+                new TodoistCommand("item_delete", new
+                {
+                    ids = new [] {other.Id.ToString()}
+                }).ToParam()
+            });
         }
     }
 
@@ -178,7 +234,7 @@ namespace ApiLibs.Todoist
         public int Uuid { get; set; }
 
         [JsonProperty(PropertyName = "temp_id")]
-        public int? Temp_id { get; set; }
+        public string TempId { get; set; }
 
         [JsonProperty(PropertyName = "args")]
         public Object Arguments { get; set; }
@@ -186,11 +242,11 @@ namespace ApiLibs.Todoist
         public TodoistCommand(string type, object args)
         {
             Uuid = (new Random()).Next(0, 10000);
-            if (type.Contains("add"))
-            {
-                Temp_id = (new Random()).Next(0, 10000);
-            }
             this.Type = type;
+            if (Type != null && Type.Contains("add"))
+            {
+                TempId = $"{RandomString(8)}-{RandomString(4)}-{RandomString(4)}-{RandomString(4)}-{RandomString(12)}";
+            }
             Arguments = args;
         }
 
@@ -201,5 +257,65 @@ namespace ApiLibs.Todoist
             string serializedObject = JsonConvert.SerializeObject(this, jsonSerializerSettings);
             return serializedObject;
         }
+
+        public static Param ToParam(IEnumerable<TodoistCommand> commands)
+        {
+            return new Param("commands", "[" + commands.Select(i => i.ToCommand()).Aggregate((i,j) => $"{i},{j}") + "]");
+        }
+
+        public Param ToParam()
+        {
+            return ToParam(new List<TodoistCommand> { this });
+        }
+
+        private static Random random = new Random();
+        private static string RandomString(int length)
+        {
+            const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+    }
+
+    public class ItemUpdate
+    {
+        [JsonProperty("id")]
+        public long Id { get; set; }
+
+        [JsonProperty("content")]
+        public string Content { get; set; }
+
+        [JsonProperty("date_string")]
+        public string DateString { get; set; }
+
+        [JsonProperty("date_lang")]
+        public string DateLang { get; set; }
+
+        [JsonProperty("due_date_utc")]
+        public string DueDateUtc { get; set; }
+
+        [JsonProperty("priority")]
+        public long? Priority { get; set; }
+
+        [JsonProperty("indent")]
+        public long? Indent { get; set; }
+
+        [JsonProperty("item_order")]
+        public long? ItemOrder { get; set; }
+
+        [JsonProperty("day_order")]
+        public long? DayOrder { get; set; }
+
+        [JsonProperty("collapsed")]
+        public long? Collapsed { get; set; }
+
+        [JsonProperty("labels")]
+        public List<long> Labels { get; set; }
+
+        [JsonProperty("assigned_by_uid")]
+        public string AssignedByUid { get; set; }
+
+        [JsonProperty("responsible_uid")]
+        public string ResponsibleUid { get; set; }
     }
 }
