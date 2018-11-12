@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using ApiLibs.General;
+using RestSharp;
 
 namespace ApiLibs.MicrosoftGraph
 {
@@ -13,17 +15,16 @@ namespace ApiLibs.MicrosoftGraph
         private string outlookClientSecret;
         private string outlookEmail;
 
-        public MailService(GraphService service) : base(service)
-        {
+        public MailService(GraphService service) : base(service) { }
 
+        internal override Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        {
+            return base.MakeRequest<T>("v1.0/" + url, m, parameters, header, content, statusCode);
         }
 
-        public MailService(string outlookRefreshToken, string outlookClientID, string outlookClientSecret, string outlookEmail, GraphService graph) : base(graph)
+        internal override Task<IRestResponse> HandleRequest(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
-            this.outlookRefreshToken = outlookRefreshToken;
-            this.outlookClientID = outlookClientID;
-            this.outlookClientSecret = outlookClientSecret;
-            this.outlookEmail = outlookEmail;
+            return base.HandleRequest("v1.0/" + url, m, parameters, header, content, statusCode);
         }
 
         /// <summary>

@@ -19,11 +19,12 @@ namespace ApiLibs.MicrosoftGraph
         public delegate void RefreshChangedEventHandler(GraphService sender, RefreshArgs e);
 
         public CalendarService CalendarService { get; }
-        public PeopleService PeopleService { get; private set; }
-        public OneDriveService OneDriveService { get; private set; }
-        public MailService MailService { get; private set; }
+        public PeopleService PeopleService { get; }
+        public OneDriveService OneDriveService { get; }
+        public MailService MailService { get; }
+        public TodoService TodoService { get; }
 
-        private static readonly string basePath = "https://graph.microsoft.com/v1.0/";
+        private static readonly string basePath = "https://graph.microsoft.com/";
 
         /// <summary>
         /// Create the outlook service if you need to authenticate
@@ -52,6 +53,7 @@ namespace ApiLibs.MicrosoftGraph
             PeopleService = new PeopleService(this);
             OneDriveService = new OneDriveService(this);
             MailService = new MailService(this);
+            TodoService = new TodoService(this);
         }
 
 
@@ -78,7 +80,7 @@ namespace ApiLibs.MicrosoftGraph
         public enum Scopes
         {
             Calendars_ReadWrite, Calendars_ReadWrite_Shared, Contacts_ReadWrite, Device_ReadWrite_All, Directory_ReadWrite_All, Files_ReadWrite_All, Mail_ReadWrite, Mail_Send, Notes_ReadWrite_All, People_Read, People_Read_All, User_ReadWrite_All,
-            Device_Read
+            Device_Read, Tasks_Read, Tasks_ReadWrite,
         }
 
 
@@ -151,12 +153,12 @@ namespace ApiLibs.MicrosoftGraph
         {
             try
             {
-                return await base.HandleRequest(url, call, parameters, headers, content);
+                return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
             }
             catch (UnAuthorizedException)
             {
                 await RefreshToken();
-                return await base.HandleRequest(url, call, parameters, headers, content);
+                return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
             }
 
         }

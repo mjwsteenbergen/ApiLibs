@@ -41,7 +41,8 @@ namespace ApiLibsTest.MicrosoftGraph
                 GraphService.Scopes.Device_Read,
                 GraphService.Scopes.Mail_ReadWrite,
                 GraphService.Scopes.Notes_ReadWrite_All,
-                GraphService.Scopes.People_Read
+                GraphService.Scopes.People_Read,
+                GraphService.Scopes.Tasks_ReadWrite
             });
         }
 

@@ -76,7 +76,7 @@ namespace ApiLibs.MicrosoftGraph
         public List<object> Websites { get; set; }
 
         [JsonProperty("personType")]
-        public PersonType PersonType { get; set; }
+        public object PersonType { get; set; }
 
         public override string ToString()
         {

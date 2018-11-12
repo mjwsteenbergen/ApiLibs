@@ -139,7 +139,9 @@ namespace ApiLibs
                     NullValueHandling = NullValueHandling.Ignore
                 };
 
-                request.AddParameter("application/json", JsonConvert.SerializeObject(content, settings), ParameterType.RequestBody);
+                var text = JsonConvert.SerializeObject(content, settings);
+
+                request.AddParameter("application/json", text, ParameterType.RequestBody);
                 request.AddHeader("Content-Type", "application/json");
             }
 
