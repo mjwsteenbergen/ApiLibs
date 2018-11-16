@@ -76,15 +76,15 @@ namespace ApiLibs.MicrosoftGraph
             return await MakeRequest<Todo>("me/outlook/tasks", Call.POST, content: todo);
         }
 
-        public async Task Update(string id, Todo todo)
+        public async Task<Todo> Update(string id, Todo todo)
         {
-            await HandleRequest($"me/outlook/tasks('{id}')", Call.PATCH, content: todo);
+            return await MakeRequest<Todo>($"me/outlook/tasks('{id}')", Call.PATCH, content: todo);
         }
 
 
-        public async Task Update(Todo original, Todo newValues)
+        public async Task<Todo> Update(Todo original, Todo newValues)
         {
-            await Update(original.Id, newValues);
+            return await Update(original.Id, newValues);
         }
     }
 }
