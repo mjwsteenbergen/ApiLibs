@@ -52,12 +52,12 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task<Todo> Create(Todo todo, TaskFolder folder)
         {
-            return Create(todo, folder.Id);
+            return Create(todo, folder?.Id);
         }
 
-        public async Task<Todo> Create(Todo todo, string id = "")
+        public async Task<Todo> Create(Todo todo, string id = null)
         {
-            if (id != "")
+            if (id != null)
             {
                 id = "/taskFolders/" + id;
             }
