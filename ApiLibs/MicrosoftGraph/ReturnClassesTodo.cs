@@ -111,10 +111,24 @@ namespace ApiLibs.MicrosoftGraph
 
         [JsonProperty("body")]
         public TaskBody Body { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Todo todo &&
+                   Id == todo.Id;
+        }
     }
 
     public partial class TaskBody
     {
+        public TaskBody(string body)
+        {
+            Content = body;
+            ContentType = "html";
+        }
+
+        public TaskBody() { }
+
         [JsonProperty("contentType")]
         public string ContentType { get; set; }
 
@@ -124,6 +138,11 @@ namespace ApiLibs.MicrosoftGraph
 
     public partial class DatetimeTimeZone
     {
+        public DatetimeTimeZone()
+        {
+            TimeZone = "UTC";
+        }
+
         [JsonProperty("dateTime")]
         public DateTimeOffset DateTime { get; set; }
 

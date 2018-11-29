@@ -40,15 +40,39 @@ namespace ApiLibs.MicrosoftGraph
             return (await MakeRequest<TaskResult>("me/outlook/tasks?$top=200")).Value;
         }
 
-        public async Task<IEnumerable<Todo>> GetTasks(TaskFolder folder)
+        public Task<List<Todo>> GetTasks(TaskFolder folder)
         {
-            var tasks = await GetTasks();
-            return tasks.Where(i => i.ParentFolderId == folder.Id);
+            return GetTasks(folder.Id);
         }
 
-        public async Task<IEnumerable<Todo>> GetTasks(string folderName)
+        public async Task<List<Todo>> GetTasks(string folderId)
         {
-            return await GetTasks(await GetFolder(folderName));
+            return (await MakeRequest<TaskResult>($"me/outlook/taskFolders/{folderId}/tasks?$top=200")).Value;
+        }
+
+        public Task<Todo> Create(Todo todo, TaskFolder folder)
+        {
+            return Create(todo, folder.Id);
+        }
+
+        public async Task<Todo> Create(Todo todo, string id = "")
+        {
+            if (id != "")
+            {
+                id = "/taskFolders/" + id;
+            }
+            return await MakeRequest<Todo>($"me/outlook{id}/tasks", Call.POST, content: todo);
+        }
+
+        public async Task<Todo> Update(string id, Todo todo)
+        {
+            return await MakeRequest<Todo>($"me/outlook/tasks('{id}')", Call.PATCH, content: todo);
+        }
+
+
+        public async Task<Todo> Update(Todo original, Todo newValues)
+        {
+            return await Update(original.Id, newValues);
         }
 
         public async Task Delete(string id)
@@ -71,20 +95,24 @@ namespace ApiLibs.MicrosoftGraph
             return Complete(todo.Id);
         }
 
-        public async Task<Todo> Create(Todo todo)
+        public Task CreateFolder(TaskFolder folder)
         {
-            return await MakeRequest<Todo>("me/outlook/tasks", Call.POST, content: todo);
+            return MakeRequest<TaskFolder>("me/outlook/taskFolders", Call.POST, content: folder);
         }
 
-        public async Task<Todo> Update(string id, Todo todo)
+        public Task CreateFolder(string projectName)
         {
-            return await MakeRequest<Todo>($"me/outlook/tasks('{id}')", Call.PATCH, content: todo);
+            return CreateFolder(new TaskFolder
+            {
+                Name = projectName
+            });
         }
 
-
-        public async Task<Todo> Update(Todo original, Todo newValues)
+        public Task RemoveFolder(TaskFolder taskFolder)
         {
-            return await Update(original.Id, newValues);
+            throw new NotImplementedException();
         }
+
+        
     }
 }
