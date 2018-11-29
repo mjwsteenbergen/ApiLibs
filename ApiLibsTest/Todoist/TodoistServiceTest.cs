@@ -33,6 +33,13 @@ namespace ApiLibsTest.Todoist
         }
 
         [Test]
+        public async Task MarkAsDoneTest()
+        {
+            var id = await Todoist.AddTodo("test", 0);
+            await Todoist.MarkTodoAsDone(id);
+        }
+
+        [Test]
         public async Task AddMultipleItemsTest()
         {
             var proj = await Todoist.GetProject("Followup");

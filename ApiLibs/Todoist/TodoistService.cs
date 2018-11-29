@@ -111,11 +111,16 @@ namespace ApiLibs.Todoist
 
         public async Task MarkTodoAsDone(Item todo)
         {
+            await MarkTodoAsDone(todo.Id);
+        }
+
+        public async Task MarkTodoAsDone(long id)
+        {
             List<Param> parameters = new List<Param>
             {
                 new TodoistCommand("item_close", new ItemUpdate()
                 {
-                    Id = todo.Id
+                    Id = id
                 }).ToParam()
             };
             await HandleRequest("sync", parameters: parameters);
@@ -223,6 +228,8 @@ namespace ApiLibs.Todoist
                 }).ToParam()
             });
         }
+
+        
     }
 
     public class TodoistCommand
