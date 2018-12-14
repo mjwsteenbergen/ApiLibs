@@ -55,29 +55,29 @@ namespace ApiLibs.MicrosoftGraph
             return Create(todo, folder?.Id);
         }
 
-        public async Task<Todo> Create(Todo todo, string id = null)
+        public Task<Todo> Create(Todo todo, string id = null)
         {
             if (id != null)
             {
                 id = "/taskFolders/" + id;
             }
-            return await MakeRequest<Todo>($"me/outlook{id}/tasks", Call.POST, content: todo);
+            return MakeRequest<Todo>($"me/outlook{id}/tasks", Call.POST, content: todo);
         }
 
-        public async Task<Todo> Update(string id, Todo todo)
+        public Task<Todo> Update(string id, Todo todo)
         {
-            return await MakeRequest<Todo>($"me/outlook/tasks('{id}')", Call.PATCH, content: todo);
+            return MakeRequest<Todo>($"me/outlook/tasks('{id}')", Call.PATCH, content: todo);
         }
 
 
-        public async Task<Todo> Update(Todo original, Todo newValues)
+        public Task<Todo> Update(Todo original, Todo newValues)
         {
-            return await Update(original.Id, newValues);
+            return Update(original.Id, newValues);
         }
 
-        public async Task Delete(string id)
+        public Task Delete(string id)
         {
-            await HandleRequest($"me/outlook/tasks('{id}')", Call.DELETE, statusCode: HttpStatusCode.NoContent);
+            return HandleRequest($"me/outlook/tasks('{id}')", Call.DELETE, statusCode: HttpStatusCode.NoContent);
         }
 
         public Task Delete(Todo todo)
@@ -110,9 +110,12 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task RemoveFolder(TaskFolder taskFolder)
         {
-            throw new NotImplementedException();
+            return RemoveFolder(taskFolder.Id);
         }
 
-        
+        public Task RemoveFolder(string taskFolderId)
+        {
+            return HandleRequest("me/outlook/taskFolders/" + taskFolderId, Call.DELETE, statusCode: HttpStatusCode.NoContent);
+        }
     }
 }
