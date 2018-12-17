@@ -80,6 +80,11 @@ namespace ApiLibs.GitHub
             return res;
         }
 
+        public async Task<List<Issue>> GetIssues()
+        {
+            return await MakeRequest<List<Issue>>("user/issues");
+        }
+ 
         public async Task<List<Issue>> GetIssues(Repository repo)
         {
             List<Issue> res = new List<Issue>();
@@ -103,10 +108,18 @@ namespace ApiLibs.GitHub
             return await MakeRequest<GitHubUser>("users/" + username);
         }
 
-        public async Task<List<Repository>> GetMyRepositories()
+        public async Task<List<Repository>> GetUserRepositories(Visibility? vis = null, Affiliation? aff = null)
         {
-            return await MakeRequest<List<Repository>>("user/repos");
+            return await MakeRequest<List<Repository>>("user/repos", parameters: new List<Param>
+            {
+                new OParam("visibility", vis?.ToString()),
+                new OParam("affiliation", aff?.ToString()),
+                new Param("per_page", "100")
+            });
         }
+
+        public enum Visibility { all, @public, @private }
+        public enum Affiliation { owner, collaborator, organisation_member }
 
         public async Task<Repository> GetRepository(string user, string repository)
         {
@@ -115,7 +128,8 @@ namespace ApiLibs.GitHub
 
         public async Task<Repository> GetRepository(string name)
         {
-            foreach(Repository repo in await GetMyRepositories())
+            var repositories = await GetUserRepositories();
+            foreach(Repository repo in repositories)
             {
                 if(repo.name == name)
                 {

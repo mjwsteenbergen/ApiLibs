@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using ApiLibs.General;
@@ -9,7 +10,7 @@ namespace ApiLibs.Spotify
 {
     public class PlayerService : SubService
     {
-        public PlayerService(Service service) : base(service) { }
+        public PlayerService(SpotifyService service) : base(service) { }
 
 
         /// <summary>
@@ -138,9 +139,17 @@ namespace ApiLibs.Spotify
 
         internal async Task Play(string contextUri, string type, string deviceId = null)
         {
-            PlayContext kvp = new PlayContext {context_uri = "spotify:" + type + ":" + contextUri};
-            deviceId = deviceId == null ? "" : "?device_id = " + deviceId;
-            await Service.HandleRequest("me/player/play" + deviceId, Call.PUT, content: kvp, statusCode: System.Net.HttpStatusCode.NoContent);
+            try
+            {
+                if (await (Service as SpotifyService).IsPremiumUser())
+                {
+                    PlayContext kvp = new PlayContext {context_uri = "spotify:" + type + ":" + contextUri};
+                    deviceId = deviceId == null ? "" : "?device_id = " + deviceId;
+                    await Service.HandleRequest("me/player/play" + deviceId, Call.PUT, content: kvp,
+                        statusCode: HttpStatusCode.NoContent);
+                }
+            }
+            catch (PageNotFoundException) { }
         }
 
         class PlayContext
@@ -250,11 +259,21 @@ namespace ApiLibs.Spotify
         /// <returns></returns>
         public async Task Shuffle(bool state, string device_id = null)
         {
-            await HandleRequest("me/player/shuffle", Call.PUT, new List<Param>
+            try
             {
-                new Param("state", state),
-                new OParam("device_id", device_id)
-            }, statusCode: System.Net.HttpStatusCode.NoContent);
+                if (await (Service as SpotifyService).IsPremiumUser())
+                {
+                    await HandleRequest("me/player/shuffle", Call.PUT, new List<Param>
+                    {
+                        new Param("state", state),
+                        new OParam("device_id", device_id)
+                    }, statusCode: HttpStatusCode.NoContent);
+                }
+            }
+            catch (PageNotFoundException)
+            {
+
+            }
         }
     }
 

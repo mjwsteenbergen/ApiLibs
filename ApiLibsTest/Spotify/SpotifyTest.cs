@@ -25,8 +25,8 @@ namespace ApiLibsTest.Spotify
         #region auth 
 
         [Test]
-       [Ignore("Modifies State")]
-        public async Task Login()
+        [Ignore("Modifies State")]
+        public void Login()
         {
             Passwords passwords = Passwords.ReadPasswords();
             spotify.Connect(new StupidOAuth(), passwords.SpotifyClientId, "https://www.nntn.nl/", new List<Scope>()

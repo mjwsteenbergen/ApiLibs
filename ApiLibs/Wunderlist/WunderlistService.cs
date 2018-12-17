@@ -56,6 +56,11 @@ namespace ApiLibs.Wunderlist
             return await MakeRequest<List<WList>>("lists");
         }
 
+        public async Task<List<WTask>> GetTasks(WList list, bool completed = false)
+        {
+            return await GetTasks(list, completed);
+        }
+
         public async Task<List<WTask>> GetTasks(long id, bool completed = false)
         {
             return await MakeRequest<List<WTask>>("tasks", parameters: new List <Param> {new Param("list_id", id.ToString()), new Param("completed", completed)});
