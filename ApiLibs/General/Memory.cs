@@ -30,22 +30,52 @@ namespace ApiLibs.General
         {
             string text = ReadFile(filename);
 
-            if (text != "")
+            if (text == "")
             {
-                if (typeof(T) == typeof(string))
-                {
-                    return (T)(object)text;
-                }
-
-                return JsonConvert.DeserializeObject<T>(text);
+                throw new FileNotFoundException();
             }
-            else
+
+            if (typeof(T) == typeof(string))
             {
+                return (T)(object)text;
+            }
+
+            return JsonConvert.DeserializeObject<T>(text);
+        }
+
+        public T ReadFile<T>(string filename, T @default)
+        {
+            try
+            {
+                return ReadFile<T>(filename);
+            }
+            catch (FileNotFoundException)
+            {
+                WriteFile(filename, @default);
+                return @default;
+            }
+        }
+
+        public T ReadFileWithDefault<T>(string filename)
+        {
+            try
+            {
+                return ReadFile<T>(filename);
+            }
+            catch (FileNotFoundException)
+            {
+                var constr = typeof(T).GetConstructor(new Type[] { });
                 T res = default(T);
+                if (constr != null)
+                {
+                    res = (T)constr.Invoke(new object[] { });
+                }
                 WriteFile(filename, res);
                 return res;
             }
         }
+
+
 
         public string ReadFile(string filename)
         {
