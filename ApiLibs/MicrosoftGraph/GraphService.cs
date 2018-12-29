@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -161,6 +161,26 @@ namespace ApiLibs.MicrosoftGraph
                 return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
             }
 
+        }
+    }
+
+    public abstract class GraphSubService : SubService
+    {
+        public GraphSubService(Service service, string version) : base(service)
+        {
+            Version = version;
+        }
+
+        public string Version { get; }
+
+        internal override Task<IRestResponse> HandleRequest(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        {
+            return base.HandleRequest($"{Version}/" + url, m, parameters, header, content, statusCode);
+        }
+
+        internal override Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        {
+            return base.MakeRequest<T>($"{Version}/" + url, m, parameters, header, content, statusCode);
         }
     }
 

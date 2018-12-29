@@ -8,19 +8,9 @@ using RestSharp;
 
 namespace ApiLibs.MicrosoftGraph
 {
-    public class ContactService : SubService
+    public class ContactService : GraphSubService
     {
-        public ContactService(GraphService service) : base(service) { }
-
-        internal override Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
-        {
-            return base.MakeRequest<T>("v1.0/" + url, m, parameters, header, content, statusCode);
-        }
-
-        internal override Task<IRestResponse> HandleRequest(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
-        {
-            return base.HandleRequest("v1.0/" + url, m, parameters, header, content, statusCode);
-        }
+        public ContactService(GraphService service) : base(service, "v1.0") { }
 
         public async Task<List<Contact>> GetAllContacts()
         {

@@ -115,7 +115,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task RemoveFolder(string taskFolderId)
         {
-            return HandleRequest("me/outlook/taskFolders/" + taskFolderId, Call.DELETE, statusCode: HttpStatusCode.NoContent);
+            return HandleRequest($"me/outlook/taskFolders('{taskFolderId}')", Call.DELETE, statusCode: HttpStatusCode.NoContent);
         }
     }
 }
