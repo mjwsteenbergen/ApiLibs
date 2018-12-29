@@ -134,18 +134,36 @@ namespace ApiLibs
 
             if (content != null)
             {
-                JsonSerializerSettings settings = new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore
-                };
-
-                var text = JsonConvert.SerializeObject(content, settings);
-
-                request.AddParameter("application/json", text, ParameterType.RequestBody);
-                request.AddHeader("Content-Type", "application/json");
+                AddBody(request, content);
             }
 
             return await ExcecuteRequest(request, statusCode);
+        }
+
+        private static void AddBody(IRestRequest request, object content)
+        {
+            switch (content)
+            {
+                case string text:
+                    request.AddParameter("application/json", text, ParameterType.RequestBody);
+                    request.AddHeader("Content-Type", "application/json");
+                    break;
+
+                case HtmlContent htmlContent:
+                    request.AddParameter("text/html", htmlContent.Content, ParameterType.RequestBody);
+                    request.AddHeader("Content-Type", "text/html");
+                    break;
+
+                default:
+                    JsonSerializerSettings settings = new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore
+                    };
+                    string jsonText = JsonConvert.SerializeObject(content, settings);
+                    request.AddParameter("application/json", jsonText, ParameterType.RequestBody);
+                    request.AddHeader("Content-Type", "application/json");
+                    break;
+            }
         }
 
         internal async Task<IRestResponse> ExcecuteRequest(IRestRequest request, HttpStatusCode statusCode = HttpStatusCode.OK)

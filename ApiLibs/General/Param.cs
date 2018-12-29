@@ -46,4 +46,13 @@ namespace ApiLibs
         {
         }
     }
+
+    public class DParam : Param
+    {
+
+        public DParam(string name, string value, string @default) : base(name, value ?? @default) { }
+
+        public DParam(string name, object value, object @default) : base(name, value ?? @default) { }
+
+    }
 }
