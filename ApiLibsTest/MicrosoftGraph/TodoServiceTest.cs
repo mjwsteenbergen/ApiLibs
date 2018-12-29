@@ -27,7 +27,7 @@ namespace ApiLibsTest.MicrosoftGraph
         [Test]
         public async Task GetTasks()
         {
-            await todo.GetTasks();
+            var s = await todo.GetTasks();
         }
 
         [Test]
