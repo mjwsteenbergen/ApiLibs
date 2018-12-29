@@ -36,13 +36,13 @@ namespace ApiLibs.Todoist
             this._syncObject.Items = Merger.Merge(_syncObject.Items, syncobject.Items);
         }
 
-        protected internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null,
+        protected internal override async Task<string> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null,
             HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             var res = await base.HandleRequest(url, call, parameters, headers, content, statusCode);
             if (url.ToLower() == "sync")
             {
-                var result = JsonConvert.DeserializeObject<SyncResult>(res.Content);
+                var result = JsonConvert.DeserializeObject<SyncResult>(res);
                 if (result.SyncStatus?.Values.Any(i => i != "ok") ?? false)
                 {
                     throw new TodoistException(null, null);

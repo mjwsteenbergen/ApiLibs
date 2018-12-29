@@ -81,18 +81,16 @@ namespace ApiLibs
 
         protected internal async Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
-            IRestResponse response = await HandleRequest(url, m , parameters, header, content, statusCode);
-
-            return Convert<T>(response);
+            return Convert<T>(await HandleRequest(url, m, parameters, header, content, statusCode));
         }
 
-        protected internal virtual async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        protected internal virtual async Task<string> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             RestRequest request = new RestRequest(url, Convert(call));
             return await HandleRequest(request, parameters, headers, content, statusCode);
         }
 
-        protected async Task<IRestResponse> HandleRequest(IRestRequest request, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        protected async Task<string> HandleRequest(IRestRequest request, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             if (headers != null)
             {
@@ -143,7 +141,7 @@ namespace ApiLibs
                 request.AddHeader("Content-Type", "application/json");
             }
 
-            return await ExcecuteRequest(request, statusCode);
+            return (await ExcecuteRequest(request, statusCode)).Content;
         }
 
         protected async Task<IRestResponse> ExcecuteRequest(IRestRequest request, HttpStatusCode statusCode = HttpStatusCode.OK)
@@ -178,11 +176,6 @@ namespace ApiLibs
                 }
             }
             return resp;
-        }
-
-        protected T Convert<T>(IRestResponse resp)
-        {
-            return Convert<T>(resp.Content);
         }
 
         protected T Convert<T>(string text)

@@ -145,7 +145,7 @@ namespace ApiLibs.MicrosoftGraph
         }
 
 
-        protected internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET,
+        protected internal override async Task<string> HandleRequest(string url, Call call = Call.GET,
             List<Param> parameters = null, List<Param> headers = null, object content = null,
             HttpStatusCode statusCode = HttpStatusCode.OK)
         {
