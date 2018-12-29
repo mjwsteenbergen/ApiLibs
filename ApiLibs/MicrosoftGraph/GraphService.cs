@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -23,6 +23,7 @@ namespace ApiLibs.MicrosoftGraph
         public OneDriveService OneDriveService { get; }
         public MailService MailService { get; }
         public TodoService TodoService { get; }
+        public OneNoteService OneNoteService { get; set; }
 
         private static readonly string basePath = "https://graph.microsoft.com/";
 
@@ -54,6 +55,7 @@ namespace ApiLibs.MicrosoftGraph
             OneDriveService = new OneDriveService(this);
             MailService = new MailService(this);
             TodoService = new TodoService(this);
+            OneNoteService = new OneNoteService(this);
         }
 
 
@@ -80,7 +82,7 @@ namespace ApiLibs.MicrosoftGraph
         public enum Scopes
         {
             Calendars_ReadWrite, Calendars_ReadWrite_Shared, Contacts_ReadWrite, Device_ReadWrite_All, Directory_ReadWrite_All, Files_ReadWrite_All, Mail_ReadWrite, Mail_Send, Notes_ReadWrite_All, People_Read, People_Read_All, User_ReadWrite_All,
-            Device_Read, Tasks_Read, Tasks_ReadWrite,
+            Device_Read, Tasks_Read, Tasks_ReadWrite, Notes_Read_All, Notes_Create, Notes_Read, Notes_ReadWrite
         }
 
 
