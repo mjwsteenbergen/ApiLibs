@@ -64,8 +64,8 @@ namespace ApiLibs.General
 
         public string RedditClient { get => GetPasssword("RedditClient"); set => AddPassword("RedditClient", value); }
         public string RedditSecret { get => GetPasssword("RedditSecret"); set => AddPassword("RedditSecret", value); }
-        public string RedditToken { get => GetPasssword("RedditToken"); set => AddPassword("RedditToken", value); }
         public string RedditRefreshToken { get => GetPasssword("RedditRefreshToken"); set => AddPassword("RedditRefreshToken", value); }
+        public string RedditUser { get => GetPasssword(nameof(RedditUser)); set => AddPassword(nameof(RedditUser), value); }
 
         public string SpotifyClientId { get => GetPasssword("SpotifyClientId"); set => AddPassword("SpotifyClientId", value); }
         public string SpotifySecret { get => GetPasssword("SpotifySecret"); set => AddPassword("SpotifySecret", value); }
@@ -90,9 +90,10 @@ namespace ApiLibs.General
             WritePasswords(this);
         }
 
-        public static Passwords ReadPasswords()
+        public static Passwords ReadPasswords(Memory mem = null)
         {
-            Memory mem = new Memory() {
+            mem = mem ?? new Memory
+            {
                 Application = "Laurentia"
             };
             Passwords passwords = new Passwords(mem.ReadFile<Dictionary<string, string>>(Passwords.FileName));

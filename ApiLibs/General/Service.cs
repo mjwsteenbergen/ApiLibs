@@ -13,7 +13,7 @@ namespace ApiLibs
     public abstract class Service
     {
         private readonly bool _debug;
-        internal RestClient Client;
+        protected RestClient Client;
         private readonly List<Param> _standardParameter = new List<Param>();
         private readonly List<Param> _standardHeader = new List<Param>();
 
@@ -23,27 +23,27 @@ namespace ApiLibs
             Client = new RestClient { BaseUrl = new Uri(hostUrl) };
         }
 
-        internal void AddStandardParameter(Param p)
+        protected void AddStandardParameter(Param p)
         {
             _standardParameter.Add(p);
         }
 
-        internal void AddStandardHeader(Param p)
+        protected void AddStandardHeader(Param p)
         {
             _standardHeader.Add(p);
         }
 
-        internal void AddStandardHeader(string name, string content)
+        protected void AddStandardHeader(string name, string content)
         {
             AddStandardHeader(new Param(name, content));
         }
 
-        internal void RemoveStandardHeader(string name)
+        protected void RemoveStandardHeader(string name)
         {
             _standardHeader.RemoveAll(p => p.Name == name);
         }
 
-        internal void UpdateParameterIfExists(Param p)
+        protected void UpdateParameterIfExists(Param p)
         {
             foreach (Param para in _standardParameter)
             {
@@ -55,12 +55,12 @@ namespace ApiLibs
             }
         }
 
-        internal void UpdateHeaderIfExists(string name, string value)
+        protected void UpdateHeaderIfExists(string name, string value)
         {
             UpdateHeaderIfExists(new Param(name, value));
         }
 
-        internal void UpdateHeaderIfExists(Param p)
+        protected void UpdateHeaderIfExists(Param p)
         {
             foreach (Param para in _standardHeader)
             {
@@ -73,26 +73,24 @@ namespace ApiLibs
             }
         }
 
-        internal void ConnectOAuth(string username, string secret)
+        protected void ConnectOAuth(string username, string secret)
         {
             Client.Authenticator = new HttpBasicAuthenticator(username, secret);
         }
-        
 
-        internal async Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+
+        protected internal async Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
-            IRestResponse response = await HandleRequest(url, m , parameters, header, content, statusCode);
-
-            return Convert<T>(response);
+            return Convert<T>(await HandleRequest(url, m, parameters, header, content, statusCode));
         }
 
-        internal virtual async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        protected internal virtual async Task<string> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             RestRequest request = new RestRequest(url, Convert(call));
             return await HandleRequest(request, parameters, headers, content, statusCode);
         }
 
-        internal async Task<IRestResponse> HandleRequest(IRestRequest request, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        protected async Task<string> HandleRequest(IRestRequest request, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             if (headers != null)
             {
@@ -137,8 +135,9 @@ namespace ApiLibs
                 AddBody(request, content);
             }
 
-            return await ExcecuteRequest(request, statusCode);
+            return (await ExcecuteRequest(request, statusCode)).Content;
         }
+
 
         private static void AddBody(IRestRequest request, object content)
         {
@@ -184,27 +183,12 @@ namespace ApiLibs
                     throw resp.ErrorException;
                 }
 
-                switch (resp.StatusCode)
-                {
-                    case HttpStatusCode.NotFound:
-                        throw new PageNotFoundException(resp);
-                    case HttpStatusCode.Unauthorized:
-                        throw new UnAuthorizedException(resp);
-                    case HttpStatusCode.BadRequest:
-                        throw new BadRequestException(resp);
-                    default:
-                        throw new RequestException(resp);
-                }
+                RequestException<IRestResponse>.ConvertToException((int)resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp);
             }
             return resp;
         }
 
-        internal T Convert<T>(IRestResponse resp)
-        {
-            return Convert<T>(resp.Content);
-        }
-
-        internal T Convert<T>(string text)
+        protected T Convert<T>(string text)
         {
             if (typeof(T) == typeof(string))
             {
@@ -237,12 +221,12 @@ namespace ApiLibs
             }
         }
 
-        internal void SetBaseUrl(string baseurl)
+        protected void SetBaseUrl(string baseurl)
         {
             Client.BaseUrl = new Uri(baseurl);
         }
 
-        internal void Print(string s)
+        protected void Print(string s)
         {
             if (_debug)
             {
@@ -252,7 +236,7 @@ namespace ApiLibs
     }
 }
 
-enum Call
+public enum Call
 {
     POST,
     GET,

@@ -58,9 +58,9 @@ namespace ApiLibs.GitHub
             };
 
             SetBaseUrl("https://github.com/");
-            IRestResponse resp = await HandleRequest("login/oauth/access_token", Call.POST, parameters: parameters);
+            var content = await HandleRequest("login/oauth/access_token", Call.POST, parameters: parameters);
 
-            Match m = Regex.Match(resp.Content, @"{""access_token"":""(\w+)""");
+            Match m = Regex.Match(content, @"{""access_token"":""(\w+)""");
             GitHub_access_token = m.Groups[1].ToString();
             AddStandardHeader(new Param("Authorization", "token " + GitHub_access_token));
             SetBaseUrl("https://api.github.com/");

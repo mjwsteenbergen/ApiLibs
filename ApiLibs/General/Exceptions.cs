@@ -8,14 +8,33 @@ using RestSharp;
 
 namespace ApiLibs.General
 {
-    public class RequestException : InvalidOperationException
+    public class RequestException<T> : InvalidOperationException
     {
-        public override string Message => $"Got {(int)Response.StatusCode}:{Response.StatusDescription} while trying to access \"{Response.ResponseUri}\". {Response.ErrorMessage} \n {Response.Content}";
-        public IRestResponse Response { get; set; }
+        public override string Message => _message;
+        private readonly string _message;
+        public T Response { get; set; }
 
-        public RequestException(IRestResponse response) : base()
+        public RequestException(int statusCode, string statusDescription, string responseUri, string errorMessage, string responseContent, T response) : base()
         {
             Response = response;
+            _message = $"Got {statusCode.ToString()}:{statusDescription} while trying to access \"{responseUri.ToString()}\". {errorMessage} \n {responseContent}";
+        }
+
+        public static RequestException<T> ConvertToException(int statuscode, string statusDescription, string responseuri, string errorMessage, string responseContent, T respone)
+        {
+            switch(statuscode)
+            {
+                case 400:
+                    return new BadRequestException<T>(statuscode, statusDescription, responseuri, errorMessage, responseContent, respone);
+                case 401:
+                    return new ForbiddenException<T>(statuscode, statusDescription, responseuri, errorMessage, responseContent, respone);
+                case 403:
+                    return new UnAuthorizedException<T>(statuscode, statusDescription, responseuri, errorMessage, responseContent, respone);
+                case 404:
+                    return new PageNotFoundException<T>(statuscode, statusDescription, responseuri, errorMessage, responseContent, respone);
+                default:
+                    return new RequestException<T>(statuscode, statusDescription, responseuri, errorMessage, responseContent, respone);
+            }
         }
     }
 
@@ -24,23 +43,32 @@ namespace ApiLibs.General
         public NoInternetException(Exception inner) : base(inner.Message, inner) { }
     }
 
-    public class PageNotFoundException : RequestException
+
+    public class BadRequestException<T> : RequestException<T>
     {
-        public PageNotFoundException(IRestResponse response) : base(response)
+        public BadRequestException(int statuscode, string statusDescription, string responseuri, string errorMessage, string responseContent, T response) : base(statuscode, statusDescription, responseuri, errorMessage, responseContent, response)
         {
         }
     }
 
-    public class UnAuthorizedException : RequestException
+    public class ForbiddenException<T> : RequestException<T>
     {
-        public UnAuthorizedException(IRestResponse response) : base(response)
+        public ForbiddenException(int statuscode, string statusDescription, string responseuri, string errorMessage, string responseContent, T response) : base(statuscode, statusDescription, responseuri, errorMessage, responseContent, response)
         {
         }
     }
 
-    public class BadRequestException : RequestException
+    public class UnAuthorizedException<T> : RequestException<T>
     {
-        public BadRequestException(IRestResponse response) : base(response)
+        public UnAuthorizedException(int statuscode, string statusDescription, string responseuri, string errorMessage, string responseContent, T response) : base(statuscode, statusDescription, responseuri, errorMessage, responseContent, response)
+        {
+        }
+    }
+
+
+    public class PageNotFoundException<T> : RequestException<T>
+    {
+        public PageNotFoundException(int statuscode, string statusDescription, string responseuri, string errorMessage, string responseContent, T response) : base(statuscode, statusDescription, responseuri, errorMessage, responseContent, response)
         {
         }
     }

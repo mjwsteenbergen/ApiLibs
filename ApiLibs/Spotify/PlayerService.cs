@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using ApiLibs.General;
+using RestSharp;
 
 namespace ApiLibs.Spotify
 {
@@ -149,7 +150,7 @@ namespace ApiLibs.Spotify
                         statusCode: HttpStatusCode.NoContent);
                 }
             }
-            catch (PageNotFoundException) { }
+            catch (PageNotFoundException<IRestResponse>) { }
         }
 
         class PlayContext
@@ -270,7 +271,7 @@ namespace ApiLibs.Spotify
                     }, statusCode: HttpStatusCode.NoContent);
                 }
             }
-            catch (PageNotFoundException)
+            catch (PageNotFoundException<IRestResponse>)
             {
 
             }
