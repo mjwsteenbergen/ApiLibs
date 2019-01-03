@@ -57,7 +57,7 @@ namespace ApiLibs.Spotify
 
         private class RelatedArtistResult
         {
-            public List<Artist> artists;
+            public List<Artist> artists { get; set; }
         }
     }
 

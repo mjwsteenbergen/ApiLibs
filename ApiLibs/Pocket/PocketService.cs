@@ -13,7 +13,6 @@ namespace ApiLibs.Pocket
 {
     public class PocketService : Service
     {
-        private string Pocket_access_token;
         private string PocketKey;
 
         /// <summary>
@@ -45,9 +44,9 @@ namespace ApiLibs.Pocket
                 new Param("redirect_uri", "zeus://")
             };
 
-            IRestResponse resp = await HandleRequest("oauth/request.php", Call.POST, parameters: parameters);
+            string content = await HandleRequest("oauth/request.php", Call.POST, parameters: parameters);
             
-            string code = resp.Content.Replace("code=", "");
+            string code = content.Replace("code=", "");
 
             authenticator.ActivateOAuth(new Uri("https://getpocket.com/auth/authorize?request_token=" + code + "&redirect_uri=" + generalRedirectUrl));
             return code;
@@ -61,10 +60,10 @@ namespace ApiLibs.Pocket
                 new Param("code", code)
             };
 
-            var resp = await HandleRequest("oauth/authorize.php", Call.POST, parameters: parameters);
+            var content = await HandleRequest("oauth/authorize.php", Call.POST, parameters: parameters);
 
-            var noAccessToken = resp.Content.Replace("access_token=", "");
-            string accessToken = noAccessToken.Remove(30, resp.Content.Length - 13 - 30);
+            var noAccessToken = content.Replace("access_token=", "");
+            string accessToken = noAccessToken.Remove(30, content.Length - 13 - 30);
             return accessToken;
         }
 
@@ -92,9 +91,9 @@ namespace ApiLibs.Pocket
             parameters.Add(new Param("detailType", detail.ToString().ToLower()));
 
 
-            IRestResponse resp = await HandleRequest("get.php", Call.POST, parameters);
+            var resContent = await HandleRequest("get.php", Call.POST, parameters);
 
-            var regexd = Regex.Replace(Regex.Replace(resp.Content, @"""\d+"":", "").Replace("\"list\":{", "\"list\":[").Replace("}},\"error\"", "}],\"error\""), "{{(([^{}]|{[^{}]+}|)+)}(([^{}]|{[^{}]+}|)+)}", "[{$1}$3]");
+            var regexd = Regex.Replace(Regex.Replace(resContent, @"""\d+"":", "").Replace("\"list\":{", "\"list\":[").Replace("}},\"error\"", "}],\"error\""), "{{(([^{}]|{[^{}]+}|)+)}(([^{}]|{[^{}]+}|)+)}", "[{$1}$3]");
             return JsonConvert.DeserializeObject<ReadingList>(regexd);
         }
 

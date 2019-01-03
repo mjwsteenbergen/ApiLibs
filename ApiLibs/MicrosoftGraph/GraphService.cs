@@ -149,7 +149,7 @@ namespace ApiLibs.MicrosoftGraph
         }
 
 
-        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET,
+        protected internal override async Task<string> HandleRequest(string url, Call call = Call.GET,
             List<Param> parameters = null, List<Param> headers = null, object content = null,
             HttpStatusCode statusCode = HttpStatusCode.OK)
         {
@@ -157,7 +157,7 @@ namespace ApiLibs.MicrosoftGraph
             {
                 return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
             }
-            catch (UnAuthorizedException)
+            catch (UnAuthorizedException<IRestResponse>)
             {
                 await RefreshToken();
                 return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
@@ -175,12 +175,12 @@ namespace ApiLibs.MicrosoftGraph
 
         public string Version { get; }
 
-        internal override Task<IRestResponse> HandleRequest(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        protected override Task<string> HandleRequest(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             return base.HandleRequest($"{Version}/" + url, m, parameters, header, content, statusCode);
         }
 
-        internal override Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        protected override Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             return base.MakeRequest<T>($"{Version}/" + url, m, parameters, header, content, statusCode);
         }

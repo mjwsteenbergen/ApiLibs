@@ -73,13 +73,13 @@ namespace ApiLibs.Spotify
             });
         }
 
-        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        protected internal override async Task<string> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             try
             {
                 return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
             }
-            catch (BadRequestException)
+            catch (BadRequestException<IRestResponse>)
             {
                 if (url == "api/token")
                 {

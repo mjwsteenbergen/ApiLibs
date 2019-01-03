@@ -60,7 +60,7 @@ namespace ApiLibs.Spotify
             {
                 new Param("type", type.ToString().ToLower()),
                 new Param("ids", ids.Aggregate((i, j) => i + "," + j))
-            })).Content;
+            }));
             return bool.Parse(output.Replace("[", "").Replace("]", ""));
         }
 
