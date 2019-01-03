@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using ApiLibs.General;
+using RestSharp;
 
 namespace ApiLibs.MicrosoftGraph
 {
-    public class ContactService : SubService
+    public class ContactService : GraphSubService
     {
-        public ContactService(GraphService service) : base(service) { }
+        public ContactService(GraphService service) : base(service, "v1.0") { }
 
         public async Task<List<Contact>> GetAllContacts()
         {

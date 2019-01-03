@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using ApiLibs.General;
+using RestSharp;
 
 namespace ApiLibs.MicrosoftGraph
 {
-    public class PeopleService : SubService
+    public class PeopleService : GraphSubService
     {
-        public PeopleService(GraphService service) : base(service)
+        public PeopleService(GraphService service) : base(service, "v1.0")
         {
         }
 

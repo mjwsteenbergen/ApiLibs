@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using ApiLibs.General;
+using RestSharp;
 
 namespace ApiLibs.MicrosoftGraph
 {
-    public class CalendarService : SubService
+    public class CalendarService : GraphSubService
     {
-        public CalendarService(GraphService service) : base(service)
+        public CalendarService(GraphService service) : base(service, "v1.0")
         {
         }
 

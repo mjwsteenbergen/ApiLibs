@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using ApiLibs.General;
+using RestSharp;
 
 namespace ApiLibs.MicrosoftGraph
 {
-    public class OneDriveService : SubService
+    public class OneDriveService : GraphSubService
     {
-        public OneDriveService(GraphService service) : base(service)
-        {
-
-        }
+        public OneDriveService(GraphService service) : base(service, "v1.0") { }
 
         public async Task<List<DriveItem>> GetFolderChildren(string name)
         {

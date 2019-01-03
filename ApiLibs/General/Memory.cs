@@ -11,37 +11,71 @@ namespace ApiLibs.General
 {
     public class Memory
     {
-        public readonly string DirectoryPath;
+        public readonly string BaseUrl;
 
         public string Application { get; set; }
-        private string ApplicationName => Application ?? GetType().Assembly.GetName().Name;
+        private string GeneratedApplicationName => Application ?? GetType().Assembly.GetName().Name;
 
-        public string ApplicationDataPath => DirectoryPath ?? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar +
-                                             ApplicationName + Path.DirectorySeparatorChar;
+        public string ApplicationDataPath => BaseUrl ?? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar +
+                                             GeneratedApplicationName + Path.DirectorySeparatorChar;
 
         public Memory() { }
 
-        public Memory(string baseUrl)
+        public Memory(string BaseUrl)
         {
-            DirectoryPath = baseUrl;
+            this.BaseUrl = BaseUrl;
         }
 
-        public T ReadFile<T>(string filename) where T : new()
+        public T ReadFile<T>(string filename)
         {
             string text = ReadFile(filename);
 
-            if (text != "")
+            if (text == "")
             {
-                T res = JsonConvert.DeserializeObject<T>(text);
-                return res;
+                throw new FileNotFoundException();
             }
-            else
+
+            if (typeof(T) == typeof(string))
             {
-                T res = new T();
+                return (T)(object)text;
+            }
+
+            return JsonConvert.DeserializeObject<T>(text);
+        }
+
+        public T ReadFile<T>(string filename, T @default)
+        {
+            try
+            {
+                return ReadFile<T>(filename);
+            }
+            catch (FileNotFoundException)
+            {
+                WriteFile(filename, @default);
+                return @default;
+            }
+        }
+
+        public T ReadFileWithDefault<T>(string filename)
+        {
+            try
+            {
+                return ReadFile<T>(filename);
+            }
+            catch (FileNotFoundException)
+            {
+                var constr = typeof(T).GetConstructor(new Type[] { });
+                T res = default(T);
+                if (constr != null)
+                {
+                    res = (T)constr.Invoke(new object[] { });
+                }
                 WriteFile(filename, res);
                 return res;
             }
         }
+
+
 
         public string ReadFile(string filename)
         {
@@ -67,8 +101,13 @@ namespace ApiLibs.General
 
         public void WriteFile(string v, object obj)
         {
-            var s = obj as string;
-            File.WriteAllText(ApplicationDataPath + v, s ?? JsonConvert.SerializeObject(obj, Formatting.Indented));
+            string str = null;
+            if(obj is string)
+            {
+                str = obj as string;
+            }
+
+            File.WriteAllText(ApplicationDataPath + v, str ?? JsonConvert.SerializeObject(obj, Formatting.Indented));
         }
     }
 }
