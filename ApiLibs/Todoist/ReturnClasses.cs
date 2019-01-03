@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using RestSharp;
 
 namespace ApiLibs.Todoist
 {
@@ -552,12 +553,12 @@ namespace ApiLibs.Todoist
         public string error { get; set; }
     }
 
-    public class TodoistException : Exception
+    public class TodoistException : RequestException<IRestResponse>
     {
         public TodoistError Error { private set; get; }
 
-        public TodoistException(TodoistError error, RequestException requestException)
-            : base(requestException.Message, requestException)
+        public TodoistException(TodoistError error, IRestResponse resp)
+            : base((int)resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp)
         {
             Error = error;
         }

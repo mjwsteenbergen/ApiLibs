@@ -162,18 +162,7 @@ namespace ApiLibs
                     throw resp.ErrorException;
                 }
 
-                switch (resp.StatusCode)
-                {
-                    case HttpStatusCode.NotFound:
-                        throw new PageNotFoundException(resp);
-                    case HttpStatusCode.Forbidden:
-                    case HttpStatusCode.Unauthorized:
-                        throw new UnAuthorizedException(resp);
-                    case HttpStatusCode.BadRequest:
-                        throw new BadRequestException(resp);
-                    default:
-                        throw new RequestException(resp);
-                }
+                RequestException<IRestResponse>.ConvertToException((int)resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp);
             }
             return resp;
         }

@@ -153,7 +153,7 @@ namespace ApiLibs.MicrosoftGraph
             {
                 return await base.HandleRequest(url, call, parameters, headers, content);
             }
-            catch (UnAuthorizedException)
+            catch (UnAuthorizedException<IRestResponse>)
             {
                 await RefreshToken();
                 return await base.HandleRequest(url, call, parameters, headers, content);

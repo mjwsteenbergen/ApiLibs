@@ -1,4 +1,5 @@
 ﻿using ApiLibs.General;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -49,7 +50,7 @@ namespace ApiLibs.Telegram
                     new Param("results", results)
                 });
             }
-            catch (BadRequestException e)
+            catch (BadRequestException<IRestResponse> e)
             {
                 if (!e.Message.Contains("QUERY_ID_INVALID"))
                 {

@@ -103,7 +103,7 @@ namespace ApiLibs.Reddit
             {
                 return await base.HandleRequest(url, call, parameters, headers, content);
             }
-            catch (UnAuthorizedException)
+            catch (UnAuthorizedException<IRestResponse>)
             {
                 await RefreshToken();
                 return await base.HandleRequest(url, call, parameters, headers, content);
