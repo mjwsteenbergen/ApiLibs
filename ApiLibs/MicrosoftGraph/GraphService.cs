@@ -19,11 +19,13 @@ namespace ApiLibs.MicrosoftGraph
         public delegate void RefreshChangedEventHandler(GraphService sender, RefreshArgs e);
 
         public CalendarService CalendarService { get; }
-        public ContactService ContactService { get; private set; }
-        public OneDriveService OneDriveService { get; private set; }
-        public MailService MailService { get; private set; }
+        public PeopleService PeopleService { get; }
+        public OneDriveService OneDriveService { get; }
+        public MailService MailService { get; }
+        public TodoService TodoService { get; }
+        public OneNoteService OneNoteService { get; set; }
 
-        private static readonly string basePath = "https://graph.microsoft.com/v1.0/";
+        private static readonly string basePath = "https://graph.microsoft.com/";
 
         /// <summary>
         /// Create the outlook service if you need to authenticate
@@ -49,9 +51,11 @@ namespace ApiLibs.MicrosoftGraph
             AddStandardHeader(new Param("X-AnchorMailbox", emailAdress));
             AddStandardHeader(new Param("Authorization", "None"));
             CalendarService = new CalendarService(this);
-            ContactService = new ContactService(this);
+            PeopleService = new PeopleService(this);
             OneDriveService = new OneDriveService(this);
             MailService = new MailService(this);
+            TodoService = new TodoService(this);
+            OneNoteService = new OneNoteService(this);
         }
 
 
@@ -77,8 +81,8 @@ namespace ApiLibs.MicrosoftGraph
 
         public enum Scopes
         {
-            Calendars_ReadWrite, Calendars_ReadWrite_Shared, Contacts_ReadWrite, Device_ReadWrite_All, Directory_ReadWrite_All, Files_ReadWrite_All, Mail_ReadWrite, Mail_Send, Notes_ReadWrite_All, People_Read_All, User_ReadWrite_All,
-            Device_Read
+            Calendars_ReadWrite, Calendars_ReadWrite_Shared, Contacts_ReadWrite, Device_ReadWrite_All, Directory_ReadWrite_All, Files_ReadWrite_All, Mail_ReadWrite, Mail_Send, Notes_ReadWrite_All, People_Read, People_Read_All, User_ReadWrite_All,
+            Device_Read, Tasks_Read, Tasks_ReadWrite, Notes_Read_All, Notes_Create, Notes_Read, Notes_ReadWrite
         }
 
 
@@ -145,20 +149,40 @@ namespace ApiLibs.MicrosoftGraph
         }
 
 
-        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET,
+        protected internal override async Task<string> HandleRequest(string url, Call call = Call.GET,
             List<Param> parameters = null, List<Param> headers = null, object content = null,
             HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             try
             {
-                return await base.HandleRequest(url, call, parameters, headers, content);
+                return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
             }
-            catch (UnAuthorizedException)
+            catch (UnAuthorizedException<IRestResponse>)
             {
                 await RefreshToken();
-                return await base.HandleRequest(url, call, parameters, headers, content);
+                return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
             }
 
+        }
+    }
+
+    public abstract class GraphSubService : SubService
+    {
+        public GraphSubService(Service service, string version) : base(service)
+        {
+            Version = version;
+        }
+
+        public string Version { get; }
+
+        protected override Task<string> HandleRequest(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        {
+            return base.HandleRequest($"{Version}/" + url, m, parameters, header, content, statusCode);
+        }
+
+        protected override Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        {
+            return base.MakeRequest<T>($"{Version}/" + url, m, parameters, header, content, statusCode);
         }
     }
 

@@ -23,7 +23,11 @@ namespace ApiLibs.Instapaper
 
         public InstapaperService(string clientId, string clientSecret, string token, string tokenSecret) :base("https://www.instapaper.com/api/1.1/")
         {
-            Client.Authenticator = OAuth1Authenticator.ForAccessToken(clientId, clientSecret, token, tokenSecret);
+            OAuth1Authenticator oAuth1Authenticator = OAuth1Authenticator.ForAccessToken(clientId, clientSecret, token, tokenSecret);
+            oAuth1Authenticator.SignatureMethod = OAuthSignatureMethod.HmacSha1;
+            oAuth1Authenticator.SignatureTreatment = OAuthSignatureTreatment.Escaped;
+            oAuth1Authenticator.ParameterHandling = OAuthParameterHandling.HttpAuthorizationHeader;
+            Client.Authenticator = oAuth1Authenticator;
         }
 
         /// <summary>
@@ -56,31 +60,21 @@ namespace ApiLibs.Instapaper
         /// <summary>
         /// Lists the user's unread bookmarks, and can also synchronize reading positions.
         /// </summary>
-        /// <param name="limit">Optional. A number between 1 and 500, default 25.</param>
         /// <param name="folderId">Optional. Possible values are unread (default), starred, archive, or a folder_id value from /api/1.1/folders/lists</param>
+        /// <param name="limit">Optional. A number between 1 and 500, default 25.</param>
         /// <returns></returns>
-        public async Task<List<Bookmark>> GetBookmarks(int limit = 25, int folderId = -1)
+        public async Task<List<Bookmark>> GetBookmarks(string folderId = null, int? limit = null) => (await GetAllBookmarkInfo(folderId, limit)).bookmarks;
+
+        public Task<List<Bookmark>> GetBookmarks(int limit, Folder folder)
         {
-            List<Param> param = new List<Param>();
-            if (limit != 25)
-            {
-                param.Add(new Param("limit", limit.ToString()));
-            }
-            if (folderId != -1)
-            {
-                param.Add(new Param("folder_id", folderId.ToString()));
-            }
-
-            var s = await MakeRequest<BookmarksObject>("bookmarks/list", parameters: param);
-
-            List<Bookmark> bookmarks = s.bookmarks;
-            return bookmarks;
+            return GetBookmarks(folder.folder_id.ToString(), limit);
         }
 
-        public async Task<List<Bookmark>> GetBookmarks(int limit, Folder folder)
-        {
-            return await GetBookmarks(limit, folder.folder_id);
-        }
+        public Task<BookmarksObject> GetAllBookmarkInfo(string folderId = null, int? limit = null) => MakeRequest<BookmarksObject>("bookmarks/list", Call.POST, parameters: new List<Param>
+            {
+                new OParam("folder_id", folderId),
+                new OParam("limit", limit?.ToString())
+            });
 
         /// <summary>
         /// Adds a new unread bookmark to the user's account.
@@ -224,6 +218,16 @@ namespace ApiLibs.Instapaper
                 }
             }
             throw new KeyNotFoundException("Your folder could not be found");
+        }
+
+        public Task<string> GetHTML(Bookmark mark)
+        {
+            return GetHTML(mark.bookmark_id);
+        }
+
+        private Task<string> GetHTML(int bookmark_id)
+        {
+            return MakeRequest<string>("bookmarks/get_text", parameters: new List<Param> { new Param("bookmark_id", bookmark_id) });
         }
 
         public async Task<List<Highlight>> GetHighlights(Bookmark bookmark) => await MakeRequest<List<Highlight>>("bookmarks/" + bookmark.bookmark_id  + "/highlights");

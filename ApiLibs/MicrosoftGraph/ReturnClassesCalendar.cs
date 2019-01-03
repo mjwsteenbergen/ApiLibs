@@ -277,7 +277,7 @@ namespace ApiLibs.MicrosoftGraph
         public string UniqueIdType { get; set; }
 
         [JsonProperty("Address")]
-        public Address Address { get; set; }
+        public PhysicalAddress Address { get; set; }
 
         [JsonProperty("Coordinates")]
         public Coordinates Coordinates { get; set; }
@@ -289,7 +289,7 @@ namespace ApiLibs.MicrosoftGraph
         public string UniqueId { get; set; }
     }
 
-    public partial class Address
+    public partial class PhysicalAddress
     {
         [JsonProperty("Type")]
         public string Type { get; set; }
@@ -308,10 +308,21 @@ namespace ApiLibs.MicrosoftGraph
 
         [JsonProperty("PostalCode", NullValueHandling = NullValueHandling.Ignore)]
         public string PostalCode { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Street}, {PostalCode}, {City}, {CountryOrRegion}";
+        }
     }
 
     public partial class Coordinates
     {
+        public Coordinates(double? latitude, double? longitude)
+        {
+            Latitude = latitude;
+            Longitude = longitude;
+        }
+
         [JsonProperty("Latitude", NullValueHandling = NullValueHandling.Ignore)]
         public double? Latitude { get; set; }
 
@@ -463,5 +474,14 @@ namespace ApiLibs.MicrosoftGraph
     {
         [JsonProperty("responses")]
         public List<BatchResponse> Responses { get; set; }
+    }
+
+    public partial class EmailAddress
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("address")]
+        public string Address { get; set; }
     }
 }

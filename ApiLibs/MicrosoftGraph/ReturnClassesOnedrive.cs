@@ -84,10 +84,10 @@ namespace ApiLibs.MicrosoftGraph
     public partial class EdBy
     {
         [JsonProperty("user")]
-        public Application User { get; set; }
+        public User User { get; set; }
 
         [JsonProperty("application", NullValueHandling = NullValueHandling.Ignore)]
-        public Application Application { get; set; }
+        public User Application { get; set; }
 
         [JsonProperty("device", NullValueHandling = NullValueHandling.Ignore)]
         public Device Device { get; set; }
@@ -101,7 +101,7 @@ namespace ApiLibs.MicrosoftGraph
         }
     }
 
-    public partial class Application
+    public partial class User
     {
         [JsonProperty("displayName")]
         public string DisplayName { get; set; }
@@ -221,7 +221,7 @@ namespace ApiLibs.MicrosoftGraph
     public partial class Owner
     {
         [JsonProperty("user")]
-        public Application User { get; set; }
+        public User User { get; set; }
     }
 
     public partial class SpecialFolder

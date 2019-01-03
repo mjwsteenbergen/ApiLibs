@@ -51,6 +51,22 @@ namespace ApiLibs.Wunderlist
             return (obj as WTask)?.id == id;
         }
 
+        public override int GetHashCode()
+        {
+            var hashCode = 1399796180;
+            hashCode = hashCode * -1521134295 + id.GetHashCode();
+            hashCode = hashCode * -1521134295 + created_at.GetHashCode();
+            hashCode = hashCode * -1521134295 + created_by_id.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(created_by_request_id);
+            hashCode = hashCode * -1521134295 + completed.GetHashCode();
+            hashCode = hashCode * -1521134295 + starred.GetHashCode();
+            hashCode = hashCode * -1521134295 + list_id.GetHashCode();
+            hashCode = hashCode * -1521134295 + revision.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(title);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(type);
+            return hashCode;
+        }
+
         public WPatchTask ToPatchTask()
         {
             WPatchTask patch = new WPatchTask

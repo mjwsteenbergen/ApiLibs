@@ -23,7 +23,7 @@ namespace ApiLibsTest.Instapaper
 
         [Test]
         [Ignore("Overrides some stuff")]
-        public async Task ConnectTest()
+        public void ConnectTest()
         {
             Passwords passwords = Passwords.ReadPasswords();
             var insta = new InstapaperService();
@@ -34,9 +34,29 @@ namespace ApiLibsTest.Instapaper
         }
 
         [Test]
-        public async Task TestActionAttribute()
+        public async Task TestGetBookmarks()
         {
             var res = await instapaper.GetBookmarks();
         }
+
+        [Test]
+        public async Task TestGetBookmarksLimit()
+        {
+            var res = await instapaper.GetBookmarks(limit:200);
+        }
+
+        [Test]
+        public async Task TestGetBookmarksStarred()
+        {
+            var res = await instapaper.GetBookmarks("starred");
+        }
+
+        [Test]
+        public async Task TestGetBookmarksArchive()
+        {
+            var res = await instapaper.GetBookmarks("archive");
+        }
+
+
     }
 }

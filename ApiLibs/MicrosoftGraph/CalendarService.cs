@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using ApiLibs.General;
+using RestSharp;
 
 namespace ApiLibs.MicrosoftGraph
 {
-    public class CalendarService : SubService
+    public class CalendarService : GraphSubService
     {
-        public CalendarService(GraphService service) : base(service)
+        public CalendarService(GraphService service) : base(service, "v1.0")
         {
         }
 
@@ -19,7 +21,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public async Task<List<Event>> GetEvents()
         {
-            return (await MakeRequest<Events>("/me/events")).Value;
+            return (await MakeRequest<Events>("/me/events?$top=20")).Value;
         }
 
         public async Task CreateEvent(NewEvent ev)
@@ -33,15 +35,21 @@ namespace ApiLibs.MicrosoftGraph
             var res = await MakeRequest<BatchResult>("$batch", Call.POST, content: new
             {
                 requests = myCals.Select(i => new
-                    {
-                        url =
-                            $"/me/calendars/{i.Id}/calendarView?startdatetime={startTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&enddatetime={endTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}",
-                        method = "GET",
-                        id = i.Name
-                    })
+                {
+                    url =
+                        $"/me/calendars/{i.Id}/calendarView?startdatetime={startTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&enddatetime={endTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}",
+                    method = "GET",
+                    id = i.Name
+                })
             });
 
             return res.Responses.Select(i => i.Body).Where(i => i.Error == null).SelectMany(i => i.Value).ToList();
+        }
+
+        public async Task EditEvent(string id, NewEvent ev)
+        {
+            var res = await MakeRequest<Event>($"/me/events/{id}", Call.PATCH, content: ev);
+
         }
     }
 }

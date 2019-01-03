@@ -14,6 +14,9 @@ namespace ApiLibs.Spotify
     {
         private string _RefreshToken;
         private string _ClientBase64;
+
+        private bool? premiumUser = null;
+
         public TrackService TrackService { get; }
         public AlbumService AlbumService { get; }
         public PlayerService PlayerService { get; }
@@ -70,13 +73,13 @@ namespace ApiLibs.Spotify
             });
         }
 
-        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        protected internal override async Task<string> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             try
             {
                 return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
             }
-            catch (BadRequestException)
+            catch (BadRequestException<IRestResponse>)
             {
                 if (url == "api/token")
                 {
@@ -118,7 +121,18 @@ namespace ApiLibs.Spotify
             Album, Artist, Playlist, Track
         }
 
+        public async Task<bool> IsPremiumUser()
+        {
+            premiumUser = premiumUser ?? (await ProfileService.GetMe()).product == "premium";
+            return premiumUser.Value;
+        }
 
+        public async Task<string> GetUserProfile()
+        {
+            var res = await MakeRequest<string>("me");
+
+            return res;
+        }
 
     }
 

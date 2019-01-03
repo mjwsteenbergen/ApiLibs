@@ -21,6 +21,7 @@ namespace ApiLibsTest
         }
 
         [Test]
+        [Ignore("Startup")]
         public async Task ConnectTest()
         {
             Passwords passwords = Passwords.ReadPasswords();
@@ -29,6 +30,7 @@ namespace ApiLibsTest
         }
 
         [Test]
+        [Ignore("Startup")]
         public async Task GetToken()
         {
             Passwords passwords = Passwords.ReadPasswords();

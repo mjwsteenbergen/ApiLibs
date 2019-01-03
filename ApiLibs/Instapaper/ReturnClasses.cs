@@ -56,6 +56,11 @@ namespace ApiLibs.Instapaper
         public float progress { get; set; }
         public string starred { get; set; }
         public string type { get; set; }
+
+        public IEnumerable<Highlight> GetCorrespondingHighlights(IEnumerable<Highlight> highlights)
+        {
+            return highlights.Where(i => i.bookmark_id == this.bookmark_id);
+        }
     }
 
 

@@ -1,30 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using ApiLibs.General;
+using RestSharp;
 
 namespace ApiLibs.MicrosoftGraph
 {
-    public class MailService : SubService
+    public class MailService : GraphSubService
     {
         private string outlookRefreshToken;
         private string outlookClientID;
         private string outlookClientSecret;
         private string outlookEmail;
 
-        public MailService(GraphService service) : base(service)
-        {
-
-        }
-
-        public MailService(string outlookRefreshToken, string outlookClientID, string outlookClientSecret, string outlookEmail, GraphService graph) : base(graph)
-        {
-            this.outlookRefreshToken = outlookRefreshToken;
-            this.outlookClientID = outlookClientID;
-            this.outlookClientSecret = outlookClientSecret;
-            this.outlookEmail = outlookEmail;
-        }
+        public MailService(GraphService service) : base(service, "v1.0") { }
 
         /// <summary>
         /// Gets flagged data

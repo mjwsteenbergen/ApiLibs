@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -37,13 +36,13 @@ namespace ApiLibs.Todoist
             this._syncObject.Items = Merger.Merge(_syncObject.Items, syncobject.Items);
         }
 
-        internal override async Task<IRestResponse> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null,
+        protected internal override async Task<string> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null,
             HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             var res = await base.HandleRequest(url, call, parameters, headers, content, statusCode);
             if (url.ToLower() == "sync")
             {
-                var result = JsonConvert.DeserializeObject<SyncResult>(res.Content);
+                var result = JsonConvert.DeserializeObject<SyncResult>(res);
                 if (result.SyncStatus?.Values.Any(i => i != "ok") ?? false)
                 {
                     throw new TodoistException(null, null);
@@ -111,11 +110,16 @@ namespace ApiLibs.Todoist
 
         public async Task MarkTodoAsDone(Item todo)
         {
+            await MarkTodoAsDone(todo.Id);
+        }
+
+        public async Task MarkTodoAsDone(long id)
+        {
             List<Param> parameters = new List<Param>
             {
                 new TodoistCommand("item_close", new ItemUpdate()
                 {
-                    Id = todo.Id
+                    Id = id
                 }).ToParam()
             };
             await HandleRequest("sync", parameters: parameters);
@@ -152,6 +156,23 @@ namespace ApiLibs.Todoist
                     note,
                     labels = labels?.Select(i => i.Id).ToArray()
                 }).ToParam()
+            });
+            return res.TempIdMapping.Values.FirstOrDefault();
+        }
+
+        public async Task<long> AddTodo(IEnumerable<Item> items)
+        {
+            var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
+            {
+                TodoistCommand.ToParam(items.Select(i => new TodoistCommand("item_add", new
+                {
+                    content = i.Content,
+                    project_id = i.ProjectId,
+                    date_string = i.DateString,
+                    priority = i.Priority,
+                    indent =i.Indent,
+                    labels = i.Labels?.ToArray()
+                })))
             });
             return res.TempIdMapping.Values.FirstOrDefault();
         }
@@ -206,6 +227,8 @@ namespace ApiLibs.Todoist
                 }).ToParam()
             });
         }
+
+        
     }
 
     public class TodoistCommand
@@ -241,9 +264,14 @@ namespace ApiLibs.Todoist
             return serializedObject;
         }
 
+        public static Param ToParam(IEnumerable<TodoistCommand> commands)
+        {
+            return new Param("commands", "[" + commands.Select(i => i.ToCommand()).Aggregate((i,j) => $"{i},{j}") + "]");
+        }
+
         public Param ToParam()
         {
-            return new Param("commands", "[" + ToCommand() + "]");
+            return ToParam(new List<TodoistCommand> { this });
         }
 
         private static Random random = new Random();
