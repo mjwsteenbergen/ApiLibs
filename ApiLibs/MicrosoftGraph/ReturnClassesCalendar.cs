@@ -246,13 +246,17 @@ namespace ApiLibs.MicrosoftGraph
     {
         public EventTime()
         {
-            TimeZone = TimeZoneInfo.Local.DaylightName;
+
         }
 
-        public EventTime(DateTimeOffset Dt) : this()
+        public EventTime(DateTimeOffset Dt)
         {
-            DateTime = Dt;
+            DateTime = Dt.UtcDateTime;
+            TimeZone = "UTC";
         }
+
+        [JsonIgnore]
+        public DateTimeOffset LocalDateTimeOffset => DateTime.LocalDateTime; 
 
         [JsonProperty("DateTime")]
         public DateTimeOffset DateTime { get; set; }
