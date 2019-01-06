@@ -135,7 +135,8 @@ namespace ApiLibs
                 AddBody(request, content);
             }
 
-            return (await ExcecuteRequest(request, statusCode)).Content;
+            IRestResponse restResponse = (await ExcecuteRequest(request, statusCode));
+            return restResponse.Content;
         }
 
 
@@ -183,7 +184,7 @@ namespace ApiLibs
                     throw resp.ErrorException;
                 }
 
-                RequestException<IRestResponse>.ConvertToException((int)resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp);
+                throw RequestException<IRestResponse>.ConvertToException((int)resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp);
             }
             return resp;
         }
