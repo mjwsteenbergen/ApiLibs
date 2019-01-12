@@ -553,7 +553,7 @@ namespace ApiLibs.Todoist
         public string error { get; set; }
     }
 
-    public class TodoistException : RequestException<IRestResponse>
+    public class TodoistException : RequestException
     {
         public TodoistError Error { private set; get; }
 

@@ -10,11 +10,6 @@ namespace ApiLibs.MicrosoftGraph
 {
     public class MailService : GraphSubService
     {
-        private string outlookRefreshToken;
-        private string outlookClientID;
-        private string outlookClientSecret;
-        private string outlookEmail;
-
         public MailService(GraphService service) : base(service, "v1.0") { }
 
         /// <summary>

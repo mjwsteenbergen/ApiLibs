@@ -199,7 +199,7 @@ namespace ApiLibs
                     throw resp.ErrorException;
                 }
 
-                throw RequestException<IRestResponse>.ConvertToException((int)resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp);
+                throw RequestException.ConvertToException((int)resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp);
             }
             return resp;
         }

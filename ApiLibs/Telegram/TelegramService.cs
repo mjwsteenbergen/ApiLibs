@@ -50,7 +50,7 @@ namespace ApiLibs.Telegram
                     new Param("results", results)
                 });
             }
-            catch (BadRequestException<IRestResponse> e)
+            catch (BadRequestException e)
             {
                 if (!e.Message.Contains("QUERY_ID_INVALID"))
                 {
