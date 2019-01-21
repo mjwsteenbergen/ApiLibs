@@ -10,12 +10,14 @@ namespace ApiLibsTest.MicrosoftGraph
     class CalendarServiceTest
     {
         private CalendarService calendar;
+        private GraphService graphService;
 
 
         [OneTimeSetUp]
         public void SetUp()
         {
-            calendar = GraphTest.GetGraphService().CalendarService;
+            graphService = GraphTest.GetGraphService();
+            calendar = graphService.CalendarService;
         }
 
         [Test]
@@ -26,6 +28,13 @@ namespace ApiLibsTest.MicrosoftGraph
 
         [Test]
         public async Task GetMyEvents()
+        {
+            graphService.PreferTimeZone(TimeZoneInfo.Local);
+            var s = await calendar.GetEvents();
+        }
+
+        [Test]
+        public async Task GetMyEventsWithTimezone()
         {
             var s = await calendar.GetEvents();
         }
