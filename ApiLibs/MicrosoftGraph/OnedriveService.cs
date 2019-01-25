@@ -31,5 +31,10 @@ namespace ApiLibs.MicrosoftGraph
         {
             return await MakeRequest<string>($"/me/drive/items/{driveItem.Id}/content");
         }
+
+        public Task SetContent(string filepath, string text)
+        {
+            return MakeRequest<DriveItem>($"/me/drive/root:/{filepath}:/content", Call.PUT, content: new PlainTextContent(text));
+        }
     }
 }

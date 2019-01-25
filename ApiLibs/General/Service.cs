@@ -78,10 +78,20 @@ namespace ApiLibs
             Client.Authenticator = new HttpBasicAuthenticator(username, secret);
         }
 
-
-        protected internal async Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T">The class we expect the response text to be</typeparam>
+        /// <param name="url">url to call</param>
+        /// <param name="method">method to use when calling the endpoint</param>
+        /// <param name="parameters">the list of parameters in the url to add.</param>
+        /// <param name="headers">the headers to add to the request</param>
+        /// <param name="content">The content of the request-body</param>
+        /// <param name="statusCode">the headers to add to the request</param>
+        /// <returns></returns>
+        protected internal async Task<T> MakeRequest<T>(string url, Call method = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
-            return Convert<T>(await HandleRequest(url, m, parameters, header, content, statusCode));
+            return Convert<T>(await HandleRequest(url, method, parameters, headers, content, statusCode));
         }
 
         protected internal virtual async Task<string> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
@@ -154,6 +164,11 @@ namespace ApiLibs
                     request.AddHeader("Content-Type", "text/html");
                     break;
 
+                case PlainTextContent plainText:
+                    request.AddParameter("text/html", plainText.Content, ParameterType.RequestBody);
+                    request.AddHeader("Content-Type", "text/plain");
+                    break;
+
                 default:
                     JsonSerializerSettings settings = new JsonSerializerSettings
                     {
@@ -184,7 +199,7 @@ namespace ApiLibs
                     throw resp.ErrorException;
                 }
 
-                throw RequestException<IRestResponse>.ConvertToException((int)resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp);
+                throw RequestException.ConvertToException((int)resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp);
             }
             return resp;
         }

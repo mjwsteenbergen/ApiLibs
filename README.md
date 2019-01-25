@@ -4,7 +4,17 @@ ApiLibs is a library created to give you an easy Object Oriented way to use rest
 
 ## Install
 
-Clone the repository and open with the latest version of visual studio and run `nuget restore`
+Clone the repository and open with the latest version of visual studio and run `dotnet restore`
+
+## Using any of the API's
+
+### Authenticating
+
+The library should be relatively self explanatory. Almost all of the Services will have a dedicated test that used to [test the Service](https://github.com/mjwsteenbergen/ApiLibs/blob/master/ApiLibsTest/Spotify/SpotifyTest.cs#L29) and will explain the expected workflow into authenticating. The short version is as follows:
+
+ - Call the constructor of the Service with as few parameters as possible
+ - Call the `Connect` method with the required parameters
+ - Pass the token gotten from the above method and call the `ConvertToToken` method if exists. It will return an access token to be used with the Service. 
 
 ## Architecture
 
@@ -13,6 +23,63 @@ The library is built of 3 layers:
 - The actual api that the user will use
 - A service layer which provides an adapter to the lowest layer and the higher layer
 - RestSharp which enables use make the call to the internet
+
+### MakeRequest
+
+MakeRequest is the method that you will probably use most of the time. It will make the request and deserialize the response automatically for you.
+
+| Parameter | Explanation |
+|:--|:--|
+| T | The class we expect the response text to be |
+| url | url to call |
+| method | method to use when calling the endpoint |
+| parameters | the list of parameters in the url to add. (See [parameters](#parameters)) |
+| headers | the headers to add to the request |
+| content | See [content](#content) |
+| statuscode | The expected returned statuscode |
+
+
+#### Content
+
+There are 3 types of content:
+ - HtmlContent
+ - PlainTextContent
+ - Default: Will automatically serialize the text into json and add it to the request body
+
+#### Parameters
+
+There are 3 types of parameters: 
+ - Param (the default parameter)
+ - OParam (optional parameter. Will not be added if the parameter value is null)
+ - DParam (parameter with a default value)
+
+
+### Subservice
+
+In many cases, an API is so large, it warrents splitting up the original service into catagories. ApiLibs supports this in the way of SubServices.
+
+Create a subservice like so:
+
+```csharp
+public class AlbumService : SubService
+{
+    public AlbumService(SpotifyService spotify) : base(spotify) { }
+}
+```
+
+and initiate it in the main Service:
+
+```csharp
+public class SpotifyService : Service
+{
+    public SpotifyService() : base("https://api.spotify.com/v1/")
+    {
+        AlbumService = new AlbumService(this);
+    }
+}
+```
+
+A reference will be kept of the original Service and therefore each call that the SubService makes will be routed through the main Service.
 
 ## How to connect your own rest-service
 
