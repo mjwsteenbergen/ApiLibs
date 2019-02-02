@@ -185,6 +185,14 @@ namespace ApiLibs.Todoist
             });
         }
 
+        public async Task Update(IEnumerable<ItemUpdate> updates)
+        {
+            var res = await HandleRequest("sync", parameters: new List<Param>
+            {
+                TodoistCommand.ToParam(updates.Select(i => new TodoistCommand("item_update", i)))
+            });
+        }
+
         public async Task<long> CreateProject(string name, int? color = null, int? indent = null, int? itemOrder = null, bool? isFavorite = null)
         {
             var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
