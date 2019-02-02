@@ -187,6 +187,11 @@ namespace ApiLibs.Todoist
 
         public async Task Update(IEnumerable<ItemUpdate> updates)
         {
+            if(updates.Count() == 0)
+            {
+                return;
+            }
+
             var res = await HandleRequest("sync", parameters: new List<Param>
             {
                 TodoistCommand.ToParam(updates.Select(i => new TodoistCommand("item_update", i)))
