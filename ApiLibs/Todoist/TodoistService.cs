@@ -117,10 +117,7 @@ namespace ApiLibs.Todoist
         {
             List<Param> parameters = new List<Param>
             {
-                new TodoistCommand("item_close", new ItemUpdate()
-                {
-                    Id = id
-                }).ToParam()
+                new TodoistCommand("item_close", new ItemUpdate(id)).ToParam()
             };
             await HandleRequest("sync", parameters: parameters);
         }
@@ -298,6 +295,11 @@ namespace ApiLibs.Todoist
 
     public class ItemUpdate
     {
+        public ItemUpdate(long id)
+        {
+            Id = id;
+        }
+
         [JsonProperty("id")]
         public long Id { get; set; }
 
