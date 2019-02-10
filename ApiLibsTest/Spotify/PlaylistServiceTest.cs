@@ -35,5 +35,18 @@ namespace ApiLibsTest.Spotify
         {
             await playlistService.DeletePlaylist("", "");
         }
+
+        [Test]
+        public async Task CheckAddMoreThan100()
+        {
+            var res = await spotify.LibraryService.GetMyTracks(0, 50);
+            var res2 = await spotify.LibraryService.GetMyTracks(50, 50);
+            var res3 = await spotify.LibraryService.GetMyTracks(100, 50);
+
+            var playlist = await playlistService.CreatePlaylist("newnottakenname", "longplaylist");
+            await playlistService.AddTracks(res.Items.Select(i => i.Track).Concat(res2.Items.Select(i => i.Track)).Concat(res3.Items.Select(i => i.Track)), playlist);
+
+            await playlistService.DeletePlaylist(playlist);
+        }
     }
 }

@@ -38,10 +38,19 @@ namespace ApiLibs.Spotify
 
         public async Task AddTracks(IEnumerable<Track> tracks, Playlist playlist)
         {
-            await AddTracks(tracks.Select(i => i.Uri), playlist.Id, playlist.Owner.Id);
+            tracks = tracks.ToList();
+            for (int i = 0; i < tracks.Count(); i+=100)
+            {
+                await AddTracksSingleCall(tracks.Select(j => j.Uri).Skip(i).Take(100), playlist.Id, playlist.Owner.Id);
+            }
         }
 
-        public async Task AddTracks(IEnumerable<string> tracks, string playlistId, string owner)
+        public async Task AddTracksSingleCall(IEnumerable<Track> tracks, Playlist playlist)
+        {
+            await AddTracksSingleCall(tracks.Select(i => i.Uri), playlist.Id, playlist.Owner.Id);
+        }
+
+        public async Task AddTracksSingleCall(IEnumerable<string> tracks, string playlistId, string owner)
         {
             await HandleRequest($"users/{owner}/playlists/{playlistId}/tracks", Call.POST, content: tracks);
         }
