@@ -164,6 +164,11 @@ namespace ApiLibs.MicrosoftGraph
             }
 
         }
+
+        public void PreferTimeZone(TimeZoneInfo timezone)
+        {
+            AddStandardHeader("Prefer", $"outlook.timezone=\"{timezone.StandardName}\"");
+        }
     }
 
     public abstract class GraphSubService : SubService
