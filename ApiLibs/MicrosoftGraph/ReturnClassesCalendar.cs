@@ -317,6 +317,8 @@ namespace ApiLibs.MicrosoftGraph
 
     public partial class Coordinates
     {
+        public Coordinates() { }
+
         public Coordinates(double? latitude, double? longitude)
         {
             Latitude = latitude;
