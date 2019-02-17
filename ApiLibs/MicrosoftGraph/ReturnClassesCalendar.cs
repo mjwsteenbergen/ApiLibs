@@ -387,7 +387,7 @@ namespace ApiLibs.MicrosoftGraph
         public long NumberOfOccurrences { get; set; }
     }
 
-    public enum Response { Accepted, None, Organizer, NotResponded };
+    public enum Response { Accepted, None, Organizer, NotResponded, TentativelyAccepted };
 
     public partial class NewEvent
     {
@@ -422,7 +422,7 @@ namespace ApiLibs.MicrosoftGraph
         public Location Location { get; set; }
 
         [JsonIgnore]
-        public string Id { get; internal set; }
+        public string Id { get; set; }
     }
 
     public partial class BatchResponse
