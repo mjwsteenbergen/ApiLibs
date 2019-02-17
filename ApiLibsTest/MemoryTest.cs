@@ -7,6 +7,7 @@ using System.Text;
 
 namespace ApiLibsTest
 {
+    [Category("NoInternet")]
     class MemoryTest
     {
         Memory mem;
@@ -16,6 +17,7 @@ namespace ApiLibsTest
         [SetUp]
         public void Setup()
         {
+            Directory.CreateDirectory(dirpath);
             mem = new Memory(dirpath);
         }
 
