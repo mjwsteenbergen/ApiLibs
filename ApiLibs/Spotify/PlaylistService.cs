@@ -55,15 +55,46 @@ namespace ApiLibs.Spotify
             await HandleRequest($"users/{owner}/playlists/{playlistId}/tracks", Call.POST, content: tracks);
         }
 
-
-        public async Task<PlaylistTrackResponse> GetTracks(Playlist playlist)
+        public async Task<List<Track>> GetAllTracks(Playlist playlist)
         {
-            return await GetTracks(playlist.Id, playlist.Owner.Id);
+            List<Track> tracks = new List<Track>();
+            var playlistTracks = await GetTracks(playlist);
+            tracks.AddRange(playlistTracks.Items.Select(i => i.Track));
+
+            if (playlistTracks.Total > 100)
+            {
+                for (int i = 1; i < (int) Math.Ceiling(playlistTracks.Total / 100.0) ; i++)
+                {
+                    tracks.AddRange((await GetTracks(playlist, offset: i * 100)).Items.Select(j => j.Track));
+                }
+            }
+
+            return tracks;
         }
 
-        private async Task<PlaylistTrackResponse> GetTracks(string playlistId, string ownerId)
+        public async Task<PlaylistTrackResponse> GetTracks(Playlist playlist, int? limit = null, int? offset = null)
         {
-            return await MakeRequest<PlaylistTrackResponse>($"users/{ownerId}/playlists/{playlistId}/tracks");
+            return await GetTracks(playlist.Id, playlist.Owner.Id, limit, offset);
+        }
+
+        private async Task<PlaylistTrackResponse> GetTracks(string playlistId, string ownerId, int? limit = null, int? offset = null)
+        {
+            return await MakeRequest<PlaylistTrackResponse>($"users/{ownerId}/playlists/{playlistId}/tracks", parameters: new List<Param>
+            {
+                new OParam("offset", offset),
+                new OParam("limit", limit)
+            });
+        }
+
+        public async Task RemoveTracksAll(Playlist playlist, IEnumerable<Track> tracks)
+        {
+            tracks = tracks.ToList();
+            while(tracks.Count() > 0)
+            {
+                var remove = tracks.Take(100);
+                await RemoveTracks(playlist.Id, playlist.Owner.Id, remove.Select(i => i.Uri));
+                tracks = tracks.Skip(100).ToList();
+            }
         }
 
         public async Task RemoveTracks(Playlist playlist, IEnumerable<Track> tracks)
