@@ -387,15 +387,30 @@ namespace ApiLibs.MicrosoftGraph
         public long NumberOfOccurrences { get; set; }
     }
 
-    public enum Response { Accepted, None, Organizer, NotResponded };
+    public enum Response { Accepted, None, Organizer, NotResponded, TentativelyAccepted };
 
     public partial class NewEvent
     {
-        [JsonProperty("subject")]
-        public string Subject { get; set; }
+        [JsonProperty("attendees")]
+        public List<Attendee> Attendees { get; set; }
 
         [JsonProperty("body")]
         public Body Body { get; set; }
+
+        [JsonProperty("subject")]
+        public string Subject { get; set; }
+
+        [JsonProperty("showAs")]
+        public string ShowAs { get; set; }
+
+        [JsonProperty("importance")]
+        public string Importance { get; set; }
+
+        [JsonProperty("sensitivity")]
+        public string Sensitivity { get; set; }
+
+        [JsonProperty("reminderMinutesBeforeStart")]
+        public string ReminderBeforeStart { get; set; }
 
         [JsonProperty("start")]
         public EventTime Start { get; set; }
@@ -406,8 +421,8 @@ namespace ApiLibs.MicrosoftGraph
         [JsonProperty("location")]
         public Location Location { get; set; }
 
-        [JsonProperty("attendees")]
-        public List<Attendee> Attendees { get; set; }
+        [JsonIgnore]
+        public string Id { get; set; }
     }
 
     public partial class BatchResponse

@@ -14,19 +14,75 @@ namespace ApiLibs.MicrosoftGraph
         {
         }
 
+        #region Events
+
+        public async Task<List<Event>> GetEvents(OData data = null)
+        {
+            data = data ?? new OData
+            {
+                Top = 20
+            };
+            return (await MakeRequest<Events>("/me/events" + data.ConvertToUrl())).Value;
+        }
+
+        public Task<Event> GetEvent(string id)
+        {
+            return MakeRequest<Event>($"/me/events/{id}");
+        }
+
+        public Task<Event> CreateEvent(NewEvent ev)
+        {
+            return MakeRequest<Event>("/me/events", Call.POST, content: ev);
+        }
+
+        public Task<Event> CreateEvent(NewEvent ev, Calendar cal)
+        {
+            return CreateEvent(ev, cal.Id);
+        }
+
+        private Task<Event> CreateEvent(NewEvent ev, string id)
+        {
+            return MakeRequest<Event>($"me/calendars/{id}/events", Call.POST, content: ev);
+        }
+
+        public Task<Event> UpdateEvent(NewEvent ev)
+        {
+            return UpdateEvent(ev.Id, ev);
+        }
+
+        public Task<Event> UpdateEvent(string id, NewEvent ev)
+        {
+            return MakeRequest<Event>($"/me/events/{id}", Call.PATCH, content: ev);
+        }
+
+        public Task DeleteEvent(Event e)
+        {
+            return DeleteEvent(e.Id);
+        }
+
+        public Task DeleteEvent(string id)
+        {
+            return HandleRequest($"me/events/{id}", Call.DELETE, statusCode: HttpStatusCode.NoContent);
+        }
+
+        #endregion Events
+
+        #region Calendars
+
+        public Task<Calendar> GetCalendar(string id = null)
+        {
+            if(id == null)
+            {
+                return MakeRequest<Calendar>("/me/calendar");
+            } else
+            {
+                return MakeRequest<Calendar>($"/me/calendars/{id}");
+            }
+        }
+
         public async Task<List<Calendar>> GetMyCalendars()
         {
             return (await MakeRequest<Calendars>("/me/calendars?$top=100")).Value;
-        }
-
-        public async Task<List<Event>> GetEvents()
-        {
-            return (await MakeRequest<Events>("/me/events?$top=20")).Value;
-        }
-
-        public async Task CreateEvent(NewEvent ev)
-        {
-            await HandleRequest("/me/events", Call.POST, content: ev);
         }
 
         public async Task<List<Event>> GetAllEventsOfAllCalendars(DateTime startTime, DateTime endTime)
@@ -46,10 +102,7 @@ namespace ApiLibs.MicrosoftGraph
             return res.Responses.Select(i => i.Body).Where(i => i.Error == null).SelectMany(i => i.Value).ToList();
         }
 
-        public async Task EditEvent(string id, NewEvent ev)
-        {
-            var res = await MakeRequest<Event>($"/me/events/{id}", Call.PATCH, content: ev);
+        #endregion Calendars
 
-        }
     }
 }

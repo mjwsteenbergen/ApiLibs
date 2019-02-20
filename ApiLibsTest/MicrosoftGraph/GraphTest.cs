@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ApiLibs.General;
 using ApiLibs.MicrosoftGraph;
@@ -62,6 +63,12 @@ namespace ApiLibsTest.MicrosoftGraph
         public async Task ConnectTest()
         {
             var res = await _graph.MailService.GetFolders(new OData());
+        }
+
+        [Test]
+        public void TimezoneTest()
+        {
+            _graph.PreferTimeZone(TimeZoneInfo.FindSystemTimeZoneById("W. Europe Standard Time"));
         }
     }
 }
