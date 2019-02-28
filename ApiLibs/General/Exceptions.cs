@@ -24,6 +24,8 @@ namespace ApiLibs.General
         {
             switch(statuscode)
             {
+                case 204:
+                    return new NoContentRequestException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
                 case 400:
                     return new BadRequestException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
                 case 401:
@@ -59,6 +61,12 @@ namespace ApiLibs.General
         public NoInternetException(Exception inner) : base(inner.Message, inner) { }
     }
 
+    public class NoContentRequestException : RequestException
+    {
+        public NoContentRequestException(int statuscode, string statusDescription, string responseuri, string errorMessage, string responseContent, object response) : base(statuscode, statusDescription, responseuri, errorMessage, responseContent, response)
+        {
+        }
+    }
 
     public class BadRequestException : RequestException
     {
