@@ -53,95 +53,6 @@ namespace ApiLibs.GitHub
         public DateTime updated_at { get; set; }
     }
 
-
-    public class Owner
-    {
-        public string login { get; set; }
-        public int id { get; set; }
-        public string avatar_url { get; set; }
-        public string gravatar_id { get; set; }
-        public string url { get; set; }
-        public string html_url { get; set; }
-        public string followers_url { get; set; }
-        public string following_url { get; set; }
-        public string gists_url { get; set; }
-        public string starred_url { get; set; }
-        public string subscriptions_url { get; set; }
-        public string organizations_url { get; set; }
-        public string repos_url { get; set; }
-        public string events_url { get; set; }
-        public string received_events_url { get; set; }
-        public string type { get; set; }
-        public bool site_admin { get; set; }
-    }
-
-    public class Repository
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-        public string full_name { get; set; }
-        public Owner owner { get; set; }
-        public bool @private { get; set; }
-        public string html_url { get; set; }
-        public string description { get; set; }
-        public bool fork { get; set; }
-        public string url { get; set; }
-        public string forks_url { get; set; }
-        public string keys_url { get; set; }
-        public string collaborators_url { get; set; }
-        public string teams_url { get; set; }
-        public string hooks_url { get; set; }
-        public string issue_events_url { get; set; }
-        public string events_url { get; set; }
-        public string assignees_url { get; set; }
-        public string branches_url { get; set; }
-        public string tags_url { get; set; }
-        public string blobs_url { get; set; }
-        public string git_tags_url { get; set; }
-        public string git_refs_url { get; set; }
-        public string trees_url { get; set; }
-        public string statuses_url { get; set; }
-        public string languages_url { get; set; }
-        public string stargazers_url { get; set; }
-        public string contributors_url { get; set; }
-        public string subscribers_url { get; set; }
-        public string subscription_url { get; set; }
-        public string commits_url { get; set; }
-        public string git_commits_url { get; set; }
-        public string comments_url { get; set; }
-        public string issue_comment_url { get; set; }
-        public string contents_url { get; set; }
-        public string compare_url { get; set; }
-        public string merges_url { get; set; }
-        public string archive_url { get; set; }
-        public string downloads_url { get; set; }
-        public string issues_url
-        {
-            get { return real_issue_url.Replace("https://api.github.com/", "").Replace("{/number}", ""); }
-            set { real_issue_url = value; }
-        }
-
-        private string real_issue_url;
-        public string pulls_url { get; set; }
-        public string milestones_url { get; set; }
-        private string _notifications_url;
-        public string notifications_url
-        {
-            get { return _notifications_url.Replace("https://api.github.com/", "").Replace("{?since,all,participating}", ""); }
-            set
-            {
-                _notifications_url = value;
-            }
-        }
-        public string labels_url { get; set; }
-        public string releases_url { get; set; }
-
-        public override string ToString()
-        {
-            return "Repository:" + owner.login + "/" + name;
-        }
-    }
-
     public class NotificationsObject : ObjectSearcher
     {
         public string id { get; set; }
@@ -172,7 +83,7 @@ namespace ApiLibs.GitHub
             {
                 throw new ArgumentException("This should be an issue or pull request");
             }
-            return await (service as GitHubService).GetIssue(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
+            return await (service as GitHubService).IssueService.GetIssue(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
 
         }
 
@@ -183,7 +94,7 @@ namespace ApiLibs.GitHub
                 throw new ArgumentException("This should be an release");
             }
             Match match = Regex.Match(subject.url, "https:\\/\\/api.github.com\\/repos\\/([^//]+)\\/([^//]+)\\/releases\\/(\\d+)");
-            return await (service as GitHubService).GetRelease(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
+            return await (service as GitHubService).RepositoryService.GetRelease(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
         }
 
         public async Task<List<Event>> GetEvents()
@@ -205,7 +116,7 @@ namespace ApiLibs.GitHub
             {
                 throw new ArgumentException("Unrecognized subject type");
             }
-            return await (service as GitHubService).GetEvents(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
+            return await (service as GitHubService).ActivityService.GetEvents(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
 
         }
 
@@ -214,145 +125,8 @@ namespace ApiLibs.GitHub
 
         public override string ToString()
         {
-            return subject.type + ": " + repository.full_name + " " + subject.title + " because you " + reason;
+            return subject.type + ": " + repository.FullName + " " + subject.title + " because you " + reason;
         }
-    }
-
-
-    public class Rootobject
-    {
-        public Issue[] Property1 { get; set; }
-    }
-
-    public class Issue : ObjectSearcher
-    {
-        private string notUrl;
-        public string url { get { return notUrl.Replace("https://api.github.com/", ""); } set { notUrl = value; } }
-        public string labels_url { get; set; }
-        public string comments_url { get; set; }
-        public string events_url { get; set; }
-        public string html_url { get; set; }
-        public int id { get; set; }
-        public int number { get; set; }
-        public string title { get; set; }
-        public User user { get; set; }
-        public Label[] labels { get; set; }
-        public string state { get; set; }
-        public bool locked { get; set; }
-        public Assignee assignee { get; set; }
-        public Milestone milestone { get; set; }
-        public int comments { get; set; }
-        public DateTime created_at { get; set; }
-        public DateTime updated_at { get; set; }
-        public object closed_at { get; set; }
-        public string body { get; set; }
-        public Pull_Request pull_request { get; set; }
-
-        //OOP calls
-
-        public async Task<Issue> Modify(ModifyIssue it)
-        {
-            return await (service as GitHubService).ModifyIssue(url, it);
-        }
-
-        //Added by me
-
-        public override string ToString()
-        {
-            return title + "[" + id + "]";
-        }
-
-        public override bool Equals(object obj)
-        {
-            return (obj as Issue)?.id == id;
-        }
-
-        public override int GetHashCode()
-        {
-            return id;
-        }
-
-        public ModifyIssue ConvertToRequest()
-        {
-            return new ModifyIssue { title = title, body = body, assignee = assignee?.login, milestone = milestone?.number, labels = labels.ToList().ConvertAll((Label input) => input.name) };
-        }
-    }
-
-    public class User
-    {
-        public string login { get; set; }
-        public int id { get; set; }
-        public string avatar_url { get; set; }
-        public string gravatar_id { get; set; }
-        public string url { get; set; }
-        public string html_url { get; set; }
-        public string followers_url { get; set; }
-        public string following_url { get; set; }
-        public string gists_url { get; set; }
-        public string starred_url { get; set; }
-        public string subscriptions_url { get; set; }
-        public string organizations_url { get; set; }
-        public string repos_url { get; set; }
-        public string events_url { get; set; }
-        public string received_events_url { get; set; }
-        public string type { get; set; }
-        public bool site_admin { get; set; }
-    }
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("SonarLint", "S101:Class names should comply with a naming convention", Justification = "ReturnClass")]
-    public class Pull_Request
-    {
-        public string url { get; set; }
-        public string html_url { get; set; }
-        public string diff_url { get; set; }
-        public string patch_url { get; set; }
-    }
-
-    public class Assignee
-    {
-        public string login { get; set; }
-        public int id { get; set; }
-        public string avatar_url { get; set; }
-        public string gravatar_id { get; set; }
-        public string url { get; set; }
-        public string html_url { get; set; }
-        public string followers_url { get; set; }
-        public string following_url { get; set; }
-        public string gists_url { get; set; }
-        public string starred_url { get; set; }
-        public string subscriptions_url { get; set; }
-        public string organizations_url { get; set; }
-        public string repos_url { get; set; }
-        public string events_url { get; set; }
-        public string received_events_url { get; set; }
-        public string type { get; set; }
-        public bool site_admin { get; set; }
-    }
-
-    public class Milestone
-    {
-        public string url { get; set; }
-        public string html_url { get; set; }
-        public string labels_url { get; set; }
-        public int id { get; set; }
-        public int number { get; set; }
-        public string title { get; set; }
-        public string description { get; set; }
-        public User creator { get; set; }
-        public int open_issues { get; set; }
-        public int closed_issues { get; set; }
-        public string state { get; set; }
-        public DateTime created_at { get; set; }
-        public DateTime updated_at { get; set; }
-        public object due_on { get; set; }
-        public object closed_at { get; set; }
-    }
-
-    public class Label
-    {
-        public string url { get; set; }
-        public string name { get; set; }
-        public string color { get; set; }
     }
 
     public class OpenIssue
@@ -365,7 +139,7 @@ namespace ApiLibs.GitHub
         public string title { get; set; }
         public string body { get; set; }
         public string assignee { get; set; }
-        public int? milestone { get; set; }
+        public long? milestone { get; set; }
         public List<string> labels { get; set; }
 
     }
@@ -422,60 +196,16 @@ namespace ApiLibs.GitHub
     {
         public int id { get; set; }
         public string url { get; set; }
-        public Actor actor { get; set; }
+        public User actor { get; set; }
         public string @event { get; set; }
         public object commit_id { get; set; }
         public object commit_url { get; set; }
         public DateTime created_at { get; set; }
         public Milestone milestone { get; set; }
-        public Assignee assignee { get; set; }
-        public Assigner assigner { get; set; }
+        public User assignee { get; set; }
+        public User assigner { get; set; }
         public Label label { get; set; }
     }
-
-    public class Actor
-    {
-        public string login { get; set; }
-        public int id { get; set; }
-        public string avatar_url { get; set; }
-        public string gravatar_id { get; set; }
-        public string url { get; set; }
-        public string html_url { get; set; }
-        public string followers_url { get; set; }
-        public string following_url { get; set; }
-        public string gists_url { get; set; }
-        public string starred_url { get; set; }
-        public string subscriptions_url { get; set; }
-        public string organizations_url { get; set; }
-        public string repos_url { get; set; }
-        public string events_url { get; set; }
-        public string received_events_url { get; set; }
-        public string type { get; set; }
-        public bool site_admin { get; set; }
-    }
-
-    public class Assigner
-    {
-        public string login { get; set; }
-        public int id { get; set; }
-        public string avatar_url { get; set; }
-        public string gravatar_id { get; set; }
-        public string url { get; set; }
-        public string html_url { get; set; }
-        public string followers_url { get; set; }
-        public string following_url { get; set; }
-        public string gists_url { get; set; }
-        public string starred_url { get; set; }
-        public string subscriptions_url { get; set; }
-        public string organizations_url { get; set; }
-        public string repos_url { get; set; }
-        public string events_url { get; set; }
-        public string received_events_url { get; set; }
-        public string type { get; set; }
-        public bool site_admin { get; set; }
-    }
-
-
 }
 
 
