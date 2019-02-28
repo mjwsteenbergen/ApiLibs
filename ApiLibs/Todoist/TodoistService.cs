@@ -195,7 +195,7 @@ namespace ApiLibs.Todoist
             });
         }
 
-        public async Task<long> CreateProject(string name, int? color = null, int? indent = null, int? itemOrder = null, bool? isFavorite = null)
+        public async Task<long> CreateProject(string name, int? color = null, int? indent = null, long? itemOrder = null, bool? isFavorite = null)
         {
             var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
             {
