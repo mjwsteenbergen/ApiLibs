@@ -375,10 +375,10 @@ namespace ApiLibs.MicrosoftGraph
         public string Type { get; set; }
 
         [JsonProperty("StartDate")]
-        public DateTimeOffset StartDate { get; set; }
+        public DateTime StartDate { get; set; }
 
         [JsonProperty("EndDate")]
-        public DateTimeOffset EndDate { get; set; }
+        public DateTime EndDate { get; set; }
 
         [JsonProperty("RecurrenceTimeZone")]
         public string RecurrenceTimeZone { get; set; }
