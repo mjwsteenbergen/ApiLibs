@@ -78,6 +78,11 @@ namespace ApiLibs.General
 
         public string Travis_Token { get => GetPasssword("Travis_Token"); set => AddPassword("Travis_Token", value); }
 
+        public string TraktId { get => GetPasssword("TraktId"); set => AddPassword("TraktId", value); }
+        public string TraktSecret { get => GetPasssword("TraktSecret"); set => AddPassword("TraktSecret", value); }
+        public string TraktRefreshToken { get => GetPasssword("TraktRefreshToken"); set => AddPassword("TraktRefreshToken", value); }
+        public string TraktAccessToken { get => GetPasssword("TraktAccessToken"); set => AddPassword("TraktAccessToken", value); }
+
         public string GeneralRedirectUrl { get => GetPasssword("GeneralRedirectUrl"); set => AddPassword("GeneralRedirectUrl", value); }
         public string WunderlistToken { get => GetPasssword("WunderlistToken"); set => AddPassword("WunderlistToken", value); }
         public string WunderlistId { get => GetPasssword("WunderlistId"); set => AddPassword("WunderlistId", value); }
