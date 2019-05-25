@@ -50,10 +50,7 @@ namespace ApiLibsTest
         [Test]
         public void TestReadNonExistingObject()
         {
-            Assert.Catch(typeof(FileNotFoundException), async () =>
-            {
-                Simple s = await mem.Read<Simple>("TestReadNonExistingObject.json");
-            });
+            Assert.CatchAsync(typeof(FileNotFoundException), () => mem.Read<Simple>("TestReadNonExistingObject.json"));
         }
 
         [Test]

@@ -26,7 +26,7 @@ namespace ApiLibs.General
             this.BaseUrl = BaseUrl;
         }
 
-        public async override Task<string> Read(string filename)
+        public override Task<string> Read(string filename)
         {
             string filePath = ApplicationDataPath + filename;
 
@@ -37,34 +37,19 @@ namespace ApiLibs.General
                 Directory.CreateDirectory(fileDirectoryPath);
             }
 
-            using (FileStream sourceStream = new FileStream(filePath,
-                FileMode.Open, FileAccess.Read, FileShare.Read,
-                bufferSize: 4096, useAsync: true))
-            {
-                StringBuilder sb = new StringBuilder();
+            var reader = File.OpenText(filePath);
 
-                byte[] buffer = new byte[0x1000];
-                int numRead;
-                while ((numRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length)) != 0)
-                {
-                    string text = Encoding.Unicode.GetString(buffer, 0, numRead);
-                    sb.Append(text);
-                }
-
-                return sb.ToString();
-            }
+            return reader.ReadToEndAsync();
         }
 
-        public override Task WriteString(string filename, string text)
+        public override async Task WriteString(string filename, string text)
         {
-            byte[] encodedText = Encoding.Unicode.GetBytes(text);
-
-            using (FileStream sourceStream = new FileStream(ApplicationDataPath + filename,
-                FileMode.Append, FileAccess.Write, FileShare.None,
-                bufferSize: 4096, useAsync: true))
+            var filePath = ApplicationDataPath + filename;
+            using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
+            using (StreamWriter sw = new StreamWriter(stream))
             {
-                return sourceStream.WriteAsync(encodedText, 0, encodedText.Length);
-            };
+                await sw.WriteLineAsync(text);
+            }
         }
 
         public static T Synchronously<T>(Task<T> task) {
