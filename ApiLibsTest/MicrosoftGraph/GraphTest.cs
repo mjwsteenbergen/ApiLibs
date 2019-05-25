@@ -12,14 +12,14 @@ namespace ApiLibsTest.MicrosoftGraph
         private GraphService _graph;
 
         [SetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
-            _graph = GetGraphService();
+            _graph = await GetGraphService();
         }
 
-        public static GraphService GetGraphService()
+        public static async Task<GraphService> GetGraphService()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             var _graph = new GraphService(passwords.OutlookRefreshToken, passwords.OutlookClientID, passwords.OutlookClientSecret, passwords.OutlookEmail);
             _graph.Changed += (sender, args) =>
             {
@@ -31,9 +31,9 @@ namespace ApiLibsTest.MicrosoftGraph
 
         [Test]
         [Ignore("Startup")]
-        public void OauthTest()
+        public async Task OauthTest()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             _graph.Connect(passwords.OutlookClientID, "https://nntn.nl", new StupidOAuth(), new List<GraphService.Scopes>
             {
                 GraphService.Scopes.Calendars_ReadWrite,
@@ -55,7 +55,7 @@ namespace ApiLibsTest.MicrosoftGraph
         [Ignore("Startup")]
         public async Task ChangeToToken()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             var res = await _graph.ConvertToToken(passwords.OutlookClientID, passwords.OutlookClientSecret, "YOUR CODE HERE", "https://nntn.nl");
         }
 

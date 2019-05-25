@@ -10,9 +10,9 @@ namespace ApiLibsTest.MicrosoftGraph
         private PeopleService contacts;
 
         [OneTimeSetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
-            contacts = GraphTest.GetGraphService().PeopleService;
+            contacts = (await GraphTest.GetGraphService()).PeopleService;
         }
 
         [Test]

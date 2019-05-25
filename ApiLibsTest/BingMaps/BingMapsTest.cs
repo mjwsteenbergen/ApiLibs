@@ -13,9 +13,9 @@ namespace ApiLibsTest.BingMaps
         private BingMapsService bingMaps;
 
         [OneTimeSetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             bingMaps = new BingMapsService(passwords.GetPasssword("bing_maps"));
         }
 

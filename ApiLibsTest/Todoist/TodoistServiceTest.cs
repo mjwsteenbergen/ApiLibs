@@ -14,9 +14,9 @@ namespace ApiLibsTest.Todoist
         private TodoistService Todoist;
 
         [OneTimeSetUp]
-        public void GetTodoistService()
+        public async Task GetTodoistService()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             Todoist = new TodoistService(passwords.TodoistKey, passwords.TodoistUserAgent);
         }
 

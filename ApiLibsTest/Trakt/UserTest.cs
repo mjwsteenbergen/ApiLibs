@@ -12,9 +12,9 @@ namespace ApiLibsTest.Trakt
         private UserService user;
 
         [SetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
-            this.user = TraktTest.GetTrakt().UserService;
+            this.user = (await TraktTest.GetTrakt()).UserService;
         }
 
         [Test]

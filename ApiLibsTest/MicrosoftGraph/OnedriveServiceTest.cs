@@ -13,9 +13,9 @@ namespace ApiLibsTest.MicrosoftGraph
 
 
         [OneTimeSetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
-            oneDrive = GraphTest.GetGraphService().OneDriveService;
+            oneDrive = (await GraphTest.GetGraphService()).OneDriveService;
         }
 
         [Test]

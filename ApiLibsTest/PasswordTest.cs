@@ -12,9 +12,9 @@ namespace ApiLibsTest
     public class PasswordTest 
     {
         [Test]
-        public void GetPasswords()
+        public async Task GetPasswords()
         {
-            var p = Passwords.ReadPasswords();
+            var p = await Passwords.ReadPasswords();
             Assert.NotNull(p.Telegram_token);
         }
     }

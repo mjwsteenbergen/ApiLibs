@@ -14,9 +14,9 @@ namespace ApiLibsTest.Feedly
         private FeedlyService feedly;
 
         [OneTimeSetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             feedly = new FeedlyService(passwords.GetPasssword("FeedlyToken"));
         }
 

@@ -14,23 +14,23 @@ namespace ApiLibsTest.Instapaper
         InstapaperService instapaper;
 
         [SetUp]
-        public void Setup()
+        public async Task Setup()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             instapaper = new InstapaperService(passwords.Instaper_ID, passwords.Instaper_secret,
                 passwords.Instaper_user_token, passwords.Instaper_user_secret);
         }
 
         [Test]
         [Ignore("Overrides some stuff")]
-        public void ConnectTest()
+        public async Task ConnectTest()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             var insta = new InstapaperService();
             var res = insta.Connect("username", "password", passwords.Instaper_ID, passwords.Instaper_secret);
             passwords.Instaper_user_token = res.token;
             passwords.Instaper_user_secret = res.secret;
-            passwords.WriteToFile();
+            await passwords.WriteToFile();
         }
 
         [Test]

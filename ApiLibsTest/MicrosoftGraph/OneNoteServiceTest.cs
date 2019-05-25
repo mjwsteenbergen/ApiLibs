@@ -13,9 +13,9 @@ namespace ApiLibsTest.MicrosoftGraph
 
 
         [OneTimeSetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
-            onenote = GraphTest.GetGraphService().OneNoteService;
+            onenote = (await GraphTest.GetGraphService()).OneNoteService;
         }
 
         [Test]

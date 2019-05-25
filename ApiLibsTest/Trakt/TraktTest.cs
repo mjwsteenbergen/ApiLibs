@@ -10,17 +10,17 @@ namespace ApiLibsTest.Trakt
 {
     class TraktTest
     {
-        public static TraktService GetTrakt()
+        public static async Task<TraktService> GetTrakt()
         {
-            Passwords pass = Passwords.ReadPasswords();
+            Passwords pass = await Passwords.ReadPasswords();
             return new TraktService(pass.TraktAccessToken, pass.TraktRefreshToken, pass.TraktId, pass.TraktSecret, "https://nntn.nl");
         }
 
         [Test]
         [Ignore("Connect")]
-        public void ConnectTest()
+        public async Task ConnectTest()
         {
-            Passwords pass = Passwords.ReadPasswords();
+            Passwords pass = await Passwords.ReadPasswords();
             var id = pass.TraktId;
             var secret = pass.TraktSecret;
             TraktService trakt = new TraktService();
@@ -31,7 +31,7 @@ namespace ApiLibsTest.Trakt
         [Ignore("Connect")]
         public async Task ConvertToToken()
         {
-            Passwords pass = Passwords.ReadPasswords();
+            Passwords pass = await Passwords.ReadPasswords();
             var id = pass.TraktId;
             var secret = pass.TraktSecret;
             TraktService trakt = new TraktService();
