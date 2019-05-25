@@ -22,6 +22,16 @@ namespace ApiLibsTest
             mem = new Memory(dirpath);
         }
 
+        [Test]
+        public async Task ReadIsWrite() 
+        {
+            await mem.Write("ReadIsWrite", "ReadIsWrite");
+
+            var readed = await mem.Read("ReadIsWrite");
+
+            Assert.AreEqual("ReadIsWrite", readed);
+        }
+
 
         [Test]
         public async Task TestWriteSimpleObject()

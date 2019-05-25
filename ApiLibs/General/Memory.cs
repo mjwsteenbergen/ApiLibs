@@ -26,7 +26,7 @@ namespace ApiLibs.General
             this.BaseUrl = BaseUrl;
         }
 
-        public override Task<string> Read(string filename)
+        public override async Task<string> Read(string filename)
         {
             string filePath = ApplicationDataPath + filename;
 
@@ -38,8 +38,9 @@ namespace ApiLibs.General
             }
 
             var reader = File.OpenText(filePath);
-
-            return reader.ReadToEndAsync();
+            string res = await reader.ReadToEndAsync();
+            reader.Close();
+            return res;
         }
 
         public override async Task WriteString(string filename, string text)
@@ -48,7 +49,7 @@ namespace ApiLibs.General
             using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
             using (StreamWriter sw = new StreamWriter(stream))
             {
-                await sw.WriteLineAsync(text);
+                await sw.WriteAsync(text);
             }
         }
 
