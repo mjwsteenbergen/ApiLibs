@@ -249,9 +249,9 @@ namespace ApiLibs.MicrosoftGraph
 
         }
 
-        public EventTime(DateTimeOffset Dt)
+        public EventTime(DateTime dt)
         {
-            DateTime = Dt.UtcDateTime;
+            DateTime = dt.ToUniversalTime();
             TimeZone = "UTC";
         }
 
@@ -389,7 +389,7 @@ namespace ApiLibs.MicrosoftGraph
         public long NumberOfOccurrences { get; set; }
     }
 
-    public enum Response { Accepted, None, Organizer, NotResponded };
+    public enum Response { Accepted, None, Organizer, NotResponded, TentativelyAccepted };
 
     public partial class NewEvent
     {

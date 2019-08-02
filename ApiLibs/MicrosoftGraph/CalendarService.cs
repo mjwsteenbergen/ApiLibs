@@ -29,15 +29,16 @@ namespace ApiLibs.MicrosoftGraph
             await HandleRequest("/me/events", Call.POST, content: ev);
         }
 
-        public async Task<List<Event>> GetAllEventsOfAllCalendars(DateTime startTime, DateTime endTime)
+        public async Task<List<Event>> GetAllEventsOfAllCalendars(DateTime startTime, DateTime endTime, OData data = null)
         {
+            data = data ?? new OData();
             var myCals = await GetMyCalendars();
             var res = await MakeRequest<BatchResult>("$batch", Call.POST, content: new
             {
                 requests = myCals.Select(i => new
                 {
                     url =
-                        $"/me/calendars/{i.Id}/calendarView?startdatetime={startTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&enddatetime={endTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}",
+                        $"/me/calendars/{i.Id}/calendarView?startdatetime={startTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&enddatetime={endTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&{data.ConvertToUrl(true)}",
                     method = "GET",
                     id = i.Name
                 })

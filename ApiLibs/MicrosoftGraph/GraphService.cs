@@ -209,10 +209,10 @@ namespace ApiLibs.MicrosoftGraph
         public int Top = -1;
 
 
-        public string ConvertToUrl()
+        public string ConvertToUrl(bool hasOtherParams = false)
         {
             string res = "";
-            string convToken = "?";
+            string convToken = hasOtherParams ? "" : "?";
             string switchToken = "&";
 
             if (Filter != null)
