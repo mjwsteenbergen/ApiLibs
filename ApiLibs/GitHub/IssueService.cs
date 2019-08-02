@@ -20,7 +20,7 @@ namespace ApiLibs.GitHub
 
         public async Task<List<Issue>> GetIssues(Repository repo)
         {
-            return (await GetIssuesAndPRs(repo)).Where(i => i.PullRequest != null).ToList();
+            return (await GetIssuesAndPRs(repo)).Where(i => i.PullRequest == null).ToList();
         }
 
         private string IssueUrl(Repository repo)
