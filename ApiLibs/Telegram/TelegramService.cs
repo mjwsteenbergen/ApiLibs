@@ -26,8 +26,6 @@ namespace ApiLibs.Telegram
                 message = message.Substring(4090);
             }
 
-            message = message.Replace("_", "%5F");
-
             return (await MakeRequest<TgSendUpdateObject>("/sendMessage", Call.GET, new List<Param>
             {
                 new Param("chat_id", id.ToString()),
@@ -119,6 +117,10 @@ namespace ApiLibs.Telegram
                 new OParam("parse_mode", mode),
                 new OParam("disable_web_page_preview", disableWebPagePreview)
             });
+        }
+
+        public static string EscapeMarkdown(string input) {
+            return input?.Replace("_", "\\_")?.Replace("*", "\\*");
         }
     }
 }
