@@ -49,7 +49,6 @@ namespace ApiLibsTest.Todoist
                 {
                     Content = "Hello",
                     ProjectId = proj.Id,
-                    Indent = 2,
                     Priority = 2
                 },
                 new Item

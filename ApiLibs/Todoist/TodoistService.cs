@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using ApiLibs.General;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 
 
@@ -19,7 +20,7 @@ namespace ApiLibs.Todoist
         /// </summary>
         /// <param name="todoistKey"></param>
         /// <param name="todoistUserAgent"></param>
-        public TodoistService(string todoistKey, string todoistUserAgent) : base("https://todoist.com/API/v7/")
+        public TodoistService(string todoistKey, string todoistUserAgent) : base("https://todoist.com/api/v8/")
         {
             AddStandardParameter(new Param("user-agent", todoistUserAgent));
             AddStandardParameter(new Param("token", todoistKey));
@@ -43,9 +44,12 @@ namespace ApiLibs.Todoist
             if (url.ToLower() == "sync")
             {
                 var result = JsonConvert.DeserializeObject<SyncResult>(res);
-                if (result.SyncStatus?.Values.Any(i => i != "ok") ?? false)
+                var jsonError = result.SyncStatus?.FirstOrDefault(i => !(i.Value is string)).Value;
+                if (jsonError != null)
                 {
-                    throw new TodoistException(null, null);
+                    
+                    var error = (jsonError as JObject).ToObject(typeof(TodoistError)) as TodoistError;
+                    throw new TodoistException(error, error.http_code, "", url, "Wrong call", res);
                 }
             }
 
@@ -81,8 +85,6 @@ namespace ApiLibs.Todoist
             }
             throw new KeyNotFoundException("Label: " + name + " was not found. Try something else");
         }
-
-        
 
         public async Task<Project> GetProject(string projectName)
         {
@@ -165,9 +167,9 @@ namespace ApiLibs.Todoist
                 {
                     content = i.Content,
                     project_id = i.ProjectId,
-                    date_string = i.DateString,
+                    date_string = i.Due?.String,
                     priority = i.Priority,
-                    indent =i.Indent,
+                    parent_id = i.ParentId,
                     labels = i.Labels?.ToArray()
                 })))
             });
@@ -195,7 +197,7 @@ namespace ApiLibs.Todoist
             });
         }
 
-        public async Task<long> CreateProject(string name, int? color = null, int? indent = null, long? itemOrder = null, bool? isFavorite = null)
+        public async Task<long> CreateProject(string name, int? color = null, int? indent = null, long? parentId = null, bool? isFavorite = null)
         {
             var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
             {
@@ -204,7 +206,7 @@ namespace ApiLibs.Todoist
                     name,
                     color,
                     indent,
-                    item_order = itemOrder,
+                    parent_id = parentId,
                     is_favorite = isFavorite
                 }).ToParam()
             });
@@ -222,7 +224,7 @@ namespace ApiLibs.Todoist
             {
                 new TodoistCommand("project_delete", new
                 {
-                    ids = new [] {projectId.ToString()}
+                    id = projectId.ToString()
                 }).ToParam()
             });
         }
@@ -233,7 +235,7 @@ namespace ApiLibs.Todoist
             {
                 new TodoistCommand("item_delete", new
                 {
-                    ids = new [] {other.Id.ToString()}
+                    id = other.Id.ToString()
                 }).ToParam()
             });
         }
@@ -293,50 +295,11 @@ namespace ApiLibs.Todoist
         }
     }
 
-    public class ItemUpdate
+    public class ItemUpdate : Item
     {
         public ItemUpdate(long id)
         {
             Id = id;
         }
-
-        [JsonProperty("id")]
-        public long Id { get; set; }
-
-        [JsonProperty("content")]
-        public string Content { get; set; }
-
-        [JsonProperty("date_string")]
-        public string DateString { get; set; }
-
-        [JsonProperty("date_lang")]
-        public string DateLang { get; set; }
-
-        [JsonProperty("due_date_utc")]
-        public string DueDateUtc { get; set; }
-
-        [JsonProperty("priority")]
-        public long? Priority { get; set; }
-
-        [JsonProperty("indent")]
-        public long? Indent { get; set; }
-
-        [JsonProperty("item_order")]
-        public long? ItemOrder { get; set; }
-
-        [JsonProperty("day_order")]
-        public long? DayOrder { get; set; }
-
-        [JsonProperty("collapsed")]
-        public long? Collapsed { get; set; }
-
-        [JsonProperty("labels")]
-        public List<long> Labels { get; set; }
-
-        [JsonProperty("assigned_by_uid")]
-        public string AssignedByUid { get; set; }
-
-        [JsonProperty("responsible_uid")]
-        public string ResponsibleUid { get; set; }
     }
 }
