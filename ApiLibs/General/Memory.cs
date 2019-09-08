@@ -88,7 +88,7 @@ namespace ApiLibs.General
                 Directory.CreateDirectory(fileDirectoryPath);
             }
 
-            FileStream stream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Read);
+           FileStream stream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Read);
             string text;
             using (StreamReader reader = new StreamReader(stream))
             {
