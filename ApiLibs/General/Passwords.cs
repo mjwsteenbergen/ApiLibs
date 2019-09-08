@@ -78,6 +78,11 @@ namespace ApiLibs.General
 
         public string Travis_Token { get => GetPasssword("Travis_Token"); set => AddPassword("Travis_Token", value); }
 
+        public string TraktId { get => GetPasssword("TraktId"); set => AddPassword("TraktId", value); }
+        public string TraktSecret { get => GetPasssword("TraktSecret"); set => AddPassword("TraktSecret", value); }
+        public string TraktRefreshToken { get => GetPasssword("TraktRefreshToken"); set => AddPassword("TraktRefreshToken", value); }
+        public string TraktAccessToken { get => GetPasssword("TraktAccessToken"); set => AddPassword("TraktAccessToken", value); }
+
         public string GeneralRedirectUrl { get => GetPasssword("GeneralRedirectUrl"); set => AddPassword("GeneralRedirectUrl", value); }
         public string WunderlistToken { get => GetPasssword("WunderlistToken"); set => AddPassword("WunderlistToken", value); }
         public string WunderlistId { get => GetPasssword("WunderlistId"); set => AddPassword("WunderlistId", value); }
@@ -85,30 +90,30 @@ namespace ApiLibs.General
 
         internal Memory mem;
 
-        public void WriteToFile()
+        public Task WriteToFile()
         {
-            WritePasswords(this);
+            return WritePasswords(this);
         }
 
-        public static Passwords ReadPasswords(Memory mem = null)
+        public static async Task<Passwords> ReadPasswords(Memory mem = null)
         {
             mem = mem ?? new Memory
             {
                 Application = "Laurentia"
             };
-            Passwords passwords = new Passwords(mem.ReadFile<Dictionary<string, string>>(Passwords.FileName));
+            Passwords passwords = new Passwords(await mem.Read<Dictionary<string, string>>(Passwords.FileName));
             passwords.mem = mem;
             return passwords;
         }
 
 
-        public static void WritePasswords(Passwords pass)
+        public static async Task WritePasswords(Passwords pass)
         {
             Memory mem = new Memory()
             {
                 Application = "Laurentia"
             };
-            mem.WriteFile(Passwords.FileName, pass.passwords);
+            await mem.Write(Passwords.FileName, pass.passwords);
         }
     }
 }

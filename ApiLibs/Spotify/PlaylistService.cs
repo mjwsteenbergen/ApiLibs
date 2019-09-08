@@ -38,23 +38,63 @@ namespace ApiLibs.Spotify
 
         public async Task AddTracks(IEnumerable<Track> tracks, Playlist playlist)
         {
-            await AddTracks(tracks.Select(i => i.Uri), playlist.Id, playlist.Owner.Id);
+            tracks = tracks.ToList();
+            for (int i = 0; i < tracks.Count(); i+=100)
+            {
+                await AddTracksSingleCall(tracks.Select(j => j.Uri).Skip(i).Take(100), playlist.Id, playlist.Owner.Id);
+            }
         }
 
-        public async Task AddTracks(IEnumerable<string> tracks, string playlistId, string owner)
+        public async Task AddTracksSingleCall(IEnumerable<Track> tracks, Playlist playlist)
+        {
+            await AddTracksSingleCall(tracks.Select(i => i.Uri), playlist.Id, playlist.Owner.Id);
+        }
+
+        public async Task AddTracksSingleCall(IEnumerable<string> tracks, string playlistId, string owner)
         {
             await HandleRequest($"users/{owner}/playlists/{playlistId}/tracks", Call.POST, content: tracks);
         }
 
-
-        public async Task<PlaylistTrackResponse> GetTracks(Playlist playlist)
+        public async Task<List<Track>> GetAllTracks(Playlist playlist)
         {
-            return await GetTracks(playlist.Id, playlist.Owner.Id);
+            List<Track> tracks = new List<Track>();
+            var playlistTracks = await GetTracks(playlist);
+            tracks.AddRange(playlistTracks.Items.Select(i => i.Track));
+
+            if (playlistTracks.Total > 100)
+            {
+                for (int i = 1; i < (int) Math.Ceiling(playlistTracks.Total / 100.0) ; i++)
+                {
+                    tracks.AddRange((await GetTracks(playlist, offset: i * 100)).Items.Select(j => j.Track));
+                }
+            }
+
+            return tracks;
         }
 
-        private async Task<PlaylistTrackResponse> GetTracks(string playlistId, string ownerId)
+        public async Task<PlaylistTrackResponse> GetTracks(Playlist playlist, int? limit = null, int? offset = null)
         {
-            return await MakeRequest<PlaylistTrackResponse>($"users/{ownerId}/playlists/{playlistId}/tracks");
+            return await GetTracks(playlist.Id, playlist.Owner.Id, limit, offset);
+        }
+
+        private async Task<PlaylistTrackResponse> GetTracks(string playlistId, string ownerId, int? limit = null, int? offset = null)
+        {
+            return await MakeRequest<PlaylistTrackResponse>($"users/{ownerId}/playlists/{playlistId}/tracks", parameters: new List<Param>
+            {
+                new OParam("offset", offset),
+                new OParam("limit", limit)
+            });
+        }
+
+        public async Task RemoveTracksAll(Playlist playlist, IEnumerable<Track> tracks)
+        {
+            tracks = tracks.ToList();
+            while(tracks.Count() > 0)
+            {
+                var remove = tracks.Take(100);
+                await RemoveTracks(playlist.Id, playlist.Owner.Id, remove.Select(i => i.Uri));
+                tracks = tracks.Skip(100).ToList();
+            }
         }
 
         public async Task RemoveTracks(Playlist playlist, IEnumerable<Track> tracks)

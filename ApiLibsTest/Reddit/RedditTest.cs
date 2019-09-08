@@ -14,17 +14,17 @@ namespace ApiLibsTest.Reddit
         private RedditService reddit;
 
         [SetUp]
-        public void Setup()
+        public async Task Setup()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             reddit = new RedditService(passwords.RedditRefreshToken, passwords.RedditClient,
                 passwords.RedditSecret, passwords.RedditUser);
         }
 
         [Test]
-        public void ConnectTest()
+        public async Task ConnectTest()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             reddit.Connect(new StupidOAuth(), passwords.GeneralRedirectUrl, new List<string>
             {
                 RedditScopes.History,
@@ -38,7 +38,7 @@ namespace ApiLibsTest.Reddit
         public async Task ConvertToTokenTest()
         {
             string token = "";
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             var refreshtoken = await reddit.GetAccessToken(token, passwords.GeneralRedirectUrl);
         }
 

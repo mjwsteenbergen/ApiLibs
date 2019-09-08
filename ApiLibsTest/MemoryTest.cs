@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ApiLibsTest
 {
@@ -21,11 +22,21 @@ namespace ApiLibsTest
             mem = new Memory(dirpath);
         }
 
+        [Test]
+        public async Task ReadIsWrite() 
+        {
+            await mem.Write("ReadIsWrite", "ReadIsWrite");
+
+            var readed = await mem.Read("ReadIsWrite");
+
+            Assert.AreEqual("ReadIsWrite", readed);
+        }
+
 
         [Test]
-        public void TestWriteSimpleObject()
+        public async Task TestWriteSimpleObject()
         {
-            mem.WriteFile("SimpleObject.json", new Simple
+            await mem.Write("SimpleObject.json", new Simple
             {
                 MyProperty = 1,
                 MyString = "1",
@@ -34,14 +45,14 @@ namespace ApiLibsTest
         }
 
         [Test]
-        public void TestRead()
+        public async Task TestRead()
         {
-            mem.WriteFile("TestRead.json", new Simple
+            await mem.Write("TestRead.json", new Simple
             {
                 MyProperty = 1,
                 MyString = "hello"
             });
-            Simple s = mem.ReadFile<Simple>("TestRead.json");
+            Simple s = await mem.Read<Simple>("TestRead.json");
             Assert.AreEqual(s.MyProperty, 1);
             Assert.AreEqual(s.MyString, "hello");
         }
@@ -49,25 +60,22 @@ namespace ApiLibsTest
         [Test]
         public void TestReadNonExistingObject()
         {
-            Assert.Catch(typeof(FileNotFoundException), () =>
-            {
-                Simple s = mem.ReadFile<Simple>("TestReadNonExistingObject.json");
-            });
+            Assert.CatchAsync(typeof(FileNotFoundException), () => mem.Read<Simple>("TestReadNonExistingObject.json"));
         }
 
         [Test]
-        public void TestReadNonExistingObjectWithAutomaticDefault()
+        public async Task TestReadNonExistingObjectWithAutomaticDefault()
         {
-            Simple s = mem.ReadFileWithDefault<Simple>("TestReadNonExistingObjectWithAutomaticDefault.json");
+            Simple s = await mem.ReadWithDefault<Simple>("TestReadNonExistingObjectWithAutomaticDefault.json");
 
             Assert.AreEqual(s.MyProperty, 0);
             Assert.AreEqual(s.MyString, null);
         }
 
         [Test]
-        public void TestReadNonExistingObjectWithDefault()
+        public async Task TestReadNonExistingObjectWithDefault()
         {
-            Simple s = mem.ReadFile("TestReadNonExistingObjectWithDefault.json", new Simple
+            Simple s = await mem.Read("TestReadNonExistingObjectWithDefault.json", new Simple
             {
                 MyString = "string"
             });

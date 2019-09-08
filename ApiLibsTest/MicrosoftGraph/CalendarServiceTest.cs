@@ -14,9 +14,9 @@ namespace ApiLibsTest.MicrosoftGraph
 
 
         [OneTimeSetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
-            graphService = GraphTest.GetGraphService();
+            graphService = await GraphTest.GetGraphService();
             calendar = graphService.CalendarService;
         }
 

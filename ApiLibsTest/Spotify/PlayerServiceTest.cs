@@ -16,9 +16,9 @@ namespace ApiLibsTest.Spotify
         private SpotifyService spotify;
 
         [OneTimeSetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             spotify = new SpotifyService(passwords.SpotifyRefreshToken, passwords.SpotifyClientId, passwords.SpotifySecret);
             playerService = spotify.PlayerService;
         }

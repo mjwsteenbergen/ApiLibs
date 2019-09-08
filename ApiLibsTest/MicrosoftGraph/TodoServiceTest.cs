@@ -13,9 +13,9 @@ namespace ApiLibsTest.MicrosoftGraph
 
 
         [OneTimeSetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
-            todo = GraphTest.GetGraphService().TodoService;
+            todo = (await GraphTest.GetGraphService()).TodoService;
         }
 
         [Test]

@@ -6,13 +6,17 @@ using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using RestSharp;
+using Newtonsoft.Json.Linq;
 
 namespace ApiLibs.Todoist
 {
     public partial class SyncRoot
     {
-        [JsonProperty("full_sync")]
-        public bool FullSync { get; set; }
+        [JsonProperty("tooltips")]
+        public Tooltips Tooltips { get; set; }
+
+        [JsonProperty("filters")]
+        public List<Filter> Filters { get; set; }
 
         [JsonProperty("temp_id_mapping")]
         public TempIdMapping TempIdMapping { get; set; }
@@ -24,25 +28,28 @@ namespace ApiLibs.Todoist
         public List<List<string>> Locations { get; set; }
 
         [JsonProperty("project_notes")]
-        public List<object> ProjectNotes { get; set; }
+        public List<Note> ProjectNotes { get; set; }
 
         [JsonProperty("user")]
         public User User { get; set; }
 
-        [JsonProperty("filters")]
-        public List<Filter> Filters { get; set; }
+        [JsonProperty("full_sync")]
+        public bool FullSync { get; set; }
 
         [JsonProperty("sync_token")]
         public string SyncToken { get; set; }
 
         [JsonProperty("day_orders")]
-        public Dictionary<long, long> DayOrders { get; set; }
+        public Dictionary<string, long> DayOrders { get; set; }
 
         [JsonProperty("projects")]
         public List<Project> Projects { get; set; }
 
         [JsonProperty("collaborators")]
-        public List<object> Collaborators { get; set; }
+        public List<Collaborator> Collaborators { get; set; }
+
+        [JsonProperty("stats")]
+        public Stats Stats { get; set; }
 
         [JsonProperty("day_orders_timestamp")]
         public string DayOrdersTimestamp { get; set; }
@@ -53,17 +60,65 @@ namespace ApiLibs.Todoist
         [JsonProperty("items")]
         public List<Item> Items { get; set; }
 
-        [JsonProperty("notes")]
-        public List<Note> Notes { get; set; }
+        [JsonProperty("incomplete_item_ids")]
+        public List<object> IncompleteItemIds { get; set; }
 
         [JsonProperty("reminders")]
         public List<Reminder> Reminders { get; set; }
 
+        [JsonProperty("user_settings")]
+        public UserSettings UserSettings { get; set; }
+
+        [JsonProperty("incomplete_project_ids")]
+        public List<object> IncompleteProjectIds { get; set; }
+
+        [JsonProperty("notes")]
+        public List<Note> Notes { get; set; }
+
         [JsonProperty("live_notifications")]
         public List<LiveNotification> LiveNotifications { get; set; }
 
+        [JsonProperty("sections")]
+        public List<object> Sections { get; set; }
+
         [JsonProperty("collaborator_states")]
-        public List<object> CollaboratorStates { get; set; }
+        public List<CollaboratorState> CollaboratorStates { get; set; }
+
+        [JsonProperty("due_exceptions")]
+        public List<object> DueExceptions { get; set; }
+    }
+
+    public partial class CollaboratorState
+    {
+        [JsonProperty("state")]
+        public string State { get; set; }
+
+        [JsonProperty("user_id")]
+        public long UserId { get; set; }
+
+        [JsonProperty("is_deleted")]
+        public bool IsDeleted { get; set; }
+
+        [JsonProperty("project_id")]
+        public long ProjectId { get; set; }
+    }
+
+    public partial class Collaborator
+    {
+        [JsonProperty("timezone")]
+        public string Timezone { get; set; }
+
+        [JsonProperty("email")]
+        public string Email { get; set; }
+
+        [JsonProperty("id")]
+        public long Id { get; set; }
+
+        [JsonProperty("full_name")]
+        public string FullName { get; set; }
+
+        [JsonProperty("image_id")]
+        public object ImageId { get; set; }
     }
 
     public partial class Filter
@@ -74,22 +129,24 @@ namespace ApiLibs.Todoist
         [JsonProperty("color")]
         public long Color { get; set; }
 
+        [JsonProperty("is_deleted")]
+        public long IsDeleted { get; set; }
+
         [JsonProperty("item_order")]
         public long ItemOrder { get; set; }
 
         [JsonProperty("is_favorite")]
         public long IsFavorite { get; set; }
 
-        [JsonProperty("query", NullValueHandling = NullValueHandling.Ignore)]
-        public string Query { get; set; }
+        [JsonProperty("legacy_id", NullValueHandling = NullValueHandling.Ignore)]
+        public long? LegacyId { get; set; }
 
-        [JsonProperty("is_deleted")]
-        public long IsDeleted { get; set; }
+        [JsonProperty("query")]
+        public string Query { get; set; }
 
         [JsonProperty("id")]
         public long Id { get; set; }
     }
-
 
     public partial class Label
     {
@@ -99,14 +156,17 @@ namespace ApiLibs.Todoist
         [JsonProperty("color")]
         public long Color { get; set; }
 
+        [JsonProperty("is_deleted")]
+        public long IsDeleted { get; set; }
+
         [JsonProperty("item_order")]
         public long ItemOrder { get; set; }
 
         [JsonProperty("is_favorite")]
         public long IsFavorite { get; set; }
 
-        [JsonProperty("is_deleted")]
-        public long IsDeleted { get; set; }
+        [JsonProperty("legacy_id", NullValueHandling = NullValueHandling.Ignore)]
+        public long? LegacyId { get; set; }
 
         [JsonProperty("id")]
         public long Id { get; set; }
@@ -115,13 +175,10 @@ namespace ApiLibs.Todoist
     public partial class Item
     {
         [JsonProperty("day_order")]
-        public long DayOrder { get; set; }
+        public long? DayOrder { get; set; }
 
         [JsonProperty("assigned_by_uid")]
-        public object AssignedByUid { get; set; }
-
-        [JsonProperty("is_archived")]
-        public long IsArchived { get; set; }
+        public long? AssignedByUid { get; set; }
 
         [JsonProperty("labels")]
         public List<long> Labels { get; set; }
@@ -129,29 +186,23 @@ namespace ApiLibs.Todoist
         [JsonProperty("sync_id")]
         public object SyncId { get; set; }
 
-        [JsonProperty("date_completed")]
-        public DateTime? DateCompleted { get; set; }
-
-        [JsonProperty("all_day")]
-        public bool AllDay { get; set; }
+        [JsonProperty("section_id")]
+        public object SectionId { get; set; }
 
         [JsonProperty("in_history")]
         public long InHistory { get; set; }
 
+        [JsonProperty("child_order")]
+        public long ChildOrder { get; set; }
+
         [JsonProperty("date_added")]
-        public string DateAdded { get; set; }
-
-        [JsonProperty("indent")]
-        public long Indent { get; set; }
-
-        [JsonProperty("date_lang")]
-        public string DateLang { get; set; }
+        public DateTimeOffset DateAdded { get; set; }
 
         [JsonProperty("id")]
         public long Id { get; set; }
 
-        [JsonProperty("priority")]
-        public long Priority { get; set; }
+        [JsonProperty("content")]
+        public string Content { get; set; }
 
         [JsonProperty("checked")]
         public long Checked { get; set; }
@@ -162,17 +213,14 @@ namespace ApiLibs.Todoist
         [JsonProperty("has_more_notes")]
         public bool HasMoreNotes { get; set; }
 
-        [JsonProperty("due_date_utc")]
-        public DateTime? DueDateUtc { get; set; }
+        [JsonProperty("due")]
+        public Due Due { get; set; }
 
-        [JsonProperty("content")]
-        public string Content { get; set; }
+        [JsonProperty("priority")]
+        public long Priority { get; set; }
 
         [JsonProperty("parent_id")]
-        public object ParentId { get; set; }
-
-        [JsonProperty("item_order")]
-        public long ItemOrder { get; set; }
+        public long? ParentId { get; set; }
 
         [JsonProperty("is_deleted")]
         public long IsDeleted { get; set; }
@@ -183,26 +231,41 @@ namespace ApiLibs.Todoist
         [JsonProperty("project_id")]
         public long ProjectId { get; set; }
 
+        [JsonProperty("date_completed")]
+        public DateTimeOffset? DateCompleted { get; set; }
+
         [JsonProperty("collapsed")]
         public long Collapsed { get; set; }
+    }
 
-        [JsonProperty("date_string")]
-        public string DateString { get; set; }
+    public partial class Due
+    {
+        [JsonProperty("date")]
+        public DateTimeOffset Date { get; set; }
+
+        [JsonProperty("timezone")]
+        public string Timezone { get; set; }
+
+        [JsonProperty("is_recurring")]
+        public bool IsRecurring { get; set; }
+
+        [JsonProperty("string")]
+        public string String { get; set; }
+
+        [JsonProperty("lang")]
+        public string Lang { get; set; }
     }
 
     public partial class LiveNotification
     {
         [JsonProperty("created")]
-        public long Created { get; set; }
+        public DateTimeOffset Created { get; set; }
 
         [JsonProperty("is_deleted")]
         public long IsDeleted { get; set; }
 
-        [JsonProperty("top_procent", NullValueHandling = NullValueHandling.Ignore)]
-        public double? TopProcent { get; set; }
-
-        [JsonProperty("completed_tasks", NullValueHandling = NullValueHandling.Ignore)]
-        public long? CompletedTasks { get; set; }
+        [JsonProperty("is_unread")]
+        public long IsUnread { get; set; }
 
         [JsonProperty("notification_key")]
         public string NotificationKey { get; set; }
@@ -210,20 +273,65 @@ namespace ApiLibs.Todoist
         [JsonProperty("notification_type")]
         public string NotificationType { get; set; }
 
-        [JsonProperty("promo_img")]
-        public Uri PromoImg { get; set; }
+        [JsonProperty("plan", NullValueHandling = NullValueHandling.Ignore)]
+        public string Plan { get; set; }
 
-        [JsonProperty("date_reached", NullValueHandling = NullValueHandling.Ignore)]
-        public long? DateReached { get; set; }
-
-        [JsonProperty("karma_level")]
-        public long KarmaLevel { get; set; }
+        [JsonProperty("quantity", NullValueHandling = NullValueHandling.Ignore)]
+        public long? Quantity { get; set; }
 
         [JsonProperty("id")]
         public long Id { get; set; }
 
-        [JsonProperty("is_unread")]
-        public long IsUnread { get; set; }
+        [JsonProperty("active_until", NullValueHandling = NullValueHandling.Ignore)]
+        public long? ActiveUntil { get; set; }
+
+        [JsonProperty("item_content", NullValueHandling = NullValueHandling.Ignore)]
+        public string ItemContent { get; set; }
+
+        [JsonProperty("item_id", NullValueHandling = NullValueHandling.Ignore)]
+        public long? ItemId { get; set; }
+
+        [JsonProperty("responsible_uid")]
+        public long? ResponsibleUid { get; set; }
+
+        [JsonProperty("project_id", NullValueHandling = NullValueHandling.Ignore)]
+        public long? ProjectId { get; set; }
+
+        [JsonProperty("assigned_by_uid", NullValueHandling = NullValueHandling.Ignore)]
+        public long? AssignedByUid { get; set; }
+
+        [JsonProperty("from_uid", NullValueHandling = NullValueHandling.Ignore)]
+        public long? FromUid { get; set; }
+
+        [JsonProperty("note_id", NullValueHandling = NullValueHandling.Ignore)]
+        public long? NoteId { get; set; }
+
+        [JsonProperty("note_content", NullValueHandling = NullValueHandling.Ignore)]
+        public string NoteContent { get; set; }
+
+        [JsonProperty("project_name", NullValueHandling = NullValueHandling.Ignore)]
+        public string ProjectName { get; set; }
+
+        [JsonProperty("invitation_id", NullValueHandling = NullValueHandling.Ignore)]
+        public long? InvitationId { get; set; }
+
+        [JsonProperty("top_procent", NullValueHandling = NullValueHandling.Ignore)]
+        public double? TopProcent { get; set; }
+
+        [JsonProperty("completed_tasks", NullValueHandling = NullValueHandling.Ignore)]
+        public long? CompletedTasks { get; set; }
+
+        [JsonProperty("legacy_id", NullValueHandling = NullValueHandling.Ignore)]
+        public long? LegacyId { get; set; }
+
+        [JsonProperty("promo_img", NullValueHandling = NullValueHandling.Ignore)]
+        public Uri PromoImg { get; set; }
+
+        [JsonProperty("date_reached", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTimeOffset? DateReached { get; set; }
+
+        [JsonProperty("karma_level", NullValueHandling = NullValueHandling.Ignore)]
+        public long? KarmaLevel { get; set; }
 
         [JsonProperty("completed_last_month", NullValueHandling = NullValueHandling.Ignore)]
         public long? CompletedLastMonth { get; set; }
@@ -240,9 +348,6 @@ namespace ApiLibs.Todoist
         [JsonProperty("is_deleted")]
         public long IsDeleted { get; set; }
 
-        [JsonProperty("is_archived")]
-        public long IsArchived { get; set; }
-
         [JsonProperty("file_attachment")]
         public FileAttachment FileAttachment { get; set; }
 
@@ -255,8 +360,8 @@ namespace ApiLibs.Todoist
         [JsonProperty("uids_to_notify")]
         public object UidsToNotify { get; set; }
 
-        [JsonProperty("item_id")]
-        public long ItemId { get; set; }
+        [JsonProperty("item_id", NullValueHandling = NullValueHandling.Ignore)]
+        public long? ItemId { get; set; }
 
         [JsonProperty("project_id")]
         public long ProjectId { get; set; }
@@ -265,26 +370,44 @@ namespace ApiLibs.Todoist
         public long Id { get; set; }
 
         [JsonProperty("posted")]
-        public string Posted { get; set; }
+        public DateTimeOffset Posted { get; set; }
+
+        [JsonProperty("legacy_project_id", NullValueHandling = NullValueHandling.Ignore)]
+        public long? LegacyProjectId { get; set; }
     }
 
     public partial class FileAttachment
     {
-        [JsonProperty("url")]
-        public Uri Url { get; set; }
-
-        [JsonProperty("description")]
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; set; }
-
-        [JsonProperty("resource_type")]
-        public string ResourceType { get; set; }
 
         [JsonProperty("title")]
         public string Title { get; set; }
+
+        [JsonProperty("url")]
+        public Uri Url { get; set; }
+
+        [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore)]
+        public Uri Image { get; set; }
+
+        [JsonProperty("image_width", NullValueHandling = NullValueHandling.Ignore)]
+        public long? ImageWidth { get; set; }
+
+        [JsonProperty("favicon", NullValueHandling = NullValueHandling.Ignore)]
+        public Uri Favicon { get; set; }
+
+        [JsonProperty("image_height", NullValueHandling = NullValueHandling.Ignore)]
+        public long? ImageHeight { get; set; }
+
+        [JsonProperty("resource_type")]
+        public string ResourceType { get; set; }
     }
 
     public partial class Project
     {
+        [JsonProperty("is_favorite")]
+        public long IsFavorite { get; set; }
+
         [JsonProperty("color")]
         public long Color { get; set; }
 
@@ -294,14 +417,8 @@ namespace ApiLibs.Todoist
         [JsonProperty("inbox_project", NullValueHandling = NullValueHandling.Ignore)]
         public bool? InboxProject { get; set; }
 
-        [JsonProperty("is_favorite")]
-        public long IsFavorite { get; set; }
-
-        [JsonProperty("indent")]
-        public long Indent { get; set; }
-
-        [JsonProperty("is_deleted")]
-        public long IsDeleted { get; set; }
+        [JsonProperty("child_order")]
+        public long ChildOrder { get; set; }
 
         [JsonProperty("id")]
         public long Id { get; set; }
@@ -312,75 +429,114 @@ namespace ApiLibs.Todoist
         [JsonProperty("has_more_notes")]
         public bool HasMoreNotes { get; set; }
 
-        [JsonProperty("parent_id")]
-        public object ParentId { get; set; }
+        [JsonProperty("is_deleted")]
+        public long IsDeleted { get; set; }
 
-        [JsonProperty("item_order")]
-        public long ItemOrder { get; set; }
+        [JsonProperty("parent_id")]
+        public long? ParentId { get; set; }
+
+        [JsonProperty("legacy_id", NullValueHandling = NullValueHandling.Ignore)]
+        public long? LegacyId { get; set; }
 
         [JsonProperty("shared")]
         public bool Shared { get; set; }
 
         [JsonProperty("is_archived")]
         public long IsArchived { get; set; }
+
+        [JsonProperty("team_inbox", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? TeamInbox { get; set; }
     }
 
     public partial class Reminder
     {
-        [JsonProperty("is_deleted")]
-        public long IsDeleted { get; set; }
-
-        [JsonProperty("service", NullValueHandling = NullValueHandling.Ignore)]
-        public string Service { get; set; }
-
-        [JsonProperty("id")]
-        public long Id { get; set; }
-
-        [JsonProperty("due_date_utc", NullValueHandling = NullValueHandling.Ignore)]
-        public string DueDateUtc { get; set; }
-
-        [JsonProperty("minute_offset", NullValueHandling = NullValueHandling.Ignore)]
-        public long? MinuteOffset { get; set; }
-
-        [JsonProperty("item_id")]
-        public long ItemId { get; set; }
-
-        [JsonProperty("notify_uid")]
-        public long NotifyUid { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
 
         [JsonProperty("type")]
         public string Type { get; set; }
 
-        [JsonProperty("date_lang", NullValueHandling = NullValueHandling.Ignore)]
-        public string DateLang { get; set; }
-
-        [JsonProperty("date_string", NullValueHandling = NullValueHandling.Ignore)]
-        public string DateString { get; set; }
-
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; set; }
-
         [JsonProperty("sync_id")]
         public object SyncId { get; set; }
 
-        [JsonProperty("loc_long", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("loc_long")]
         public string LocLong { get; set; }
 
-        [JsonProperty("loc_lat", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("legacy_item_id")]
+        public long LegacyItemId { get; set; }
+
+        [JsonProperty("loc_lat")]
         public string LocLat { get; set; }
 
-        [JsonProperty("radius", NullValueHandling = NullValueHandling.Ignore)]
-        public long? Radius { get; set; }
+        [JsonProperty("radius")]
+        public long Radius { get; set; }
 
-        [JsonProperty("project_id", NullValueHandling = NullValueHandling.Ignore)]
-        public long? ProjectId { get; set; }
+        [JsonProperty("legacy_id")]
+        public long LegacyId { get; set; }
 
-        [JsonProperty("loc_trigger", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("item_id")]
+        public long ItemId { get; set; }
+
+        [JsonProperty("is_deleted")]
+        public long IsDeleted { get; set; }
+
+        [JsonProperty("notify_uid")]
+        public long NotifyUid { get; set; }
+
+        [JsonProperty("project_id")]
+        public long ProjectId { get; set; }
+
+        [JsonProperty("loc_trigger")]
         public string LocTrigger { get; set; }
+
+        [JsonProperty("id")]
+        public long Id { get; set; }
+    }
+
+    public partial class Stats
+    {
+        [JsonProperty("days_items")]
+        public List<DaysItem> DaysItems { get; set; }
+
+        [JsonProperty("week_items")]
+        public List<WeekItem> WeekItems { get; set; }
+
+        [JsonProperty("completed_count")]
+        public long CompletedCount { get; set; }
+    }
+
+    public partial class DaysItem
+    {
+        [JsonProperty("date")]
+        public DateTimeOffset Date { get; set; }
+
+        [JsonProperty("total_completed")]
+        public long TotalCompleted { get; set; }
+    }
+
+    public partial class WeekItem
+    {
+        [JsonProperty("to")]
+        public DateTimeOffset To { get; set; }
+
+        [JsonProperty("from")]
+        public DateTimeOffset From { get; set; }
+
+        [JsonProperty("total_completed")]
+        public long TotalCompleted { get; set; }
     }
 
     public partial class TempIdMapping
     {
+    }
+
+    public partial class Tooltips
+    {
+        [JsonProperty("scheduled")]
+        public List<string> Scheduled { get; set; }
+
+        [JsonProperty("seen")]
+        public List<string> Seen { get; set; }
     }
 
     public partial class User
@@ -391,11 +547,11 @@ namespace ApiLibs.Todoist
         [JsonProperty("features")]
         public Features Features { get; set; }
 
-        [JsonProperty("completed_today")]
-        public long CompletedToday { get; set; }
-
         [JsonProperty("is_premium")]
         public bool IsPremium { get; set; }
+
+        [JsonProperty("is_biz_admin")]
+        public bool IsBizAdmin { get; set; }
 
         [JsonProperty("sort_order")]
         public long SortOrder { get; set; }
@@ -406,8 +562,11 @@ namespace ApiLibs.Todoist
         [JsonProperty("auto_reminder")]
         public long AutoReminder { get; set; }
 
-        [JsonProperty("id")]
-        public long Id { get; set; }
+        [JsonProperty("team_inbox")]
+        public long TeamInbox { get; set; }
+
+        [JsonProperty("daily_goal")]
+        public long DailyGoal { get; set; }
 
         [JsonProperty("share_limit")]
         public long ShareLimit { get; set; }
@@ -421,11 +580,14 @@ namespace ApiLibs.Todoist
         [JsonProperty("next_week")]
         public long NextWeek { get; set; }
 
-        [JsonProperty("completed_count")]
-        public long CompletedCount { get; set; }
+        [JsonProperty("token")]
+        public string Token { get; set; }
 
-        [JsonProperty("daily_goal")]
-        public long DailyGoal { get; set; }
+        [JsonProperty("id")]
+        public long Id { get; set; }
+
+        [JsonProperty("unique_prefix")]
+        public long UniquePrefix { get; set; }
 
         [JsonProperty("theme")]
         public long Theme { get; set; }
@@ -439,11 +601,8 @@ namespace ApiLibs.Todoist
         [JsonProperty("start_day")]
         public long StartDay { get; set; }
 
-        [JsonProperty("weekly_goal")]
-        public long WeeklyGoal { get; set; }
-
-        [JsonProperty("date_format")]
-        public long DateFormat { get; set; }
+        [JsonProperty("legacy_inbox_project")]
+        public long LegacyInboxProject { get; set; }
 
         [JsonProperty("websocket_url")]
         public string WebsocketUrl { get; set; }
@@ -457,11 +616,11 @@ namespace ApiLibs.Todoist
         [JsonProperty("image_id")]
         public object ImageId { get; set; }
 
-        [JsonProperty("karma_trend")]
-        public string KarmaTrend { get; set; }
+        [JsonProperty("premium_until")]
+        public object PremiumUntil { get; set; }
 
         [JsonProperty("business_account_id")]
-        public object BusinessAccountId { get; set; }
+        public long BusinessAccountId { get; set; }
 
         [JsonProperty("mobile_number")]
         public object MobileNumber { get; set; }
@@ -469,32 +628,29 @@ namespace ApiLibs.Todoist
         [JsonProperty("mobile_host")]
         public object MobileHost { get; set; }
 
-        [JsonProperty("premium_until")]
-        public string PremiumUntil { get; set; }
+        [JsonProperty("date_format")]
+        public long DateFormat { get; set; }
 
-        [JsonProperty("karma_vacation")]
-        public long KarmaVacation { get; set; }
+        [JsonProperty("karma_trend")]
+        public string KarmaTrend { get; set; }
 
         [JsonProperty("dateist_lang")]
         public object DateistLang { get; set; }
 
         [JsonProperty("join_date")]
-        public string JoinDate { get; set; }
+        public DateTimeOffset JoinDate { get; set; }
 
         [JsonProperty("karma")]
         public long Karma { get; set; }
 
-        [JsonProperty("is_biz_admin")]
-        public bool IsBizAdmin { get; set; }
+        [JsonProperty("weekly_goal")]
+        public long WeeklyGoal { get; set; }
 
         [JsonProperty("default_reminder")]
         public string DefaultReminder { get; set; }
 
         [JsonProperty("dateist_inline_disabled")]
         public bool DateistInlineDisabled { get; set; }
-
-        [JsonProperty("token")]
-        public string Token { get; set; }
     }
 
     public partial class Features
@@ -506,7 +662,7 @@ namespace ApiLibs.Todoist
         public long Restriction { get; set; }
 
         [JsonProperty("karma_vacation")]
-        public long KarmaVacation { get; set; }
+        public bool KarmaVacation { get; set; }
 
         [JsonProperty("dateist_lang")]
         public object DateistLang { get; set; }
@@ -539,6 +695,21 @@ namespace ApiLibs.Todoist
         public string GmtString { get; set; }
     }
 
+    public partial class UserSettings
+    {
+        [JsonProperty("reminder_push")]
+        public bool ReminderPush { get; set; }
+
+        [JsonProperty("reminder_desktop")]
+        public bool ReminderDesktop { get; set; }
+
+        [JsonProperty("legacy_pricing")]
+        public bool LegacyPricing { get; set; }
+
+        [JsonProperty("reminder_email")]
+        public bool ReminderEmail { get; set; }
+    }
+
     public class SearchResult
     {
         public string query { get; set; }
@@ -546,19 +717,22 @@ namespace ApiLibs.Todoist
         public List<Item> data { get; set; }
     }
 
+
     public class TodoistError
     {
         public string error_tag { get; set; }
         public int error_code { get; set; }
         public string error { get; set; }
+
+        public int http_code { get; set; }
     }
 
-    public class TodoistException : RequestException<IRestResponse>
+    public class TodoistException : RequestException
     {
         public TodoistError Error { private set; get; }
 
-        public TodoistException(TodoistError error, IRestResponse resp)
-            : base((int)resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp)
+        public TodoistException(TodoistError error, int statusCode, string statusDescription, string responseUri, string errorMessage, string content)
+            : base(statusCode, statusDescription, responseUri, error.error, content, null)
         {
             Error = error;
         }
@@ -567,7 +741,7 @@ namespace ApiLibs.Todoist
     public partial class SyncResult
     {
         [JsonProperty("sync_status")]
-        public Dictionary<string, string> SyncStatus { get; set; }
+        public Dictionary<string, object> SyncStatus { get; set; }
 
         [JsonProperty("temp_id_mapping", NullValueHandling = NullValueHandling.Ignore)]
         public Dictionary<string, long> TempIdMapping { get; set; }

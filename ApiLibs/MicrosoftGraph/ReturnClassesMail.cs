@@ -142,6 +142,7 @@ namespace ApiLibs.MicrosoftGraph
         public string[] UnsubscribeData { get; set; }
         public bool UnsubscribeEnabled { get; set; }
         public Flag Flag { get; set; }
+        public string MeetingMessageType { get; set; }
 
         public async Task SetFlag(FlagStatus status)
         {

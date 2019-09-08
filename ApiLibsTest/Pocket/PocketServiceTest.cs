@@ -14,9 +14,9 @@ namespace ApiLibsTest
         PocketService pocket;
 
         [SetUp]
-        public void Setup()
+        public async Task Setup()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             pocket = new PocketService(passwords.Pocket_access_token, passwords.PocketKey);
         }
 
@@ -24,7 +24,7 @@ namespace ApiLibsTest
         [Ignore("Startup")]
         public async Task ConnectTest()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             var pocket = new PocketService(passwords.PocketKey);
             var code = await pocket.Connect(new StupidOAuth(), "http://nntn.nl");
         }
@@ -33,7 +33,7 @@ namespace ApiLibsTest
         [Ignore("Startup")]
         public async Task GetToken()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             var pocket = new PocketService(passwords.PocketKey);
             var accessToken = await pocket.ConvertToToken("");
 //            pocket.Connect()

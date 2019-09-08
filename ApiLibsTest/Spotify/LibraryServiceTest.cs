@@ -15,9 +15,9 @@ namespace ApiLibsTest.Spotify
         private SpotifyService spotify;
 
         [OneTimeSetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             spotify = new SpotifyService(passwords.SpotifyRefreshToken, passwords.SpotifyClientId, passwords.SpotifySecret);
             libraryService = spotify.LibraryService;
         }
@@ -25,7 +25,7 @@ namespace ApiLibsTest.Spotify
         [Test]
         public async Task GetMyTracksTest()
         {
-            Assert.NotNull(await libraryService.GetMyTracks(0));
+            Assert.NotNull(await libraryService.GetMyTracks());
         }
     }
 }

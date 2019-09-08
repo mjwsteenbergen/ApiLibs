@@ -24,6 +24,20 @@ namespace ApiLibs.MicrosoftGraph
             };
             return (await MakeRequest<Events>("/me/events" + data.ConvertToUrl())).Value;
         }
+        
+        public Task<List<Event>> GetEvents(Calendar calendar, OData data = null)
+        {
+            return GetEvents(calendar.Id, data);
+        }
+
+        public async Task<List<Event>> GetEvents(string calendarId, OData data = null)
+        {
+            data = data ?? new OData
+            {
+                Top = 20
+            };
+            return (await MakeRequest<Events>($"/me/calendars/{calendarId}/events" + data.ConvertToUrl())).Value;
+        }
 
         public Task<Event> GetEvent(string id)
         {

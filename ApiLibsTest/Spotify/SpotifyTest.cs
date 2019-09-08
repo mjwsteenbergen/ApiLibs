@@ -16,9 +16,9 @@ namespace ApiLibsTest.Spotify
         private SpotifyService spotify;
 
         [OneTimeSetUp]
-        public void SetUp()
+        public async Task SetUp()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             spotify = new SpotifyService(passwords.SpotifyRefreshToken, passwords.SpotifyClientId, passwords.SpotifySecret);
         }
 
@@ -26,9 +26,9 @@ namespace ApiLibsTest.Spotify
 
         [Test]
         [Ignore("Modifies State")]
-        public void Login()
+        public async Task Login()
         {
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             spotify.Connect(new StupidOAuth(), passwords.SpotifyClientId, "https://www.nntn.nl/", new List<Scope>()
             {
                 Scope.UserLibraryModify,Scope.PlaylistModifyPrivate,Scope.UserFollowRead,Scope.UserReadPrivate,Scope.UserTopRead
@@ -40,7 +40,7 @@ namespace ApiLibsTest.Spotify
         public async Task GetKey()
         {
             spotify = new SpotifyService();
-            Passwords passwords = Passwords.ReadPasswords();
+            Passwords passwords = await Passwords.ReadPasswords();
             string token =
                 "";
             var s = await spotify.ConvertToToken(token, "https://www.nntn.nl/", passwords.SpotifyClientId,

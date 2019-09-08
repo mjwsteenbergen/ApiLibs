@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibs.General
 {
-    public class Memory
+    public class Memory : AsyncMemory
     {
         public readonly string BaseUrl;
 
@@ -26,58 +26,7 @@ namespace ApiLibs.General
             this.BaseUrl = BaseUrl;
         }
 
-        public T ReadFile<T>(string filename)
-        {
-            string text = ReadFile(filename);
-
-            if (text == "")
-            {
-                throw new FileNotFoundException();
-            }
-
-            if (typeof(T) == typeof(string))
-            {
-                return (T)(object)text;
-            }
-
-            return JsonConvert.DeserializeObject<T>(text);
-        }
-
-        public T ReadFile<T>(string filename, T @default)
-        {
-            try
-            {
-                return ReadFile<T>(filename);
-            }
-            catch (FileNotFoundException)
-            {
-                WriteFile(filename, @default);
-                return @default;
-            }
-        }
-
-        public T ReadFileWithDefault<T>(string filename)
-        {
-            try
-            {
-                return ReadFile<T>(filename);
-            }
-            catch (FileNotFoundException)
-            {
-                var constr = typeof(T).GetConstructor(new Type[] { });
-                T res = default(T);
-                if (constr != null)
-                {
-                    res = (T)constr.Invoke(new object[] { });
-                }
-                WriteFile(filename, res);
-                return res;
-            }
-        }
-
-
-
-        public string ReadFile(string filename)
+        public override async Task<string> Read(string filename)
         {
             string filePath = ApplicationDataPath + filename;
 
@@ -88,26 +37,25 @@ namespace ApiLibs.General
                 Directory.CreateDirectory(fileDirectoryPath);
             }
 
-            FileStream stream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Read);
-            string text;
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                text = reader.ReadToEnd();
-                reader.Close();
-            }
-            stream.Close();
-            return text;
+            var reader = File.OpenText(filePath);
+            string res = await reader.ReadToEndAsync();
+            reader.Close();
+            return res;
         }
 
-        public void WriteFile(string v, object obj)
+        public override async Task WriteString(string filename, string text)
         {
-            string str = null;
-            if(obj is string)
+            var filePath = ApplicationDataPath + filename;
+            using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
+            using (StreamWriter sw = new StreamWriter(stream))
             {
-                str = obj as string;
+                await sw.WriteAsync(text);
             }
+        }
 
-            File.WriteAllText(ApplicationDataPath + v, str ?? JsonConvert.SerializeObject(obj, Formatting.Indented));
+        public static T Synchronously<T>(Task<T> task) {
+            task.Wait();
+            return task.Result;
         }
     }
 }

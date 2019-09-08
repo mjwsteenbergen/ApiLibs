@@ -150,7 +150,7 @@ namespace ApiLibs.Spotify
                         statusCode: HttpStatusCode.NoContent);
                 }
             }
-            catch (PageNotFoundException<IRestResponse>) { }
+            catch (PageNotFoundException) { }
         }
 
         class PlayContext
@@ -271,7 +271,7 @@ namespace ApiLibs.Spotify
                     }, statusCode: HttpStatusCode.NoContent);
                 }
             }
-            catch (PageNotFoundException<IRestResponse>)
+            catch (PageNotFoundException)
             {
 
             }
