@@ -112,6 +112,11 @@ namespace ApiLibs
 
             foreach (Param para in _standardHeader)
             {
+                if (para is OParam && para.Value == null)
+                {
+                    continue;
+                }
+
                 request.AddHeader(para.Name, para.Value);
             }
 
@@ -120,12 +125,9 @@ namespace ApiLibs
 
             foreach (Param para in parameters)
             {
-                if (para is OParam)
+                if (para is OParam && para.Value == null)
                 {
-                    if (para.Value == null)
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
                 if (request.Method == Method.GET || request.Method == Method.POST)
