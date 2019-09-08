@@ -49,7 +49,7 @@ namespace ApiLibsTest.MicrosoftGraph
         [Ignore("Changes prod")]
         public async Task CreateEvent()
         {
-            await calendar.CreateEvent(new NewEvent
+            await calendar.CreateEvent(new EventChanges
             {
                 Subject = "ApiLibs test",
                 Body = new Body
@@ -71,7 +71,7 @@ namespace ApiLibsTest.MicrosoftGraph
         [Ignore("Changes prod")]
         public async Task CreateEventWithInvite()
         {
-            await calendar.CreateEvent(new NewEvent
+            await calendar.CreateEvent(new EventChanges
             {
                 Subject = "ApiLibs test",
                 Body = new Body
