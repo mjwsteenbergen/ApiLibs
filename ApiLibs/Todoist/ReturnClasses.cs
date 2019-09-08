@@ -190,13 +190,13 @@ namespace ApiLibs.Todoist
         public object SectionId { get; set; }
 
         [JsonProperty("in_history")]
-        public long InHistory { get; set; }
+        public bool? InHistory { get; set; }
 
         [JsonProperty("child_order")]
-        public long ChildOrder { get; set; }
+        public long? ChildOrder { get; set; }
 
         [JsonProperty("date_added")]
-        public DateTimeOffset DateAdded { get; set; }
+        public DateTimeOffset? DateAdded { get; set; }
 
         [JsonProperty("id")]
         public long Id { get; set; }
@@ -205,37 +205,37 @@ namespace ApiLibs.Todoist
         public string Content { get; set; }
 
         [JsonProperty("checked")]
-        public long Checked { get; set; }
+        public bool? Checked { get; set; }
 
         [JsonProperty("user_id")]
-        public long UserId { get; set; }
+        public long? UserId { get; set; }
 
         [JsonProperty("has_more_notes")]
-        public bool HasMoreNotes { get; set; }
+        public bool? HasMoreNotes { get; set; }
 
         [JsonProperty("due")]
         public Due Due { get; set; }
 
         [JsonProperty("priority")]
-        public long Priority { get; set; }
+        public long? Priority { get; set; }
 
         [JsonProperty("parent_id")]
         public long? ParentId { get; set; }
 
         [JsonProperty("is_deleted")]
-        public long IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; }
 
         [JsonProperty("responsible_uid")]
         public object ResponsibleUid { get; set; }
 
         [JsonProperty("project_id")]
-        public long ProjectId { get; set; }
+        public long? ProjectId { get; set; }
 
         [JsonProperty("date_completed")]
         public DateTimeOffset? DateCompleted { get; set; }
 
         [JsonProperty("collapsed")]
-        public long Collapsed { get; set; }
+        public bool? Collapsed { get; set; }
     }
 
     public partial class Due
@@ -406,19 +406,19 @@ namespace ApiLibs.Todoist
     public partial class Project
     {
         [JsonProperty("is_favorite")]
-        public long IsFavorite { get; set; }
+        public bool? IsFavorite { get; set; }
 
         [JsonProperty("color")]
-        public long Color { get; set; }
+        public long? Color { get; set; }
 
         [JsonProperty("collapsed")]
-        public long Collapsed { get; set; }
+        public bool? Collapsed { get; set; }
 
         [JsonProperty("inbox_project", NullValueHandling = NullValueHandling.Ignore)]
         public bool? InboxProject { get; set; }
 
         [JsonProperty("child_order")]
-        public long ChildOrder { get; set; }
+        public long? ChildOrder { get; set; }
 
         [JsonProperty("id")]
         public long Id { get; set; }
@@ -427,10 +427,10 @@ namespace ApiLibs.Todoist
         public string Name { get; set; }
 
         [JsonProperty("has_more_notes")]
-        public bool HasMoreNotes { get; set; }
+        public bool? HasMoreNotes { get; set; }
 
         [JsonProperty("is_deleted")]
-        public long IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; }
 
         [JsonProperty("parent_id")]
         public long? ParentId { get; set; }
@@ -439,10 +439,10 @@ namespace ApiLibs.Todoist
         public long? LegacyId { get; set; }
 
         [JsonProperty("shared")]
-        public bool Shared { get; set; }
+        public bool? Shared { get; set; }
 
         [JsonProperty("is_archived")]
-        public long IsArchived { get; set; }
+        public bool? IsArchived { get; set; }
 
         [JsonProperty("team_inbox", NullValueHandling = NullValueHandling.Ignore)]
         public bool? TeamInbox { get; set; }

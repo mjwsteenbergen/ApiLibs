@@ -136,24 +136,25 @@ namespace ApiLibs.Todoist
                 parameters: new List<Param> { new TodoistCommand("note_add", noteObject).ToParam() });
         }
     
-        public async Task<long> AddTodo(string name, Project project = null, string date = null, int? priority = null, int? indent = null, string note = null, List<Label> labels = null)
+        public async Task<long> AddTodo(string name, Project project = null, string date = null, int? priority = null, int? parentId = null, List<Label> labels = null)
         {
-            return await AddTodo(name, project?.Id, date, priority, indent, note, labels);
+            return await AddTodo(name, project?.Id, date, priority, parentId, labels);
         }
 
-        public async Task<long> AddTodo(string name, long? project_id = null, string date = null, int? priority = null, int? indent = null, string note = null, List<Label> labels = null)
+        public async Task<long> AddTodo(string name, long? project_id = null, string date = null, int? priority = null, int? parentId = null, List<Label> labels = null)
         {
             var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
             {
-                new TodoistCommand("item_add", new
+                new TodoistCommand("item_add", new Item()
                 {
-                    content = name,
-                    project_id,
-                    date_string = date,
-                    priority,
-                    indent,
-                    note,
-                    labels = labels?.Select(i => i.Id).ToArray()
+                    Content = name,
+                    ProjectId = project_id,
+                    Due = new Due {
+                        String = date
+                    },
+                    Priority = priority,
+                    ParentId = parentId,
+                    Labels = labels?.Select(i => i.Id).ToList()
                 }).ToParam()
             });
             return res.TempIdMapping.Values.FirstOrDefault();
@@ -163,15 +164,7 @@ namespace ApiLibs.Todoist
         {
             var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
             {
-                TodoistCommand.ToParam(items.Select(i => new TodoistCommand("item_add", new
-                {
-                    content = i.Content,
-                    project_id = i.ProjectId,
-                    date_string = i.Due?.String,
-                    priority = i.Priority,
-                    parent_id = i.ParentId,
-                    labels = i.Labels?.ToArray()
-                })))
+                TodoistCommand.ToParam(items.Select(i => new TodoistCommand("item_add", i)))
             });
             return res.TempIdMapping.Values.FirstOrDefault();
         }
@@ -197,17 +190,16 @@ namespace ApiLibs.Todoist
             });
         }
 
-        public async Task<long> CreateProject(string name, int? color = null, int? indent = null, long? parentId = null, bool? isFavorite = null)
+        public async Task<long> CreateProject(string name, long? color = null, long? parentId = null, bool? isFavorite = null)
         {
             var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
             {
-                new TodoistCommand("project_add", new
+                new TodoistCommand("project_add", new Project()
                 {
-                    name,
-                    color,
-                    indent,
-                    parent_id = parentId,
-                    is_favorite = isFavorite
+                    Name = name,
+                    Color = color,
+                    ParentId = parentId,
+                    IsFavorite = isFavorite
                 }).ToParam()
             });
             return res.TempIdMapping.Values.FirstOrDefault();
@@ -222,9 +214,9 @@ namespace ApiLibs.Todoist
         {
             var res = await MakeRequest<string>("sync", parameters: new List<Param>
             {
-                new TodoistCommand("project_delete", new
+                new TodoistCommand("project_delete", new Project
                 {
-                    id = projectId.ToString()
+                    Id = projectId
                 }).ToParam()
             });
         }
@@ -233,9 +225,9 @@ namespace ApiLibs.Todoist
         {
             var res = await MakeRequest<string>("sync", parameters: new List<Param>
             {
-                new TodoistCommand("item_delete", new
+                new TodoistCommand("item_delete", new Item()
                 {
-                    id = other.Id.ToString()
+                    Id = other.Id
                 }).ToParam()
             });
         }
@@ -257,14 +249,27 @@ namespace ApiLibs.Todoist
         [JsonProperty(PropertyName = "args")]
         public Object Arguments { get; set; }
 
-        public TodoistCommand(string type, object args)
-        {
+        private TodoistCommand(string type) {
             Uuid = (new Random()).Next(0, 10000);
             this.Type = type;
             if (Type != null && Type.Contains("add"))
             {
                 TempId = $"{RandomString(8)}-{RandomString(4)}-{RandomString(4)}-{RandomString(4)}-{RandomString(12)}";
             }
+        }
+
+        public TodoistCommand(string type, Item args) : this(type)
+        {
+            Arguments = args;
+        }
+
+        public TodoistCommand(string type, Note args) : this(type)
+        {
+            Arguments = args;
+        }
+
+        public TodoistCommand(string type, Project args) : this(type)
+        {
             Arguments = args;
         }
 
