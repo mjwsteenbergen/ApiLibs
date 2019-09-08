@@ -234,6 +234,16 @@ namespace ApiLibs.MicrosoftGraph
             return res;
         }
 
+        public List<Param> ConvertToParams()
+        {
+            return new List<Param>
+            {
+                new OParam("$filter", Filter),
+                new OParam("$select", Select),
+                new OParam("$top", Top == -1 ? null : Top.ToString())
+            };
+        }
+
         public OData AddUnreadSelector(bool isRead)
         {
             string s = "IsRead eq " + isRead.ToString().ToLower();
