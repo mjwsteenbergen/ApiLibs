@@ -391,7 +391,7 @@ namespace ApiLibs.MicrosoftGraph
 
     public enum Response { Accepted, None, Organizer, NotResponded, TentativelyAccepted };
 
-    public partial class NewEvent
+    public partial class EventChanges
     {
         [JsonProperty("subject")]
         public string Subject { get; set; }
