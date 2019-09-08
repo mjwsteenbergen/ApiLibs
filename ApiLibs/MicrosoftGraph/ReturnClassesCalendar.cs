@@ -249,9 +249,9 @@ namespace ApiLibs.MicrosoftGraph
 
         }
 
-        public EventTime(DateTimeOffset Dt)
+        public EventTime(DateTime dt)
         {
-            DateTime = Dt.UtcDateTime;
+            DateTime = dt.ToUniversalTime();
             TimeZone = "UTC";
         }
 
@@ -317,6 +317,8 @@ namespace ApiLibs.MicrosoftGraph
 
     public partial class Coordinates
     {
+        public Coordinates() { }
+
         public Coordinates(double? latitude, double? longitude)
         {
             Latitude = latitude;
@@ -389,7 +391,7 @@ namespace ApiLibs.MicrosoftGraph
 
     public enum Response { Accepted, None, Organizer, NotResponded, TentativelyAccepted };
 
-    public partial class NewEvent
+    public partial class EventChanges
     {
         [JsonProperty("attendees")]
         public List<Attendee> Attendees { get; set; }

@@ -37,10 +37,15 @@ namespace ApiLibs.General
                 Directory.CreateDirectory(fileDirectoryPath);
             }
 
-            var reader = File.OpenText(filePath);
-            string res = await reader.ReadToEndAsync();
-            reader.Close();
-            return res;
+           FileStream stream = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.Read);
+            string text;
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                text = reader.ReadToEnd();
+                reader.Close();
+            }
+            stream.Close();
+            return text;
         }
 
         public override async Task WriteString(string filename, string text)

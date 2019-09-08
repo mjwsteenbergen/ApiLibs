@@ -30,41 +30,88 @@ namespace ApiLibs.MicrosoftGraph
             return GetEvents(calendar.Id, data);
         }
 
+        public Task<Event> GetEvent(string id)
+        {
+            return MakeRequest<Event>($"/me/events/{id}");
+        }
+
         public async Task<List<Event>> GetEvents(string calendarId, OData data = null)
         {
             data = data ?? new OData
             {
                 Top = 20
             };
-            return (await MakeRequest<Events>($"/me/calendars/{calendarId}/events" + data.ConvertToUrl())).Value;
+            return (await MakeRequest<Events>($"/me/calendars/{calendarId}/events", parameters: data.ConvertToParams())).Value;
         }
 
-        public Task<Event> GetEvent(string id)
+        public Task<List<Event>> GetEvents(Calendar calendar, DateTime startTime, DateTime endTime, OData data = null)
         {
-            return MakeRequest<Event>($"/me/events/{id}");
+            return GetEvents(calendar.Id, startTime, endTime, data);
         }
 
-        public Task<Event> CreateEvent(NewEvent ev)
+        public async Task<List<Event>> GetEvents(string calendarId, DateTime startTime, DateTime endTime, OData data = null)
+        {
+            data = data ?? new OData();
+            Events events = await MakeRequest<Events>($"/me/calendars/{calendarId}/calendarView", parameters: new List<ApiLibs.Param>
+            {
+                new Param("endDateTime", endTime.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffff", System.Globalization.CultureInfo.InvariantCulture)),
+                new Param("startDateTime", startTime.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffff", System.Globalization.CultureInfo.InvariantCulture))
+            }.Union(data.ConvertToParams()).ToList());
+            return events.Value;
+        }
+
+        public async Task<List<Event>> GetAllEventsOfAllCalendars(DateTime startTime, DateTime endTime, TimeZoneInfo timezone = null)
+        {
+            var myCals = await GetMyCalendars();
+            var res = await MakeRequest<BatchResult>("$batch", Call.POST, content: new
+            {
+                requests = myCals.Select(i => new
+                {
+                    url =
+                        $"/me/calendars/{i.Id}/calendarView?startdatetime={startTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&enddatetime={endTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&$top=50",
+                    method = "GET",
+                    id = i.Name,
+                    headers = new
+                    {
+                        Prefer = $"outlook.timezone=\"{(timezone ?? TimeZoneInfo.Utc).StandardName}\""
+                    }
+                })
+            });
+
+            return res.Responses.Select(i => i.Body).Where(i => i.Error == null).SelectMany(i => i.Value).ToList();
+        }
+
+        public Task<Event> EditEvent(Event @event, EventChanges ev)
+        {
+            return EditEvent(@event.Id, ev);
+        }
+
+        public async Task<Event> EditEvent(string id, EventChanges ev)
+        {
+            return await MakeRequest<Event>($"/me/events/{id}", Call.PATCH, content: ev);
+        }
+
+        public Task<Event> CreateEvent(EventChanges ev)
         {
             return MakeRequest<Event>("/me/events", Call.POST, content: ev);
         }
 
-        public Task<Event> CreateEvent(NewEvent ev, Calendar cal)
+        public Task<Event> CreateEvent(EventChanges ev, Calendar cal)
         {
             return CreateEvent(ev, cal.Id);
         }
 
-        private Task<Event> CreateEvent(NewEvent ev, string id)
+        private Task<Event> CreateEvent(EventChanges ev, string id)
         {
             return MakeRequest<Event>($"me/calendars/{id}/events", Call.POST, content: ev);
         }
 
-        public Task<Event> UpdateEvent(NewEvent ev)
+        public Task<Event> UpdateEvent(EventChanges ev)
         {
             return UpdateEvent(ev.Id, ev);
         }
 
-        public Task<Event> UpdateEvent(string id, NewEvent ev)
+        public Task<Event> UpdateEvent(string id, EventChanges ev)
         {
             return MakeRequest<Event>($"/me/events/{id}", Call.PATCH, content: ev);
         }
@@ -98,25 +145,7 @@ namespace ApiLibs.MicrosoftGraph
         {
             return (await MakeRequest<Calendars>("/me/calendars?$top=100")).Value;
         }
-
-        public async Task<List<Event>> GetAllEventsOfAllCalendars(DateTime startTime, DateTime endTime)
-        {
-            var myCals = await GetMyCalendars();
-            var res = await MakeRequest<BatchResult>("$batch", Call.POST, content: new
-            {
-                requests = myCals.Select(i => new
-                {
-                    url =
-                        $"/me/calendars/{i.Id}/calendarView?startdatetime={startTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&enddatetime={endTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}",
-                    method = "GET",
-                    id = i.Name
-                })
-            });
-
-            return res.Responses.Select(i => i.Body).Where(i => i.Error == null).SelectMany(i => i.Value).ToList();
-        }
-
-        #endregion Calendars
+        #endregion Caledars
 
     }
 }
