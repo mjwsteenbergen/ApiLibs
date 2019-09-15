@@ -149,9 +149,9 @@ namespace ApiLibs.Todoist
                 {
                     Content = name,
                     ProjectId = project_id,
-                    Due = new Due {
+                    Due = date != null ? new Due {
                         String = date
-                    },
+                    } : null,
                     Priority = priority,
                     ParentId = parentId,
                     Labels = labels?.Select(i => i.Id).ToList()
