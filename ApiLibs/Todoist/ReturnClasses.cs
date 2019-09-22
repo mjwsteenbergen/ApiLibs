@@ -241,7 +241,7 @@ namespace ApiLibs.Todoist
     public partial class Due
     {
         [JsonProperty("date")]
-        public DateTimeOffset Date { get; set; }
+        public DateTimeOffset? Date { get; set; }
 
         [JsonProperty("timezone")]
         public string Timezone { get; set; }
