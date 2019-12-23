@@ -57,6 +57,12 @@ namespace ApiLibsTest.Instapaper
             var res = await instapaper.GetBookmarks("archive");
         }
 
+        [Test]
+        public async Task TestGetAllBookmarkInfo()
+        {
+            var res = await instapaper.GetAllBookmarkInfo();
+        }
+
 
     }
 }
