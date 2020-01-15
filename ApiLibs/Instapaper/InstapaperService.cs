@@ -131,7 +131,7 @@ namespace ApiLibs.Instapaper
         /// Stars the specified bookmark.
         /// </summary>
         /// <param name="bookmarkId"></param>
-        public async void StarBookmark(int bookmarkId)
+        public async Task StarBookmark(int bookmarkId)
         {
             await HandleRequest("bookmarks/star", parameters: new List<Param> { new Param("bookmark_id", bookmarkId.ToString()) });
         }
@@ -140,7 +140,7 @@ namespace ApiLibs.Instapaper
         /// Un-stars the specified bookmark.
         /// </summary>
         /// <param name="bookmarkId"></param>
-        public async void UnstarBookmark(int bookmarkId)
+        public async Task UnstarBookmark(int bookmarkId)
         {
             await HandleRequest("bookmarks/unstar", parameters: new List<Param> { new Param("bookmark_id", bookmarkId.ToString()) });
         }
@@ -149,7 +149,7 @@ namespace ApiLibs.Instapaper
         /// Moves the specified bookmark to the Archive.
         /// </summary>
         /// <param name="bookmarkId"></param>
-        public async void ArchiveBookmark(int bookmarkId)
+        public async Task ArchiveBookmark(int bookmarkId)
         {
             await HandleRequest("bookmarks/archive", parameters: new List<Param> { new Param("bookmark_id", bookmarkId.ToString()) });
         }
