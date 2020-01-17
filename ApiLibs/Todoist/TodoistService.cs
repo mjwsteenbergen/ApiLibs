@@ -115,6 +115,16 @@ namespace ApiLibs.Todoist
             await MarkTodoAsDone(todo.Id);
         }
 
+        public Task MarkTodoAsDone(IEnumerable<Item> removableOnes)
+        {
+            return MarkTodoAsDone(removableOnes.Select(i => i.Id));
+        }
+
+        public Task MarkTodoAsDone(IEnumerable<long> removableOnes)
+        {
+            return HandleRequest("sync", parameters: new List<Param> { TodoistCommand.ToParam(removableOnes.Select(i => new TodoistCommand("item_close", new ItemUpdate(i)))) });
+        }
+
         public async Task MarkTodoAsDone(long id)
         {
             List<Param> parameters = new List<Param>
@@ -160,13 +170,15 @@ namespace ApiLibs.Todoist
             return res.TempIdMapping.Values.FirstOrDefault();
         }
 
-        public async Task<long> AddTodo(IEnumerable<Item> items)
+
+        public async Task<List<long>> AddTodo(IEnumerable<Item> items)
         {
+            var original = items.Select(i => new TodoistCommand("item_add", i)).ToList();
             var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
             {
-                TodoistCommand.ToParam(items.Select(i => new TodoistCommand("item_add", i)))
+                TodoistCommand.ToParam(original)
             });
-            return res.TempIdMapping.Values.FirstOrDefault();
+            return original.Select(i => res.TempIdMapping.First(j => j.Key == i.TempId).Value).ToList();
         }
 
         public async Task Update(ItemUpdate update)
@@ -250,7 +262,7 @@ namespace ApiLibs.Todoist
         public Object Arguments { get; set; }
 
         private TodoistCommand(string type) {
-            Uuid = (new Random()).Next(0, 10000);
+            Uuid = new Random((int) DateTime.Now.Ticks).Next(0, 10000);
             this.Type = type;
             if (Type != null && Type.Contains("add"))
             {
@@ -293,7 +305,7 @@ namespace ApiLibs.Todoist
 
         private static Random random = new Random();
         private static string RandomString(int length)
-        {
+        { 
             const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
             return new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
