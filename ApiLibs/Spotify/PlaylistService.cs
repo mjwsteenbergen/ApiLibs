@@ -88,7 +88,7 @@ namespace ApiLibs.Spotify
 
         public async Task RemoveTracksAll(Playlist playlist, IEnumerable<Track> tracks)
         {
-            tracks = tracks.ToList();
+            tracks = tracks.Where(i => i != null).ToList();
             while(tracks.Count() > 0)
             {
                 var remove = tracks.Take(100);

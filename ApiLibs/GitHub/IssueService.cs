@@ -15,7 +15,7 @@ namespace ApiLibs.GitHub
 
         public async Task<List<Issue>> GetIssues()
         {
-            return await MakeRequest<List<Issue>>("user/issues");
+            return await MakeRequest<List<Issue>>("user/issues", parameters: new List<Param> { new Param("per_page", 100) });
         }
 
         public async Task<List<Issue>> GetIssues(Repository repo)
