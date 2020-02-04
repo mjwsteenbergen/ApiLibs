@@ -62,35 +62,6 @@ namespace ApiLibs.Telegram
             }
         }
 
-        public void LookForMessages()
-        {
-            Thread t = new Thread(() =>
-            {
-                try
-                {
-                    while (true)
-                    {
-                        try
-                        {
-                            //TgMessages mList = await GetMessages(1000);
-                            //MessageRecieved?.Invoke(mList, EventArgs.Empty);
-                        }
-                        catch (NoInternetException)
-                        {
-                            Thread.Sleep(TimeSpan.FromMinutes(1));
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                    Console.WriteLine(exception.Message + " " + exception.StackTrace);
-                }
-            });
-            t.Start();
-        }
-
-        
-
         public async Task<TgMessage> EditMessageText(TgMessage message, string newText, ParseMode? mode = null, bool? disableWebPagePreview = null)
         {
             return await EditMessageText(newText, message.chat.id, message.message_id, null, mode, disableWebPagePreview);
@@ -119,7 +90,12 @@ namespace ApiLibs.Telegram
             });
         }
 
-        public static string EscapeMarkdown(string input) {
+        
+    }
+
+    public static class TelegramServiceExtension {
+        public static string EscapeMarkdown(this string input)
+        {
             return input?.Replace("_", "\\_")?.Replace("*", "\\*");
         }
     }
