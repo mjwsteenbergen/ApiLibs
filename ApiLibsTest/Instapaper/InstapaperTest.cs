@@ -56,7 +56,5 @@ namespace ApiLibsTest.Instapaper
         {
             var res = await instapaper.GetBookmarks("archive");
         }
-
-
     }
 }

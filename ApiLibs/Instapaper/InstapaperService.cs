@@ -19,7 +19,7 @@ namespace ApiLibs.Instapaper
         /// Constructor to be called when you don't have a secret
         /// It is expected that <see cref="Connect"/> is called after
         /// </summary>
-        public InstapaperService() : base("https://www.instapaper.com/api/1/") { }
+        public InstapaperService() : base("https://www.instapaper.com/api/1.1/") { }
 
         public InstapaperService(string clientId, string clientSecret, string token, string tokenSecret) :base("https://www.instapaper.com/api/1.1/")
         {
@@ -75,6 +75,12 @@ namespace ApiLibs.Instapaper
                 new OParam("folder_id", folderId),
                 new OParam("limit", limit?.ToString())
             });
+
+        public Task<Bookmark> UpdateReadProgress(int bookmarkId, double progress, DateTime? time = null) => MakeRequest<Bookmark>("bookmarks/update_read_progress", Call.POST, parameters: new List<Param> {
+            new Param("bookmark_id", bookmarkId),
+            new Param("progress", progress),
+            new Param("progress_timestamp", (TimeZoneInfo.ConvertTimeToUtc(time ?? DateTime.Now) - new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc)).TotalSeconds)
+        });
 
         /// <summary>
         /// Adds a new unread bookmark to the user's account.
@@ -172,6 +178,16 @@ namespace ApiLibs.Instapaper
             });
         }
 
+        public Task<string> GetHTML(Bookmark mark)
+        {
+            return GetHTML(mark.bookmark_id);
+        }
+
+        private Task<string> GetHTML(int bookmark_id)
+        {
+            return MakeRequest<string>("bookmarks/get_text", parameters: new List<Param> { new Param("bookmark_id", bookmark_id) });
+        }
+
         /// <summary>
         /// A list of the account's user-created folders
         /// </summary>
@@ -220,16 +236,16 @@ namespace ApiLibs.Instapaper
             throw new KeyNotFoundException("Your folder could not be found");
         }
 
-        public Task<string> GetHTML(Bookmark mark)
-        {
-            return GetHTML(mark.bookmark_id);
-        }
+        
+        public Task<List<Highlight>> GetHighlights(Bookmark bookmark) => MakeRequest<List<Highlight>>("bookmarks/" + bookmark.bookmark_id + "/highlights");
 
-        private Task<string> GetHTML(int bookmark_id)
-        {
-            return MakeRequest<string>("bookmarks/get_text", parameters: new List<Param> { new Param("bookmark_id", bookmark_id) });
-        }
+        public Task<string> AddHighlight(Bookmark bookmark, string text) => AddHighlight(bookmark.bookmark_id, text);
 
-        public async Task<List<Highlight>> GetHighlights(Bookmark bookmark) => await MakeRequest<List<Highlight>>("bookmarks/" + bookmark.bookmark_id  + "/highlights");
+        public Task<string> AddHighlight(int bookmark, string text) => MakeRequest<string>("bookmarks/" + bookmark + "/highlight", Call.POST, new List<Param> {
+            new Param("text", text),
+            new Param("position", 0)
+        });
+        
+        public Task DeleteHighlights(Highlight highlight) => MakeRequest<string>($"highlights/{highlight.highlight_id}/delete");
     }
 }
