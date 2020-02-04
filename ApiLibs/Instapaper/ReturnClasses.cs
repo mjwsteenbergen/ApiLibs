@@ -36,6 +36,7 @@ namespace ApiLibs.Instapaper
     public class Highlight
     {
         public int highlight_id { get; set; }
+        public string note { get; set; }
         public string text { get; set; }
         public int bookmark_id { get; set; }
         public string time { get; set; }
