@@ -62,23 +62,29 @@ namespace ApiLibs.MicrosoftGraph
 
         public async Task<List<Event>> GetAllEventsOfAllCalendars(DateTime startTime, DateTime endTime, TimeZoneInfo timezone = null)
         {
+            
             var myCals = await GetMyCalendars();
-            var res = await MakeRequest<BatchResult>("$batch", Call.POST, content: new
+            var resses = new List<Event>();
+            for (int i = 0; i < myCals.Count; i+=20)
             {
-                requests = myCals.Select(i => new
+                var res = await MakeRequest<BatchResult>("$batch", Call.POST, content: new
                 {
-                    url =
-                        $"/me/calendars/{i.Id}/calendarView?startdatetime={startTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&enddatetime={endTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&$top=50",
-                    method = "GET",
-                    id = i.Name,
-                    headers = new
+                    requests = myCals.Skip(i).Take(20).Select(i => new
                     {
-                        Prefer = $"outlook.timezone=\"{(timezone ?? TimeZoneInfo.Utc).StandardName}\""
-                    }
-                })
-            });
-
-            return res.Responses.Select(i => i.Body).Where(i => i.Error == null).SelectMany(i => i.Value).ToList();
+                        url =
+                            $"/me/calendars/{i.Id}/calendarView?startdatetime={startTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&enddatetime={endTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&$top=50",
+                        method = "GET",
+                        id = i.Name,
+                        headers = new
+                        {
+                            Prefer = $"outlook.timezone=\"{(timezone ?? TimeZoneInfo.Utc).StandardName}\""
+                        }
+                    })
+                });
+                resses.AddRange(res.Responses.Select(i => i.Body).Where(i => i.Error == null).SelectMany(i => i.Value));
+            }
+            
+            return resses;
         }
 
         public Task<Event> EditEvent(Event @event, EventChanges ev)

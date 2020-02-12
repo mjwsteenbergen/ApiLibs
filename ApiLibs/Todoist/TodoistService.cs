@@ -173,12 +173,21 @@ namespace ApiLibs.Todoist
 
         public async Task<List<long>> AddTodo(IEnumerable<Item> items)
         {
-            var original = items.Select(i => new TodoistCommand("item_add", i)).ToList();
-            var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
+            var allitems = items.ToList();
+            int skip = 0;
+            List<long> res = new List<long>();
+
+            while(skip < allitems.Count)
             {
-                TodoistCommand.ToParam(original)
-            });
-            return original.Select(i => res.TempIdMapping.First(j => j.Key == i.TempId).Value).ToList();
+                var original = items.Skip(skip).Take(10).Select(i => new TodoistCommand("item_add", i)).ToList();
+                var resp = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
+                {
+                    TodoistCommand.ToParam(original)
+                });
+                res = res.Concat(original.Select(i => resp.TempIdMapping.First(j => j.Key == i.TempId).Value)).ToList();
+                skip += 10;
+            }
+            return res;
         }
 
         public async Task Update(ItemUpdate update)
@@ -253,7 +262,7 @@ namespace ApiLibs.Todoist
         public string Type { get; set; }
 
         [JsonProperty(PropertyName = "uuid")]
-        public int Uuid { get; set; }
+        public string Uuid { get; set; }
 
         [JsonProperty(PropertyName = "temp_id")]
         public string TempId { get; set; }
@@ -262,7 +271,7 @@ namespace ApiLibs.Todoist
         public Object Arguments { get; set; }
 
         private TodoistCommand(string type) {
-            Uuid = new Random((int) DateTime.Now.Ticks).Next(0, 10000);
+            Uuid = $"{RandomString(8)}-{RandomString(4)}-{RandomString(4)}-{RandomString(4)}-{RandomString(12)}";
             this.Type = type;
             if (Type != null && Type.Contains("add"))
             {
@@ -303,7 +312,7 @@ namespace ApiLibs.Todoist
             return ToParam(new List<TodoistCommand> { this });
         }
 
-        private static Random random = new Random();
+        private static Random random = new Random((int) DateTime.Now.Ticks);
         private static string RandomString(int length)
         { 
             const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
