@@ -62,7 +62,5 @@ namespace ApiLibsTest.Instapaper
         {
             var res = await instapaper.GetAllBookmarkInfo();
         }
-
-
     }
 }
