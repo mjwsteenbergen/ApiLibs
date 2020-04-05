@@ -15,9 +15,9 @@ namespace ApiLibsTest.Telegram
         
 
         [OneTimeSetUp]
-        public void GetTodoistService()
+        public async Task GetTodoistService()
         {
-            Passwords passwords = Passwords.ReadPasswords(new Memory());
+            Passwords passwords = await Passwords.ReadPasswords();
             Telegram = new TelegramService(passwords.Telegram_token,"");
         }
 
