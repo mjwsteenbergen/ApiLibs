@@ -93,7 +93,7 @@ namespace ApiLibs.General
 
         public Task WriteToFile()
         {
-            return WritePasswords(this);
+            return mem.Write(Passwords.FileName, passwords);
         }
 
         public static async Task<Passwords> ReadPasswords(AsyncMemory mem = null)
@@ -108,13 +108,6 @@ namespace ApiLibs.General
         }
 
 
-        public static async Task WritePasswords(Passwords pass)
-        {
-            Memory mem = new Memory()
-            {
-                Application = "Laurentia"
-            };
-            await mem.Write(Passwords.FileName, pass.passwords);
-        }
+        
     }
 }
