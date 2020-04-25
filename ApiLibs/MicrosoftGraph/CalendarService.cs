@@ -77,7 +77,7 @@ namespace ApiLibs.MicrosoftGraph
                         id = i.Name,
                         headers = new
                         {
-                            Prefer = $"outlook.timezone=\"{(timezone ?? TimeZoneInfo.Utc).StandardName}\""
+                            Prefer = $"outlook.timezone=\"{(timezone?.StandardName) ?? "UTC"}\""
                         }
                     })
                 });
