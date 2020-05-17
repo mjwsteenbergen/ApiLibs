@@ -96,7 +96,12 @@ namespace ApiLibs.Telegram
     public static class TelegramServiceExtension {
         public static string EscapeMarkdown(this string input)
         {
-            return input?.Replace("_", "\\_")?.Replace("*", "\\*");
+            foreach (char c in new char['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'])
+            {
+                input = input?.Replace(c.ToString(), "\\" + c);
+            }
+
+            return input;
         }
     }
 }
