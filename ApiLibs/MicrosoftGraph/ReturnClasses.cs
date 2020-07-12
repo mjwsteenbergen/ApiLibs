@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using ApiLibs.General;
-
-namespace ApiLibs.MicrosoftGraph
+﻿namespace ApiLibs.MicrosoftGraph
 {
     public class AccessTokenObject
     {
