@@ -68,13 +68,25 @@ namespace ApiLibs.MicrosoftGraph
         /// <returns></returns>
         public void Connect(string outlookId, string redirectUrl, IOAuth auth, List<Scopes> scopes)
         {
+            Connect(outlookId, redirectUrl, auth, scopes.Select(i => i.ToString().Replace("_", ".")).ToList());
+        }
+
+        /// <summary>
+        /// Execute a call to the website to get an access token
+        /// </summary>
+        /// <param name="outlookId"></param>
+        /// <param name="redirectUrl"></param>
+        /// <param name="auth"></param>
+        /// <returns></returns>
+        public void Connect(string outlookId, string redirectUrl, IOAuth auth, List<string> scopes)
+        {
             var uri =
-                new Uri("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?" + 
+                new Uri("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?" +
                         "client_id=" + outlookId +
-                        "&redirect_uri=" + HttpUtility.UrlEncode(redirectUrl)  +
+                        "&redirect_uri=" + HttpUtility.UrlEncode(redirectUrl) +
                         "&response_type=code" +
                         "&response_mode=query" +
-                        "&scope=" + scopes.Select(i => i.ToString().Replace("_", ".")).Aggregate((i, j) => i + "+" + j) +
+                        "&scope=" + scopes.Aggregate((i, j) => i + "+" + j) +
                         "+offline_access");
             auth.ActivateOAuth(uri);
         }
