@@ -44,6 +44,8 @@ namespace ApiLibs.MicrosoftGraph
             return (await MakeRequest<Events>($"/me/calendars/{calendarId}/events", parameters: data.ConvertToParams())).Value;
         }
 
+        public Task<TeamsMeeting> CreateOnlineMeeting(TeamsMeeting meeting) => MakeRequest<TeamsMeeting>("me/onlineMeetings", Call.POST, content: meeting);
+
         public Task<List<Event>> GetEvents(Calendar calendar, DateTime startTime, DateTime endTime, OData data = null)
         {
             return GetEvents(calendar.Id, startTime, endTime, data);
