@@ -88,6 +88,14 @@ namespace ApiLibs.Todoist
         public List<object> DueExceptions { get; set; }
     }
 
+    public class CompletedRoot {
+        [JsonProperty("items")]
+        public List<Item> Items { get; set; }
+
+        [JsonProperty("projects")]
+        public Dictionary<string, Project> Projects { get; set; }
+    }
+
     public partial class CollaboratorState
     {
         [JsonProperty("state")]
@@ -201,6 +209,9 @@ namespace ApiLibs.Todoist
         [JsonProperty("id")]
         public long Id { get; set; }
 
+        [JsonProperty("task_id")]
+        public long? TaskId { get; set; }
+
         [JsonProperty("content")]
         public string Content { get; set; }
 
@@ -231,7 +242,7 @@ namespace ApiLibs.Todoist
         [JsonProperty("project_id")]
         public long? ProjectId { get; set; }
 
-        [JsonProperty("date_completed")]
+        [JsonProperty("completed_date")]
         public DateTimeOffset? DateCompleted { get; set; }
 
         [JsonProperty("collapsed")]
