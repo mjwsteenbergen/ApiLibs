@@ -32,6 +32,12 @@ namespace ApiLibs.MicrosoftGraph
         /// </summary>
         public GraphService() : base("https://login.microsoftonline.com/common/oauth2/v2.0/")
         {
+            CalendarService = new CalendarService(this);
+            PeopleService = new PeopleService(this);
+            OneDriveService = new OneDriveService(this);
+            MailService = new MailService(this);
+            TodoService = new TodoService(this);
+            OneNoteService = new OneNoteService(this);
         }
 
         /// <summary>
@@ -56,6 +62,23 @@ namespace ApiLibs.MicrosoftGraph
             MailService = new MailService(this);
             TodoService = new TodoService(this);
             OneNoteService = new OneNoteService(this);
+        }
+
+        public async Task ConvertToToken(string clientId, string clientSecret, string username, string password, string TenantID)
+        {
+            SetBaseUrl($"https://login.microsoftonline.com/{TenantID}/oauth2/v2.0/");
+            var res = await MakeRequest<AccessTokenObject>($"token", Call.POST, parameters: new List<Param> {
+                new Param("grant_type", "password"),
+                new Param("client_id", clientId),
+                new Param("client_secret", clientSecret),
+                new Param("scope", "https://graph.microsoft.com/.default"),
+                new Param("userName", username),
+                new Param("password", password)
+            });
+
+
+            AddStandardHeader(new Param("Authorization", "Bearer " + res.access_token));
+            SetBaseUrl(basePath);
         }
 
 
