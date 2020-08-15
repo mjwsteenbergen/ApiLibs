@@ -55,6 +55,12 @@ namespace ApiLibs.GitHub
             return await MakeRequest<Issue>("/repos/" + user + "/" + repo + "/issues/" + issueNumber);
         }
 
+        public Task<Comment> AddComment(Issue issue, string body) => AddComment(issue.RepositoryOwner, issue.RepositoryName, issue.Number.ToString(), body);
+
+        public Task<Comment> AddComment(string owner, string repo, string issue_number, string body) => MakeRequest<Comment>($"/repos/{owner}/{repo}/issues/{issue_number}/comments", Call.POST, content: new {
+            body = body
+        });
+
         public async Task<List<Issue>> GetPullRequests(Repository repo)
         {
             List<Issue> res = new List<Issue>();
