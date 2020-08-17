@@ -18,9 +18,9 @@ namespace ApiLibs.GitHub
             return await MakeRequest<List<Issue>>("user/issues", parameters: new List<Param> { new Param("per_page", 100) });
         }
 
-        public async Task<List<Issue>> GetIssues(Repository repo)
+        public async Task<List<Issue>> GetIssues(Repository repo, string filter = null, string state = null, string labels = null, string sort = null, string direction = null, string since = null, int? per_page = null, int? page = null)
         {
-            return (await GetIssuesAndPRs(repo)).Where(i => i.PullRequest == null).ToList();
+            return (await GetIssuesAndPRs(repo, filter, state, labels, sort, direction, since, per_page, page)).Where(i => i.PullRequest == null).ToList();
         }
 
         private string IssueUrl(Repository repo)
@@ -28,9 +28,19 @@ namespace ApiLibs.GitHub
             return repo.IssuesUrl.Replace("https://api.github.com/", "").Replace("{/number}", "");
         }
 
-        public async Task<List<Issue>> GetIssuesAndPRs(Repository repo)
+        public async Task<List<Issue>> GetIssuesAndPRs(Repository repo, string filter = null, string state = null, string labels = null, string sort = null, string direction = null, string since = null, int? per_page = null, int? page = null)
         {
-            return await MakeRequest<List<Issue>>(IssueUrl(repo));
+            return await MakeRequest<List<Issue>>(IssueUrl(repo), parameters: new List<Param> {
+                new OParam("filter", filter),
+                new OParam("state", state),
+                new OParam("labels", labels),
+                new OParam("sort", sort),
+                new OParam("direction", direction),
+                new OParam("since", since),
+                new OParam("per_page", per_page),
+                new OParam("page", page)
+
+            });
         }
 
         public async Task<Issue> AddIssue(OpenIssue issue, Repository repo)
