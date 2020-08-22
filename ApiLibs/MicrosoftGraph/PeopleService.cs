@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
-using ApiLibs.General;
-using RestSharp;
 
 namespace ApiLibs.MicrosoftGraph
 {
