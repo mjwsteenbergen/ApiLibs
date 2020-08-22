@@ -20,7 +20,7 @@ namespace ApiLibs.Trakt
         /// <param name="start"></param>
         /// <param name="end"></param>
         /// <returns></returns>
-        public Task<List<HistoryObject>> GetHistory(string type = null, string id = null, DateTime? start = null, DateTime? end = null)
+        public Task<List<WrappedMediaObject>> GetHistory(string type = null, string id = null, DateTime? start = null, DateTime? end = null)
         {
             string typeUrlPart = "";
             switch(type)
@@ -43,7 +43,7 @@ namespace ApiLibs.Trakt
                 default:
                     throw new Exception("Invalid type " + type);
             }
-            return MakeRequest<List<HistoryObject>>("sync/history/" + typeUrlPart, Call.GET, new List<Param>
+            return MakeRequest<List<WrappedMediaObject>>("sync/history/" + typeUrlPart, Call.GET, new List<Param>
             {
                 new OParam("id", id),
                 new OParam("start_at", start?.ToString("u")),

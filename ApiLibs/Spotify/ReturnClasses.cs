@@ -352,6 +352,13 @@ namespace ApiLibs.Spotify
         public Track Track { get; set; }
     }
 
+    public class TrackResponse
+    {
+        [JsonProperty("tracks")]
+        public List<Track> Tracks { get; set; }
+    }
+
+
     public class TrackResultsResponse : PagingObject
     {
         public List<Track> items { get; set; }

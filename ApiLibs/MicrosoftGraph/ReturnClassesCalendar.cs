@@ -84,6 +84,120 @@ namespace ApiLibs.MicrosoftGraph
         public string OdataNextLink { get; set; }
     }
 
+    public partial class TeamsMeeting
+    {
+        [JsonProperty("@odata.context")]
+        public Uri OdataContext { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("creationDateTime")]
+        public DateTimeOffset? CreationDateTime { get; set; }
+
+        [JsonProperty("startDateTime")]
+        public DateTimeOffset? StartDateTime { get; set; }
+
+        [JsonProperty("endDateTime")]
+        public DateTimeOffset? EndDateTime { get; set; }
+
+        [JsonProperty("joinUrl")]
+        public Uri JoinUrl { get; set; }
+
+        [JsonProperty("joinWebUrl")]
+        public Uri JoinWebUrl { get; set; }
+
+        [JsonProperty("subject")]
+        public string Subject { get; set; }
+
+        [JsonProperty("isBroadcast")]
+        public bool? IsBroadcast { get; set; }
+
+        [JsonProperty("autoAdmittedUsers")]
+        public string AutoAdmittedUsers { get; set; }
+
+        [JsonProperty("outerMeetingAutoAdmittedUsers")]
+        public object OuterMeetingAutoAdmittedUsers { get; set; }
+
+        [JsonProperty("capabilities")]
+        public List<object> Capabilities { get; set; }
+
+        [JsonProperty("videoTeleconferenceId")]
+        public object VideoTeleconferenceId { get; set; }
+
+        [JsonProperty("externalId")]
+        public object ExternalId { get; set; }
+
+        [JsonProperty("audioConferencing")]
+        public object AudioConferencing { get; set; }
+
+        [JsonProperty("meetingInfo")]
+        public object MeetingInfo { get; set; }
+
+        [JsonProperty("participants")]
+        public Participants Participants { get; set; }
+
+        [JsonProperty("chatInfo")]
+        public ChatInfo ChatInfo { get; set; }
+
+        [JsonProperty("joinInformation")]
+        public JoinInformation JoinInformation { get; set; }
+    }
+
+    public partial class ChatInfo
+    {
+        [JsonProperty("threadId")]
+        public string ThreadId { get; set; }
+
+        [JsonProperty("messageId")]
+        public string MessageId { get; set; }
+
+        [JsonProperty("replyChainMessageId")]
+        public object ReplyChainMessageId { get; set; }
+    }
+
+    public partial class JoinInformation
+    {
+        [JsonProperty("content")]
+        public string Content { get; set; }
+
+        [JsonProperty("contentType")]
+        public string ContentType { get; set; }
+    }
+
+    public partial class Participants
+    {
+        [JsonProperty("organizer")]
+        public Organizer Organizer { get; set; }
+
+        [JsonProperty("attendees")]
+        public List<object> Attendees { get; set; }
+    }
+
+    public partial class Organizer
+    {
+        [JsonProperty("upn")]
+        public string Upn { get; set; }
+
+        [JsonProperty("identity")]
+        public Dictionary<string, Identity> Identity { get; set; }
+    }
+
+    public partial class Identity
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("displayName")]
+        public object DisplayName { get; set; }
+
+        [JsonProperty("tenantId")]
+        public string TenantId { get; set; }
+
+        [JsonProperty("identityProvider")]
+        public string IdentityProvider { get; set; }
+    }
+
     public partial class Event
     {
         [JsonProperty("@odata.id")]
@@ -174,7 +288,7 @@ namespace ApiLibs.MicrosoftGraph
         public EventTime Start { get; set; }
 
         [JsonProperty("End")]
-        public EventTime EventTime { get; set; }
+        public EventTime End { get; set; }
 
         [JsonProperty("Location")]
         public Location Location { get; set; }

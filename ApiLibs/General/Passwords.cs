@@ -1,4 +1,5 @@
 
+using Martijn.Extensions.Memory;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -88,14 +89,14 @@ namespace ApiLibs.General
         public string WunderlistId { get => GetPasssword("WunderlistId"); set => AddPassword("WunderlistId", value); }
         public string WunderlistSecret { get => GetPasssword("WunderlistSecret"); set => AddPassword("WunderlistSecret", value); }
 
-        internal Memory mem;
+        internal AsyncMemory mem;
 
         public Task WriteToFile()
         {
-            return WritePasswords(this);
+            return mem.Write(Passwords.FileName, passwords);
         }
 
-        public static async Task<Passwords> ReadPasswords(Memory mem = null)
+        public static async Task<Passwords> ReadPasswords(AsyncMemory mem = null)
         {
             mem = mem ?? new Memory
             {
@@ -107,13 +108,6 @@ namespace ApiLibs.General
         }
 
 
-        public static async Task WritePasswords(Passwords pass)
-        {
-            Memory mem = new Memory()
-            {
-                Application = "Laurentia"
-            };
-            await mem.Write(Passwords.FileName, pass.passwords);
-        }
+        
     }
 }

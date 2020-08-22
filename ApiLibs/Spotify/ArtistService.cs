@@ -30,6 +30,8 @@ namespace ApiLibs.Spotify
             })).artists;
         }
 
+        public Task<List<Track>> GetTopTracks(Artist artist, RegionInfo info = null) => GetTopTracks(artist.Id, info);
+
         public async Task<List<Album>> GetAlbumFromArtist(Artist artist, string includeGroups = null, int? limit = null, int? offset = null)
         {
             return await GetAlbumFromArtist(artist.Id, includeGroups, limit, offset);
@@ -45,9 +47,11 @@ namespace ApiLibs.Spotify
             })).items;
         }
 
-        public async Task<List<Track>> GetTopTracks(string artistId)
+        public async Task<List<Track>> GetTopTracks(string artistId, RegionInfo info = null)
         {
-            return (await MakeRequest<TrackResultsResponse>("artists/" + artistId + "/top-tracks")).items;
+            return (await MakeRequest<TrackResponse>("artists/" + artistId + "/top-tracks", parameters: new List<Param> {
+                new Param("country", info?.TwoLetterISORegionName ?? "from_token"),
+            })).Tracks;
         }
 
         public async Task<List<Artist>> GetRelatedArtists(string id)

@@ -22,10 +22,10 @@ namespace ApiLibs.MicrosoftGraph
         public string Id { get; set; }
 
         [JsonProperty("createdDateTime")]
-        public DateTimeOffset CreatedDateTime { get; set; }
+        public DateTimeOffset? CreatedDateTime { get; set; }
 
         [JsonProperty("lastModifiedDateTime")]
-        public DateTimeOffset LastModifiedDateTime { get; set; }
+        public DateTimeOffset? LastModifiedDateTime { get; set; }
 
         [JsonProperty("changeKey")]
         public string ChangeKey { get; set; }

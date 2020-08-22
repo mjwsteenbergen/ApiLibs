@@ -9,19 +9,25 @@ namespace ApiLibs.Trakt
 {
     public class TraktService : Service
     {
-        private readonly string accessToken;
-        private readonly string refreshToken;
+        private string accessToken;
+        private string refreshToken;
         private readonly string clientId;
         private readonly string clientSecret;
         private readonly string redirectUrl;
 
-        public Action<AccessObject> StoreRefreshToken;
+        public Func<AccessObject, Task> StoreRefreshToken;
 
         public UserService UserService { get; private set; }
+        public SyncService SyncService { get; private set; }
+        public MovieService MovieService { get; private set; }
+        public SearchService SearchService { get; private set; }
 
         public TraktService() : base("https://api.trakt.tv")
         {
             UserService = new UserService(this);
+            SyncService = new SyncService(this);
+            MovieService = new MovieService(this);
+            SearchService = new SearchService(this);
         }
 
         public TraktService(string accessToken, string refreshToken, string clientId, string clientSecret, string redirectUrl) : this()
@@ -69,8 +75,8 @@ namespace ApiLibs.Trakt
                 }
                 if(StoreRefreshToken != null)
                 {
-                    var res = await RefreshAccessToken(refreshToken);
-                    StoreRefreshToken(res);
+                    var res = await RefreshAccessToken();
+                    await StoreRefreshToken(res);
                     return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
                 } 
                 else
@@ -81,12 +87,9 @@ namespace ApiLibs.Trakt
 
         }
 
-        public async Task<AccessObject> RefreshAccessToken(string refreshToken)
+        public async Task<AccessObject> RefreshAccessToken()
         {
-            if (string.IsNullOrEmpty(refreshToken))
-            {
-                throw new ArgumentException($"{nameof(refreshToken)} is null");
-            }
+           RemoveStandardHeader("Authorization");
 
             var obj = await MakeRequest<AccessObject>("oauth/token", Call.POST,
                 content: new
@@ -95,8 +98,10 @@ namespace ApiLibs.Trakt
                     client_id = clientId,
                     client_secret = clientSecret,
                     redirect_uri = redirectUrl,
-                    grant_type = "authorization_code"
+                    grant_type = "refresh_token"
                 });
+            this.accessToken = obj.AccessToken;
+            this.refreshToken = obj.RefreshToken;
             AddStandardHeader("Authorization", $"Bearer {obj.AccessToken}");
             return obj;
         }

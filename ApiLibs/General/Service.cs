@@ -212,8 +212,14 @@ namespace ApiLibs
             {
                 return (T) (object) text;
             }
-
-            T returnObj = JsonConvert.DeserializeObject<T>(text);
+            T returnObj;
+            try {
+                returnObj = JsonConvert.DeserializeObject<T>(text);
+            } catch(Exception e)
+            {
+                Print(text);
+                throw;
+            }
             if (returnObj is ObjectSearcher)
             {
                 //Enable better OOP

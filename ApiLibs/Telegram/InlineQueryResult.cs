@@ -216,6 +216,6 @@ namespace ApiLibs.Telegram
 
     public enum ParseMode
     {
-        Markdown, HTML
+        Markdown, HTML, MarkdownV2
     }
 }

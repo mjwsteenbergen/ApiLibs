@@ -20,7 +20,7 @@ namespace ApiLibs.Todoist
         /// </summary>
         /// <param name="todoistKey"></param>
         /// <param name="todoistUserAgent"></param>
-        public TodoistService(string todoistKey, string todoistUserAgent) : base("https://todoist.com/api/v8/")
+        public TodoistService(string todoistKey, string todoistUserAgent) : base("https://api.todoist.com/sync/v8/")
         {
             AddStandardParameter(new Param("user-agent", todoistUserAgent));
             AddStandardParameter(new Param("token", todoistKey));
@@ -67,6 +67,12 @@ namespace ApiLibs.Todoist
             await Sync();
             return _syncObject.Labels.ToList();
         }
+
+        public Task UnComplete(Item item) => UnComplete(new List<Item>{ item});
+
+        public Task UnComplete(IEnumerable<Item> items) => MakeRequest<SyncResult>("sync", parameters: new List<Param> { TodoistCommand.ToParam(items.Select(i => new TodoistCommand("item_uncomplete", new ItemUpdate(i.TaskId ?? i.Id)))) });
+
+        public Task<CompletedRoot> Completed() => MakeRequest<CompletedRoot>("completed/get_all");
 
         public async Task<List<Item>> GetItems()
         {
@@ -250,6 +256,17 @@ namespace ApiLibs.Todoist
                 {
                     Id = other.Id
                 }).ToParam()
+            });
+        }
+
+        public async Task RemoveTodo(IEnumerable<Item> items)
+        {
+            var res = await MakeRequest<string>("sync", parameters: new List<Param>
+            {
+                TodoistCommand.ToParam(items.Select(other => new TodoistCommand("item_delete", new Item()
+                {
+                    Id = other.Id
+                })))
             });
         }
 

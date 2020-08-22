@@ -42,6 +42,8 @@ namespace ApiLibs.MicrosoftGraph
             return (await MakeRequest<Events>($"/me/calendars/{calendarId}/events", parameters: data.ConvertToParams())).Value;
         }
 
+        public Task<TeamsMeeting> CreateOnlineMeeting(TeamsMeeting meeting) => MakeRequest<TeamsMeeting>("me/onlineMeetings", Call.POST, content: meeting);
+
         public Task<List<Event>> GetEvents(Calendar calendar, DateTime startTime, DateTime endTime, OData data = null)
         {
             return GetEvents(calendar.Id, startTime, endTime, data);
@@ -75,7 +77,7 @@ namespace ApiLibs.MicrosoftGraph
                         id = i.Name,
                         headers = new
                         {
-                            Prefer = $"outlook.timezone=\"{(timezone ?? TimeZoneInfo.Utc).StandardName}\""
+                            Prefer = $"outlook.timezone=\"{(timezone?.StandardName) ?? "UTC"}\""
                         }
                     })
                 });
