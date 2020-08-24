@@ -33,7 +33,7 @@ namespace ApiLibs.General
         }
 
 
-        private void AddPassword(string key, string value)
+        public void AddPassword(string key, string value)
         {
             if (passwords.ContainsKey(key))
             {
