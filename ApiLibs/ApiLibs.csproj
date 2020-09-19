@@ -11,7 +11,7 @@
     <Version>1.1.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="RestSharp" Version="106.11.4" />
+    <PackageReference Include="RestSharp" Version="106.11.5" />
     <PackageReference Include="Martijn.Extensions" Version="1.14.0" /> 
   </ItemGroup>
 </Project>
