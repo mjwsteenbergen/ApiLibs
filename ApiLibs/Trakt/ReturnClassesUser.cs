@@ -7,7 +7,7 @@ namespace ApiLibs.Trakt
 {
     public class MediaRequestObject : MediaExtended {
         [JsonProperty("watched_at")]
-        public DateTimeOffset WatchedAt { get; set; }
+        public DateTimeOffset? WatchedAt { get; set; }
     }
 
     public class Movie : MediaExtended {
@@ -135,16 +135,16 @@ namespace ApiLibs.Trakt
         public long? Rating { get; set; }
 
         [JsonProperty("votes")]
-        public long Votes { get; set; }
+        public long? Votes { get; set; }
 
         [JsonProperty("comment_count")]
-        public long CommentCount { get; set; }
+        public long? CommentCount { get; set; }
 
         [JsonProperty("available_translations")]
         public List<string> AvailableTranslations { get; set; }
 
         [JsonProperty("updated_at")]
-        public DateTimeOffset UpdatedAt { get; set; }
+        public DateTimeOffset? UpdatedAt { get; set; }
 
         [JsonProperty("overview")]
         public string Overview { get; set; }
