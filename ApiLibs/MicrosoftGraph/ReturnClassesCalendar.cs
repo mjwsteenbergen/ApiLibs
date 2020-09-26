@@ -140,8 +140,22 @@ namespace ApiLibs.MicrosoftGraph
         [JsonProperty("chatInfo")]
         public ChatInfo ChatInfo { get; set; }
 
+        [JsonProperty("lobbyBypassSettings")]
+        public LobbyBypassSettings LobbyBypassSettings { get; set; }
+
         [JsonProperty("joinInformation")]
         public JoinInformation JoinInformation { get; set; }
+
+        [JsonProperty("allowedPresenters")]
+        public string AllowedPresenters { get; set; }
+    }
+
+    public class LobbyBypassSettings {
+        [JsonProperty("scope")]
+        public string Scope { get; set; }
+
+        [JsonProperty("isDialInBypassEnabled")]
+        public bool IsDialInBypassEnabled { get; set; }
     }
 
     public partial class ChatInfo

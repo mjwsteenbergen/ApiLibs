@@ -23,6 +23,7 @@ namespace ApiLibs.MicrosoftGraph
         public MailService MailService { get; }
         public TodoService TodoService { get; }
         public OneNoteService OneNoteService { get; set; }
+        public CloudCommunicationsService CloudCommunicationsService { get; }
 
         private static readonly string basePath = "https://graph.microsoft.com/";
 
@@ -37,6 +38,7 @@ namespace ApiLibs.MicrosoftGraph
             MailService = new MailService(this);
             TodoService = new TodoService(this);
             OneNoteService = new OneNoteService(this);
+            CloudCommunicationsService = new CloudCommunicationsService(this);
         }
 
         /// <summary>
