@@ -63,6 +63,7 @@ namespace ApiLibs.MicrosoftGraph
             MailService = new MailService(this);
             TodoService = new TodoService(this);
             OneNoteService = new OneNoteService(this);
+            CloudCommunicationsService = new CloudCommunicationsService(this);
         }
 
         public async Task ConvertToToken(string clientId, string clientSecret, string username, string password, string TenantID)
