@@ -78,6 +78,9 @@ namespace ApiLibs.MicrosoftGraph
         [JsonProperty("lastModifiedDateTime")]
         public DateTimeOffset LastModifiedDateTime { get; set; }
 
+        [JsonProperty("completedDateTime")]
+        public DatetimeTimeZone CompletedDateTime { get; set; }
+
         [JsonProperty("id")]
         public string Id { get; set; }
 

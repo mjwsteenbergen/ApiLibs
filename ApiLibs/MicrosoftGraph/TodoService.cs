@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -79,9 +80,13 @@ namespace ApiLibs.MicrosoftGraph
             return Delete(todo.Id);
         }
 
-        public async Task Complete(string id)
+        public Task Complete(string id)
         {
-            await HandleRequest($"me/todo/tasks('{id}')/complete", Call.POST);
+            return Update(id, new Todo {
+                CompletedDateTime = new DatetimeTimeZone {
+                    DateTime = DateTimeOffset.UtcNow
+                }
+            });
         }
 
         public Task Complete(Todo todo)
