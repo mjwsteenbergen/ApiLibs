@@ -59,39 +59,38 @@ namespace ApiLibs.MicrosoftGraph
             return MakeRequest<Todo>($"me/todo{id}/tasks", Call.POST, content: todo);
         }
 
-        public Task<Todo> Update(string id, Todo todo)
+        public Task<Todo> Update(string id, string listId, Todo todo)
         {
-            return MakeRequest<Todo>($"me/todo/tasks('{id}')", Call.PATCH, content: todo);
+            return MakeRequest<Todo>($"me/todo/lists/{listId}/tasks/{id}", Call.PATCH, content: todo);
         }
 
 
-        public Task<Todo> Update(Todo original, Todo newValues)
+        public Task<Todo> Update(Todo original, string listId, Todo newValues)
         {
-            return Update(original.Id, newValues);
+            return Update(original.Id, listId, newValues);
         }
 
-        public Task Delete(string id)
+        public Task Delete(string id, string listId)
         {
-            return HandleRequest($"me/todo/tasks('{id}')", Call.DELETE, statusCode: HttpStatusCode.NoContent);
+            return HandleRequest($"me/todo/lists/{listId}/tasks/{id}", Call.DELETE, statusCode: HttpStatusCode.NoContent);
         }
 
-        public Task Delete(Todo todo)
-        {
-            return Delete(todo.Id);
-        }
+        public Task Delete(Todo todo, TaskFolder listId) => Delete(todo.Id, listId.Id);
+        
+        public Task Complete(Todo other, TaskFolder listId) => Complete(other, listId.Id);
 
-        public Task Complete(string id)
+        public Task Complete(string id, string listId)
         {
-            return Update(id, new Todo {
+            return Update(id, listId, new Todo {
                 CompletedDateTime = new DatetimeTimeZone {
                     DateTime = DateTimeOffset.UtcNow
                 }
             });
         }
 
-        public Task Complete(Todo todo)
+        public Task Complete(Todo todo, string listId)
         {
-            return Complete(todo.Id);
+            return Complete(todo.Id, listId);
         }
 
         public Task CreateFolder(TaskFolder folder)
