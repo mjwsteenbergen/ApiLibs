@@ -44,13 +44,13 @@ namespace ApiLibsTest.MicrosoftGraph
         [Test]
         public async Task DeleteTasks()
         {
-            await todo.Delete(await CreateItem(new Todo{Subject = "Delete"}));
+            await todo.Delete(await CreateItem(new Todo{ Title = "Delete"}));
         }
 
         [Test]
         public async Task CompleteTasks()
         {
-            await todo.Complete(await CreateItem(new Todo { Subject = "Complete" }));
+            await todo.Complete(await CreateItem(new Todo { Title = "Complete" }));
         }
     }
 }
