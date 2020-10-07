@@ -87,6 +87,9 @@ namespace ApiLibs.MicrosoftGraph
         [JsonProperty("dueDateTime")]
         public DatetimeTimeZone DueDateTime { get; set; }
 
+        [JsonProperty("reminderDateTime")]
+        public DatetimeTimeZone ReminderDateTime { get; set; }
+
         [JsonProperty("linkedResources")]
         public List<LinkedResource> LinkedResources { get; set; }
 
