@@ -14,7 +14,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public async Task<List<TaskFolder>> GetFolders()
         {
-            return (await MakeRequest<FolderResult>("me/todo/taskFolders?$top=200")).Value;
+            return (await MakeRequest<FolderResult>("me/todo/lists?$top=200")).Value;
         }
 
         public async Task<TaskFolder> GetFolder(string name)
@@ -34,13 +34,13 @@ namespace ApiLibs.MicrosoftGraph
 
         public async Task<List<Todo>> GetTasks(string folderId)
         {
-            return (await MakeRequest<TaskResult>($"me/todo/taskFolders/{folderId}/tasks?$top=200")).Value;
+            return (await MakeRequest<TaskResult>($"me/todo/lists/{folderId}/tasks?$top=200")).Value;
         }
 
         public Task<Todo> Create(string content, TaskFolder folder)
         {
             return Create(new Todo {
-                Subject = content
+                Title = content
             }, folder?.Id);
         }
 
@@ -53,7 +53,7 @@ namespace ApiLibs.MicrosoftGraph
         {
             if (id != null)
             {
-                id = "/taskFolders/" + id;
+                id = "/lists/" + id;
             }
             return MakeRequest<Todo>($"me/todo{id}/tasks", Call.POST, content: todo);
         }
@@ -91,7 +91,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task CreateFolder(TaskFolder folder)
         {
-            return MakeRequest<TaskFolder>("me/todo/taskFolders", Call.POST, content: folder);
+            return MakeRequest<TaskFolder>("me/todo/lists", Call.POST, content: folder);
         }
 
         public Task CreateFolder(string projectName)
@@ -109,7 +109,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task RemoveFolder(string taskFolderId)
         {
-            return HandleRequest($"me/todo/taskFolders('{taskFolderId}')", Call.DELETE, statusCode: HttpStatusCode.NoContent);
+            return HandleRequest($"me/todo/lists('{taskFolderId}')", Call.DELETE, statusCode: HttpStatusCode.NoContent);
         }
     }
 }

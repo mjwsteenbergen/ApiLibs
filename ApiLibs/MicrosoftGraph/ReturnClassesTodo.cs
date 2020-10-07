@@ -54,71 +54,41 @@ namespace ApiLibs.MicrosoftGraph
 
     public partial class Todo
     {
+        [JsonProperty("@odata.context")]
+        public Uri OdataContext { get; set; }
+
         [JsonProperty("@odata.etag")]
         public string OdataEtag { get; set; }
-
-        [JsonProperty("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("createdDateTime")]
-        public DateTimeOffset? CreatedDateTime { get; set; }
-
-        [JsonProperty("lastModifiedDateTime")]
-        public DateTimeOffset? LastModifiedDateTime { get; set; }
-
-        [JsonProperty("changeKey")]
-        public string ChangeKey { get; set; }
-
-        [JsonProperty("categories")]
-        public List<object> Categories { get; set; }
-
-        [JsonProperty("assignedTo")]
-        public string AssignedTo { get; set; }
-
-        [JsonProperty("hasAttachments")]
-        public bool? HasAttachments { get; set; }
 
         [JsonProperty("importance")]
         public string Importance { get; set; }
 
         [JsonProperty("isReminderOn")]
-        public bool? IsReminderOn { get; set; }
-
-        [JsonProperty("owner")]
-        public string Owner { get; set; }
-
-        [JsonProperty("parentFolderId")]
-        public string ParentFolderId { get; set; }
-
-        [JsonProperty("sensitivity")]
-        public string Sensitivity { get; set; }
+        public bool IsReminderOn { get; set; }
 
         [JsonProperty("status")]
         public string Status { get; set; }
 
-        [JsonProperty("subject")]
-        public string Subject { get; set; }
+        [JsonProperty("title")]
+        public string Title { get; set; }
 
-        [JsonProperty("completedDateTime")]
-        public DatetimeTimeZone CompletedDateTime { get; set; }
+        [JsonProperty("createdDateTime")]
+        public DateTimeOffset CreatedDateTime { get; set; }
+
+        [JsonProperty("lastModifiedDateTime")]
+        public DateTimeOffset LastModifiedDateTime { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("body")]
+        public Body Body { get; set; }
 
         [JsonProperty("dueDateTime")]
         public DatetimeTimeZone DueDateTime { get; set; }
 
-        [JsonProperty("recurrence")]
-        public object Recurrence { get; set; }
-
-        [JsonProperty("reminderDateTime")]
-        public DatetimeTimeZone ReminderDateTime { get; set; }
-
-        [JsonProperty("startDateTime")]
-        public DatetimeTimeZone StartDateTime { get; set; }
-
         [JsonProperty("linkedResources")]
         public List<LinkedResource> LinkedResources { get; set; }
-
-        [JsonProperty("body")]
-        public TaskBody Body { get; set; }
 
         public override bool Equals(object obj)
         {
