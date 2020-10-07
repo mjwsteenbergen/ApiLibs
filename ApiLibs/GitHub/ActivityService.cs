@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibs.GitHub
 {
-    public class ActivityService : SubService
+    public class ActivityService : SubService<GitHubService>
     {
         public ActivityService(GitHubService service) : base(service)
         {

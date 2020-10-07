@@ -18,20 +18,26 @@ namespace ApiLibs.MicrosoftGraph
 
     public partial class TaskFolder
     {
+        [JsonProperty("@odata.context")]
+        public Uri OdataContext { get; set; }
+
+        [JsonProperty("@odata.etag")]
+        public string OdataEtag { get; set; }
+
+        [JsonProperty("displayName")]
+        public string DisplayName { get; set; }
+
+        [JsonProperty("isOwner")]
+        public bool IsOwner { get; set; }
+
+        [JsonProperty("isShared")]
+        public bool IsShared { get; set; }
+
+        [JsonProperty("wellknownListName")]
+        public string WellknownListName { get; set; }
+
         [JsonProperty("id")]
         public string Id { get; set; }
-
-        [JsonProperty("changeKey")]
-        public string ChangeKey { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("isDefaultFolder")]
-        public bool IsDefaultFolder { get; set; }
-
-        [JsonProperty("parentGroupKey")]
-        public Guid ParentGroupKey { get; set; }
     }
 
     public partial class TaskResult
@@ -108,6 +114,9 @@ namespace ApiLibs.MicrosoftGraph
         [JsonProperty("startDateTime")]
         public DatetimeTimeZone StartDateTime { get; set; }
 
+        [JsonProperty("linkedResources")]
+        public List<LinkedResource> LinkedResources { get; set; }
+
         [JsonProperty("body")]
         public TaskBody Body { get; set; }
 
@@ -116,6 +125,26 @@ namespace ApiLibs.MicrosoftGraph
             return obj is Todo todo &&
                    Id == todo.Id;
         }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+    }
+
+    public partial class LinkedResource
+    {
+        [JsonProperty("webUrl")]
+        public Uri WebUrl { get; set; }
+
+        [JsonProperty("applicationName")]
+        public string ApplicationName { get; set; }
+
+        [JsonProperty("displayName")]
+        public string DisplayName { get; set; }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
     }
 
     public partial class TaskBody

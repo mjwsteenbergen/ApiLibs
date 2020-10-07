@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibs.Trakt
 {
-    public class SyncService : SubService
+    public class SyncService : SubService<TraktService>
     {
         public SyncService(TraktService service) : base(service)
         {

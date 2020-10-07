@@ -208,9 +208,9 @@ namespace ApiLibs.MicrosoftGraph
         }
     }
 
-    public abstract class GraphSubService : SubService
+    public abstract class GraphSubService : SubService<GraphService>
     {
-        public GraphSubService(Service service, string version) : base(service)
+        public GraphSubService(GraphService service, string version) : base(service)
         {
             Version = version;
         }

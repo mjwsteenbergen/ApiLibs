@@ -9,7 +9,7 @@ using RestSharp;
 
 namespace ApiLibs.Spotify
 {
-    public class PlayerService : SubService
+    public class PlayerService : SubService<SpotifyService>
     {
         public PlayerService(SpotifyService service) : base(service) { }
 

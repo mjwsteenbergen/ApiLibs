@@ -5,7 +5,7 @@ using ApiLibs.General;
 
 namespace ApiLibs.Reddit
 {
-    public class PostService : SubService
+    public class PostService : SubService<RedditService>
     {
         private string _user;
 

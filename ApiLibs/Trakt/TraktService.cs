@@ -1,4 +1,4 @@
-﻿using ApiLibs.General;
+using ApiLibs.General;
 using System;
 using System.Collections.Generic;
 using System.Net;

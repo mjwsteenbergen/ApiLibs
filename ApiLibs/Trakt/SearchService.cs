@@ -7,7 +7,7 @@ using Martijn.Extensions.Linq;
 
 namespace ApiLibs.Trakt
 {
-    public class SearchService : SubService
+    public class SearchService : SubService<TraktService>
     {
         public SearchService(TraktService service) : base(service)
         {

@@ -1,4 +1,4 @@
-﻿using ApiLibs.General;
+using ApiLibs.General;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibs.Trakt
 {
-    public class UserService : SubService
+    public class UserService : SubService<TraktService>
     {
         public UserService(TraktService service) : base(service)
         {

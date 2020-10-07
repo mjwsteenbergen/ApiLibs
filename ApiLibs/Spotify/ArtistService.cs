@@ -8,9 +8,9 @@ using ApiLibs.General;
 
 namespace ApiLibs.Spotify
 {
-    public class ArtistService : SubService
+    public class ArtistService : SubService<SpotifyService>
     {
-        public ArtistService(Service service) : base(service)
+        public ArtistService(SpotifyService service) : base(service)
         {
         }
 

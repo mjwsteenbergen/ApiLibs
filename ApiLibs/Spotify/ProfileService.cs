@@ -7,9 +7,9 @@ using ApiLibs.General;
 
 namespace ApiLibs.Spotify
 {
-    public class ProfileService : SubService
+    public class ProfileService : SubService<SpotifyService>
     {
-        public ProfileService(Service service) : base(service)
+        public ProfileService(SpotifyService service) : base(service)
         {
         }
 

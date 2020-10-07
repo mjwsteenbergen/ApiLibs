@@ -8,9 +8,9 @@ using RestSharp;
 
 namespace ApiLibs.Spotify
 {
-    public class TrackService : SubService
+    public class TrackService : SubService<SpotifyService>
     {
-        public TrackService(Service service) : base(service) { }
+        public TrackService(SpotifyService service) : base(service) { }
 
         public async Task<Track> GetTrack(string id)
         {

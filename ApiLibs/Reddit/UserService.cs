@@ -6,7 +6,7 @@ using ApiLibs.General;
 
 namespace ApiLibs.Reddit
 {
-    public class UserService : SubService
+    public class UserService : SubService<RedditService>
     {
         private readonly string _user;
 

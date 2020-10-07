@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibs.Trakt
 {
-    public class MovieService : SubService
+    public class MovieService : SubService<TraktService>
     {
         public MovieService(TraktService service) : base(service)
         {

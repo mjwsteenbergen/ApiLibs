@@ -6,35 +6,25 @@ using ApiLibs.General;
 
 namespace ApiLibs.MicrosoftGraph
 {
-    public class TodoService : SubService
+    public class TodoService : GraphSubService
     {
-        public TodoService(GraphService service) : base(service)
+        public TodoService(GraphService service) : base(service, "beta")
         {
-        }
-
-        protected override Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
-        {
-            return base.MakeRequest<T>("beta/" + url, m, parameters, header, content, statusCode);
-        }
-
-        protected override Task<string> HandleRequest(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
-        {
-            return base.HandleRequest("beta/" + url, m, parameters, header, content, statusCode);
         }
 
         public async Task<List<TaskFolder>> GetFolders()
         {
-            return (await MakeRequest<FolderResult>("me/outlook/taskFolders?$top=200")).Value;
+            return (await MakeRequest<FolderResult>("me/todo/taskFolders?$top=200")).Value;
         }
 
         public async Task<TaskFolder> GetFolder(string name)
         {
-            return (await GetFolders()).First(i => i.Name == name);
+            return (await GetFolders()).First(i => i.DisplayName == name);
         }
 
         public async Task<List<Todo>> GetTasks()
         {
-            return (await MakeRequest<TaskResult>("me/outlook/tasks?$top=200")).Value;
+            return (await MakeRequest<TaskResult>("me/todo/tasks?$top=200")).Value;
         }
 
         public Task<List<Todo>> GetTasks(TaskFolder folder)
@@ -44,7 +34,14 @@ namespace ApiLibs.MicrosoftGraph
 
         public async Task<List<Todo>> GetTasks(string folderId)
         {
-            return (await MakeRequest<TaskResult>($"me/outlook/taskFolders/{folderId}/tasks?$top=200")).Value;
+            return (await MakeRequest<TaskResult>($"me/todo/taskFolders/{folderId}/tasks?$top=200")).Value;
+        }
+
+        public Task<Todo> Create(string content, TaskFolder folder)
+        {
+            return Create(new Todo {
+                Subject = content
+            }, folder?.Id);
         }
 
         public Task<Todo> Create(Todo todo, TaskFolder folder)
@@ -58,12 +55,12 @@ namespace ApiLibs.MicrosoftGraph
             {
                 id = "/taskFolders/" + id;
             }
-            return MakeRequest<Todo>($"me/outlook{id}/tasks", Call.POST, content: todo);
+            return MakeRequest<Todo>($"me/todo{id}/tasks", Call.POST, content: todo);
         }
 
         public Task<Todo> Update(string id, Todo todo)
         {
-            return MakeRequest<Todo>($"me/outlook/tasks('{id}')", Call.PATCH, content: todo);
+            return MakeRequest<Todo>($"me/todo/tasks('{id}')", Call.PATCH, content: todo);
         }
 
 
@@ -74,7 +71,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task Delete(string id)
         {
-            return HandleRequest($"me/outlook/tasks('{id}')", Call.DELETE, statusCode: HttpStatusCode.NoContent);
+            return HandleRequest($"me/todo/tasks('{id}')", Call.DELETE, statusCode: HttpStatusCode.NoContent);
         }
 
         public Task Delete(Todo todo)
@@ -84,7 +81,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public async Task Complete(string id)
         {
-            await HandleRequest($"me/outlook/tasks('{id}')/complete", Call.POST);
+            await HandleRequest($"me/todo/tasks('{id}')/complete", Call.POST);
         }
 
         public Task Complete(Todo todo)
@@ -94,14 +91,14 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task CreateFolder(TaskFolder folder)
         {
-            return MakeRequest<TaskFolder>("me/outlook/taskFolders", Call.POST, content: folder);
+            return MakeRequest<TaskFolder>("me/todo/taskFolders", Call.POST, content: folder);
         }
 
         public Task CreateFolder(string projectName)
         {
             return CreateFolder(new TaskFolder
             {
-                Name = projectName
+                DisplayName = projectName
             });
         }
 
@@ -112,7 +109,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task RemoveFolder(string taskFolderId)
         {
-            return HandleRequest($"me/outlook/taskFolders('{taskFolderId}')", Call.DELETE, statusCode: HttpStatusCode.NoContent);
+            return HandleRequest($"me/todo/taskFolders('{taskFolderId}')", Call.DELETE, statusCode: HttpStatusCode.NoContent);
         }
     }
 }
