@@ -84,7 +84,8 @@ namespace ApiLibs.MicrosoftGraph
             return Update(id, listId, new Todo {
                 CompletedDateTime = new DatetimeTimeZone {
                     DateTime = DateTimeOffset.UtcNow
-                }
+                },
+                Status = "completed"
             });
         }
 
