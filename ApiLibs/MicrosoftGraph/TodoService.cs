@@ -28,14 +28,18 @@ namespace ApiLibs.MicrosoftGraph
             return (await MakeRequest<TaskResult>("me/todo/tasks?$top=200")).Value;
         }
 
-        public Task<List<Todo>> GetTasks(TaskFolder folder)
+        public Task<List<Todo>> GetTasks(TaskFolder folder, bool includeCompleted = false)
         {
             return GetTasks(folder.Id);
         }
 
-        public async Task<List<Todo>> GetTasks(string folderId)
+        public async Task<List<Todo>> GetTasks(string folderId, bool includeCompleted = false)
         {
-            return (await MakeRequest<TaskResult>($"me/todo/lists/{folderId}/tasks?$top=200")).Value;
+            var items = (await MakeRequest<TaskResult>($"me/todo/lists/{folderId}/tasks?$top=200")).Value;
+            if(!includeCompleted) {
+                items = items.Where(i => i.CompletedDateTime == null).ToList();
+            }
+            return items;
         }
 
         public Task<Todo> Create(string content, TaskFolder folder)
