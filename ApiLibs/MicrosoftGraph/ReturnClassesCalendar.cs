@@ -458,6 +458,11 @@ namespace ApiLibs.MicrosoftGraph
 
         [JsonProperty("Longitude", NullValueHandling = NullValueHandling.Ignore)]
         public double? Longitude { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Latitude} {Longitude}";
+        }
     }
 
     public partial class Organizer
