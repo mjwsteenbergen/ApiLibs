@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 // ReSharper disable InconsistentNaming
 
 namespace ApiLibs.Spotify
 {
-    
+
 
     public partial class Playlist
     {
@@ -235,13 +232,17 @@ namespace ApiLibs.Spotify
         [JsonProperty("external_urls")]
         public ExternalUrls ExternalUrls { get; set; }
 
-        public Followers followers { get; set; }
-        public List<string> genres { get; set; }
+        [JsonProperty("followers")]
+        public Followers Followers { get; set; }
+        
+        [JsonProperty("genres")]
+        public List<string> Genres { get; set; }
 
         [JsonProperty("href")]
         public string Href { get; set; }
 
-        public List<Image> images { get; set; }
+        [JsonProperty("images")]
+        public List<Image> Images { get; set; }
 
         [JsonProperty("id")]
         public string Id { get; set; }
@@ -249,8 +250,8 @@ namespace ApiLibs.Spotify
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        public int popularity { get; set; }
-
+        [JsonProperty("popularity")]
+        public int Popularity { get; set; }
 
         [JsonProperty("type")]
         public string Type { get; set; }
