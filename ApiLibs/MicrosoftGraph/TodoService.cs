@@ -98,7 +98,7 @@ namespace ApiLibs.MicrosoftGraph
             return Complete(todo.Id, listId);
         }
 
-        public Task CreateFolder(TaskFolder folder)
+        public Task<TaskFolder> CreateFolder(TaskFolder folder)
         {
             return MakeRequest<TaskFolder>("me/todo/lists", Call.POST, content: folder);
         }
