@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Martijn.Extensions.Linq;
 using RestSharp;
 using RestSharp.Authenticators;
 using RestSharp.Authenticators.OAuth;
-using RestSharp.Authenticators.OAuth.Extensions;
 
 namespace ApiLibs.Instapaper
 {
@@ -63,17 +64,18 @@ namespace ApiLibs.Instapaper
         /// <param name="folderId">Optional. Possible values are unread (default), starred, archive, or a folder_id value from /api/1.1/folders/lists</param>
         /// <param name="limit">Optional. A number between 1 and 500, default 25.</param>
         /// <returns></returns>
-        public async Task<List<Bookmark>> GetBookmarks(string folderId = null, int? limit = null) => (await GetAllBookmarkInfo(folderId, limit)).bookmarks;
+        public async Task<List<Bookmark>> GetBookmarks(string folderId = null, int? limit = null, IEnumerable<int> have = null) => (await GetAllBookmarkInfo(folderId, limit, have)).bookmarks;
 
-        public Task<List<Bookmark>> GetBookmarks(int limit, Folder folder)
+        public Task<List<Bookmark>> GetBookmarks(int limit, Folder folder, IEnumerable<int> have = null)
         {
-            return GetBookmarks(folder.folder_id.ToString(), limit);
+            return GetBookmarks(folder.folder_id.ToString(), limit, have);
         }
 
-        public Task<BookmarksObject> GetAllBookmarkInfo(string folderId = null, int? limit = null) => MakeRequest<BookmarksObject>("bookmarks/list", Call.POST, parameters: new List<Param>
+        public Task<BookmarksObject> GetAllBookmarkInfo(string folderId = null, int? limit = null, IEnumerable<int> have = null) => MakeRequest<BookmarksObject>("bookmarks/list", Call.POST, parameters: new List<Param>
             {
                 new OParam("folder_id", folderId),
-                new OParam("limit", limit?.ToString())
+                new OParam("limit", limit?.ToString()),
+                new OParam("have", have?.Select(i => i.ToString()).Combine(","))
             });
 
         public Task<Bookmark> UpdateReadProgress(int bookmarkId, double progress, DateTime? time = null) => MakeRequest<Bookmark>("bookmarks/update_read_progress", Call.POST, parameters: new List<Param> {
