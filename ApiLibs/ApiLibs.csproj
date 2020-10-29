@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <PackageReleaseNotes>To see what is new, go to https://github.com/mjwsteenbergen/ApiLibs</PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/mjwsteenbergen/ApiLibs</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mjwsteenbergen/ApiLibs.git</RepositoryUrl>
