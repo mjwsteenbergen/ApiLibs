@@ -42,12 +42,14 @@ namespace ApiLibs.MicrosoftGraph
             return items;
         }
 
-        public Task<Todo> Create(string content, TaskFolder folder)
+        public Task<Todo> Create(string content, string folderId) => Create(new Todo
         {
-            return Create(new Todo {
-                Title = content
-            }, folder?.Id);
-        }
+            Title = content
+        }, folderId);
+
+        public Task<Todo> Create(string content, TaskFolder folder) => Create(content, folder.Id);
+
+        public Task Delete(string todoId, TaskFolder folder) => Delete(todoId, folder.Id);
 
         public Task<Todo> Create(Todo todo, TaskFolder folder)
         {

@@ -83,5 +83,12 @@ namespace ApiLibs.GitHub
             }
             return res;
         }
+
+        public Task Reopen(Issue issue)
+        {
+            ModifyIssue missue = issue.ConvertToRequest();
+            missue.state = "open";
+            return ModifyIssue(issue.Url, missue);
+        }
     }
 }
