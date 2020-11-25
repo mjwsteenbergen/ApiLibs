@@ -1,7 +1,6 @@
 ﻿using ApiLibs.General;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -39,7 +38,6 @@ namespace ApiLibs.GitHub
                 new OParam("since", since),
                 new OParam("per_page", per_page),
                 new OParam("page", page)
-
             });
         }
 
