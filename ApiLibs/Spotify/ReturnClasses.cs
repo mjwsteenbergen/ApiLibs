@@ -97,7 +97,7 @@ namespace ApiLibs.Spotify
         public string Href { get; set; }
 
         [JsonProperty("items")]
-        public List<Item> Items { get; set; }
+        public List<SavedTrack> Items { get; set; }
 
         [JsonProperty("limit")]
         public long Limit { get; set; }
@@ -115,7 +115,7 @@ namespace ApiLibs.Spotify
         public long Total { get; set; }
     }
 
-    public partial class Item
+    public partial class SavedTrack
     {
         [JsonProperty("added_at")]
         public DateTimeOffset AddedAt { get; set; }

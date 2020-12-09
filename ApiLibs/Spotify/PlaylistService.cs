@@ -11,9 +11,29 @@ namespace ApiLibs.Spotify
     {
         public PlaylistService(SpotifyService service) : base(service) { }
 
-        public async Task<PlaylistResultsResponse> GetMyPlaylists()
+        public async Task<PlaylistResultsResponse> GetMyPlaylists(int offset = 0, int limit = 50)
         {
-            return await MakeRequest<PlaylistResultsResponse>("me/playlists?offset=0&limit=50");
+            return await MakeRequest<PlaylistResultsResponse>("me/playlists", parameters: new List<Param> {
+                new Param(nameof(offset), offset),
+                new Param(nameof(limit), limit),
+            });
+        }
+
+        public async IAsyncEnumerable<Playlist> GetMyPlaylistsAsync()
+        {
+            PlaylistResultsResponse res = null;
+            int offset = 0;
+            do
+            {
+                res = await GetMyPlaylists(offset);
+                offset += 50;
+
+                foreach (var item in res.Items)
+                {
+                    yield return item;
+                }
+
+            } while(res.Items.Count != 0);
         }
 
         public async Task DeletePlaylist(string ownerId, string playlistId)

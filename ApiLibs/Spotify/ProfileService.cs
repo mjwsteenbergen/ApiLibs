@@ -74,6 +74,33 @@ namespace ApiLibs.Spotify
             })).artists;
         }
 
+        public async IAsyncEnumerable<Artist> GetFollowingArtistsAsync()
+        {
+            Artist last = null;
+            ArtistResultsResponse artistsResponse = null;
+            do {
+                artistsResponse = await GetFollowingArtists(50, last?.Id);
+                foreach (var item in artistsResponse.items)
+                {
+                    last = item;
+                    yield return item;
+                }
+            } while(artistsResponse.items.Count > 0);
+            // var first = await GetFollowingArtists();
+
+
+            // foreach(var item in first.items)
+            // {
+            //     last = item;
+            //     yield return item;
+            // }
+
+            // for (int i = 0; i < first.Total; i += first.Limit)
+            // {
+                
+            // }
+        }
+
         public async Task<List<Artist>> GetTopArtists()
         {
             return (await MakeRequest<ArtistResultsResponse>("me/top/tracks")).items;
@@ -89,21 +116,6 @@ namespace ApiLibs.Spotify
         public async Task<List<Track>> GetRecentlyPlayed()
         {
             return (await MakeRequest<TrackResultsResponse>("me/player/recently-played")).items;
-        }
-
-        public async Task<List<Track>> GetSavedTracks()
-        {
-            return (await MakeRequest<TrackResultsResponse>("me/tracks")).items;
-        }
-
-        public async Task SaveTracks(List<string> ids)
-        {
-            await HandleRequest("me/tracks" + ids.Aggregate((i,j) => i + "," + j), Call.PUT);
-        }
-
-        public async Task SaveTrack(string id)
-        {
-            await SaveTracks(new List<string> {id});
         }
     }
 }
