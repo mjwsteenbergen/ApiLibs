@@ -89,11 +89,5 @@ namespace ApiLibsTest.Spotify
         {
             Assert.NotNull(await profileService.GetRecentlyPlayed());
         }
-
-        [Test]
-        public async Task GetSavedTest()
-        {
-            Assert.NotNull(await profileService.GetSavedTracks());
-        }
     }
 }
