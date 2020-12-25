@@ -23,9 +23,17 @@ namespace ApiLibs.Trakt
 
         public Task<List<WrappedMediaObject>> GetWatchlistMovies(string sort = null) => GetWatchlist<WrappedMediaObject>("movies", sort);
         public Task<List<WrappedMediaObject>> GetWatchlistEpisode(string sort = null) => GetWatchlist<WrappedMediaObject>("episodes", sort);
+        public Task<List<WrappedMediaObject>> GetWatchlistShows(string sort = null) => GetWatchlist<WrappedMediaObject>("shows", sort);
         private Task<List<T>> GetWatchlist<T>(string type, string sort = null) => MakeRequest<List<T>>($"/sync/watchlist/{type}", parameters: new List<Param> {
             new OParam("sort", sort)
         });
+
+        // public Task<List<PlaybackProgress>> GetPlaybackProgress(DateTime? start, DateTime? end, string type = "") => MakeRequest<List<PlaybackProgress>>($"sync/playback/{type}", parameters: new List<Param> {
+        //     new OParam("start_at", start?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffZ").Replace(" ", "T")),
+        //     new OParam("end_at", end?.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fffZ").Replace(" ", "T"))
+        // });
+
+        public Task DeletePlayback(string id) => MakeRequest<string>($"sync/playback/{id}", Call.DELETE);
 
         public class SyncRequestObject {
             public List<MediaRequestObject> movies { get; set; }
