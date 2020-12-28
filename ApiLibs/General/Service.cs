@@ -23,6 +23,11 @@ namespace ApiLibs
             Client = new RestClient { BaseUrl = new Uri(hostUrl) };
         }
 
+        protected void AddStandardParameter(string name, string content)
+        {
+            AddStandardParameter(new Param(name, content));
+        }
+
         protected void AddStandardParameter(Param p)
         {
             _standardParameter.Add(p);
