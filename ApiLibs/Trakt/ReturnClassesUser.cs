@@ -94,6 +94,14 @@ namespace ApiLibs.Trakt
 
         [JsonProperty("show", NullValueHandling = NullValueHandling.Ignore)]
         public Media Show { get; set; }
+
+        [JsonProperty("season", NullValueHandling = NullValueHandling.Ignore)]
+        public SeasonSmall Season { get; set; }
+
+        public override string ToString()
+        {
+            return Movie?.Title ?? Episode?.Title ?? Show?.Title ?? "Unkown value";
+        }
     }
 
     public partial class Episode
@@ -156,10 +164,20 @@ namespace ApiLibs.Trakt
         public long? Year { get; set; }
     }
 
+    public class SeasonSmall : Media
+    {
+
+        [JsonProperty("number")]
+        public int? Number { get; set; }
+    }
+
     public partial class Media
     {
         [JsonProperty("title")]
         public string Title { get; set; }
+
+        [JsonProperty("year")]
+        public long? Year { get; set; }
 
         [JsonProperty("ids")]
         public Ids Ids { get; set; }
