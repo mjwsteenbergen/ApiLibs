@@ -140,6 +140,10 @@ namespace ApiLibs.TodoistRest
 
         public TodoistRequestTask() {}
 
+        public TodoistRequestTask(long id) {
+            Id = id;
+        }
+
     }
 
     public partial class TodoistDueDate
@@ -202,7 +206,7 @@ namespace ApiLibs.TodoistRest
         public string Content { get; set; }
 
         [JsonProperty("id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         [JsonProperty("posted")]
         public DateTimeOffset Posted { get; set; }
