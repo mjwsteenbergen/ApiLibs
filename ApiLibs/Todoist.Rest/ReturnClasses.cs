@@ -83,7 +83,7 @@ namespace ApiLibs.TodoistRest
         public long? Id { get; set; }
 
         [JsonProperty("label_ids")]
-        public List<int> LabelIds { get; set; }
+        public List<long> LabelIds { get; set; }
 
         [JsonProperty("order")]
         public int? Order { get; set; }
