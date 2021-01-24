@@ -36,11 +36,14 @@ namespace ApiLibs.Trakt
 
         public Task DeletePlayback(string id) => MakeRequest<string>($"sync/playback/{id}", Call.DELETE);
 
-        public class SyncRequestObject {
-            public List<MediaRequestObject> movies { get; set; }
-            public List<MediaRequestObject> shows { get; set; }
-            public List<MediaRequestObject> seasons { get; set; }
-            public List<MediaRequestObject> episodes { get; set; }
-        }
+        
+    }
+    
+    public class SyncRequestObject
+    {
+        public List<Media> movies { get; set; }
+        public List<Media> shows { get; set; }
+        public List<Media> seasons { get; set; }
+        public List<Media> episodes { get; set; }
     }
 }
