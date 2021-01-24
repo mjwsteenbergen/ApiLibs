@@ -1,7 +1,7 @@
 using ApiLibs.General;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ApiLibs.Trakt
@@ -62,5 +62,15 @@ namespace ApiLibs.Trakt
                 return null;
             }
         }
+
+        public Task<List<WrappedMediaObject>> GetList(string name, string user = "me") => MakeRequest<List<WrappedMediaObject>>($"users/{user}/lists/{name}/items/");
+        public async Task<IEnumerable<MovieSmall>> GetListMovies(string name, string user = "me") => (await MakeRequest<List<WrappedMediaObject>>($"users/{user}/lists/{name}/items/movies")).Select(i => i.Movie);
+        public async Task<IEnumerable<ShowSmall>> GetListShow(string name, string user = "me") => (await MakeRequest<List<WrappedMediaObject>>($"users/{user}/lists/{name}/items/show")).Select(i => i.Show);
+        public async Task<IEnumerable<SeasonSmall>> GetListSeason(string name, string user = "me") => (await MakeRequest<List<WrappedMediaObject>>($"users/{user}/lists/{name}/items/season")).Select(i => i.Season);
+
+        public Task AddList(string list, ShowSmall show, string user = "me") => AddList(list, new SyncRequestObject {
+            shows = new List<Media> { show }
+        });
+        public Task AddList(string list, SyncRequestObject requestObject, string user = "me") => MakeRequest<string>($"users/{user}/lists/{list}/items", Call.POST, content: requestObject);
     }
 }
