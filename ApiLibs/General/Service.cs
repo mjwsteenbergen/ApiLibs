@@ -191,7 +191,7 @@ namespace ApiLibs
         internal async Task<IRestResponse> ExcecuteRequest(IRestRequest request, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             Debug.Assert(Client != null, "Client != null");
-            IRestResponse resp = await Client.ExecuteTaskAsync(request);
+            IRestResponse resp = await Client.ExecuteAsync(request);
 
             if (resp.StatusCode != statusCode && resp.StatusCode.ToString() != "Created" && resp.StatusCode.ToString() != "ResetContent")
             {
@@ -223,7 +223,7 @@ namespace ApiLibs
             } catch(Exception e)
             {
                 Print(text);
-                throw;
+                throw e;
             }
             if (returnObj is ObjectSearcher)
             {
