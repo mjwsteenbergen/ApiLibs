@@ -45,9 +45,9 @@ namespace ApiLibs.Instapaper
                 Authenticator = OAuth1Authenticator.ForRequestToken(clientId, clientSecret)
             };
             var request = new RestRequest("/oauth/access_token", Method.POST);
-            request.Parameters.Add(new Parameter("x_auth_mode", "client_auth", ParameterType.GetOrPost));
-            request.Parameters.Add(new Parameter("x_auth_username", username, ParameterType.GetOrPost));
-            request.Parameters.Add(new Parameter("x_auth_password", password, ParameterType.GetOrPost));
+            request.AddParameter("x_auth_mode", "client_auth", ParameterType.GetOrPost);
+            request.AddParameter("x_auth_username", username, ParameterType.GetOrPost);
+            request.AddParameter("x_auth_password", password, ParameterType.GetOrPost);
             var response = client.Execute(request);
             string[] respParameters = response.Content.Split('&');
             string tokenSecret = respParameters[0].Replace("oauth_token_secret=", "");

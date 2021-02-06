@@ -40,9 +40,58 @@ namespace ApiLibs.Trakt
 
         [JsonProperty("certification")]
         public string Certification { get; set; }
+    }
 
-        [JsonProperty("year")]
-        public long? Year { get; set; }
+    public partial class Show : MediaExtended
+    {
+        [JsonProperty("first_aired")]
+        public DateTimeOffset FirstAired { get; set; }
+
+        [JsonProperty("airs")]
+        public Airs Airs { get; set; }
+
+        [JsonProperty("runtime")]
+        public long Runtime { get; set; }
+
+        [JsonProperty("certification")]
+        public string Certification { get; set; }
+
+        [JsonProperty("network")]
+        public string Network { get; set; }
+
+        [JsonProperty("country")]
+        public string Country { get; set; }
+
+
+        [JsonProperty("trailer")]
+        public object Trailer { get; set; }
+
+        [JsonProperty("homepage")]
+        public Uri Homepage { get; set; }
+
+        [JsonProperty("status")]
+        public string Status { get; set; }
+
+        [JsonProperty("language")]
+        public string Language { get; set; }
+
+        [JsonProperty("genres")]
+        public List<string> Genres { get; set; }
+
+        [JsonProperty("aired_episodes")]
+        public long AiredEpisodes { get; set; }
+    }
+
+    public partial class Airs
+    {
+        [JsonProperty("day")]
+        public string Day { get; set; }
+
+        [JsonProperty("time")]
+        public string Time { get; set; }
+
+        [JsonProperty("timezone")]
+        public string Timezone { get; set; }
     }
 
     public partial class Watching
@@ -87,13 +136,21 @@ namespace ApiLibs.Trakt
         public string Type { get; set; }
 
         [JsonProperty("movie", NullValueHandling = NullValueHandling.Ignore)]
-        public Media Movie { get; set; }
+        public MovieSmall Movie { get; set; }
 
         [JsonProperty("episode", NullValueHandling = NullValueHandling.Ignore)]
         public Episode Episode { get; set; }
 
         [JsonProperty("show", NullValueHandling = NullValueHandling.Ignore)]
-        public Media Show { get; set; }
+        public ShowSmall Show { get; set; }
+
+        [JsonProperty("season", NullValueHandling = NullValueHandling.Ignore)]
+        public SeasonSmall Season { get; set; }
+
+        public override string ToString()
+        {
+            return Movie?.Title ?? Episode?.Title ?? Show?.Title ?? "Unkown value";
+        }
     }
 
     public partial class Episode
@@ -151,15 +208,29 @@ namespace ApiLibs.Trakt
     }
 
     public class MovieSmall : Media {
-        
-        [JsonProperty("year")]
-        public long? Year { get; set; }
+    }
+
+    public class ShowSmall : Media
+    {
+    }
+
+    public class SeasonSmall : Media
+    {
+
+        [JsonProperty("number")]
+        public int? Number { get; set; }
+
+        [JsonIgnore]
+        public ShowSmall Show { get; internal set; }
     }
 
     public partial class Media
     {
         [JsonProperty("title")]
         public string Title { get; set; }
+
+        [JsonProperty("year")]
+        public long? Year { get; set; }
 
         [JsonProperty("ids")]
         public Ids Ids { get; set; }

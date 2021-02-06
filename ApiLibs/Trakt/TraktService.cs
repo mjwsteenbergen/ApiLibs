@@ -21,6 +21,7 @@ namespace ApiLibs.Trakt
         public SyncService SyncService { get; private set; }
         public MovieService MovieService { get; private set; }
         public SearchService SearchService { get; private set; }
+        public ShowService ShowService { get; }
 
         public TraktService() : base("https://api.trakt.tv")
         {
@@ -28,6 +29,7 @@ namespace ApiLibs.Trakt
             SyncService = new SyncService(this);
             MovieService = new MovieService(this);
             SearchService = new SearchService(this);
+            ShowService = new ShowService(this);
         }
 
         public TraktService(string accessToken, string refreshToken, string clientId, string clientSecret, string redirectUrl) : this()

@@ -328,6 +328,19 @@ namespace ApiLibs.MicrosoftGraph
         [JsonProperty("Calendar@odata.navigationLink")]
         public string CalendarOdataNavigationLink { get; set; }
 
+        public override bool Equals(object obj)
+        {
+            return obj is Event @event &&
+                   Id == @event.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 1854872293;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Id);
+            return hashCode;
+        }
+
         public override string ToString()
         {
             return Subject;

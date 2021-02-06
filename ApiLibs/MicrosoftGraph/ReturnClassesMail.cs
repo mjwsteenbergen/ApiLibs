@@ -89,7 +89,7 @@ namespace ApiLibs.MicrosoftGraph
         public int TotalItemCount { get; set; }
         public object WellKnownName { get; set; }
 
-        public async Task<List<Message>> GetMessages(OData odata)
+        public async Task<List<EmailMessage>> GetMessages(OData odata)
         {
             return await (service as GraphService).MailService.GetMessages(this, odata);
         }
@@ -103,11 +103,11 @@ namespace ApiLibs.MicrosoftGraph
     public class MessageRoot : ObjectSearcher
     {
         public string odatacontext { get; set; }
-        public Message[] value { get; set; }
+        public EmailMessage[] value { get; set; }
         public string odatanextLink { get; set; }
     }
 
-    public class Message : ObjectSearcher
+    public class EmailMessage : ObjectSearcher
     {
         public string odataid { get; set; }
         public string odataetag { get; set; }

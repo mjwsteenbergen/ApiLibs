@@ -23,6 +23,11 @@ namespace ApiLibs
             Client = new RestClient { BaseUrl = new Uri(hostUrl) };
         }
 
+        protected void AddStandardParameter(string name, string content)
+        {
+            AddStandardParameter(new Param(name, content));
+        }
+
         protected void AddStandardParameter(Param p)
         {
             _standardParameter.Add(p);
@@ -100,7 +105,7 @@ namespace ApiLibs
             return await HandleRequest(request, parameters, headers, content, statusCode);
         }
 
-        protected async Task<string> HandleRequest(IRestRequest request, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        internal async Task<string> HandleRequest(IRestRequest request, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             if (headers != null)
             {
@@ -160,17 +165,10 @@ namespace ApiLibs
                     request.AddParameter("application/json", text, ParameterType.RequestBody);
                     request.AddHeader("Content-Type", "application/json");
                     break;
-
-                case HtmlContent htmlContent:
-                    request.AddParameter("text/html", htmlContent.Content, ParameterType.RequestBody);
-                    request.AddHeader("Content-Type", "text/html");
+                case RequestContent rcontent:
+                    request.AddParameter(rcontent.ContentType, rcontent.Content, ParameterType.RequestBody);
+                    request.AddHeader("Content-Type", rcontent.ContentType);
                     break;
-
-                case PlainTextContent plainText:
-                    request.AddParameter("text/html", plainText.Content, ParameterType.RequestBody);
-                    request.AddHeader("Content-Type", "text/plain");
-                    break;
-
                 default:
                     JsonSerializerSettings settings = new JsonSerializerSettings
                     {
@@ -186,7 +184,7 @@ namespace ApiLibs
         internal async Task<IRestResponse> ExcecuteRequest(IRestRequest request, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             Debug.Assert(Client != null, "Client != null");
-            IRestResponse resp = await Client.ExecuteTaskAsync(request);
+            IRestResponse resp = await Client.ExecuteAsync(request);
 
             if (resp.StatusCode != statusCode && resp.StatusCode.ToString() != "Created" && resp.StatusCode.ToString() != "ResetContent")
             {
@@ -218,7 +216,7 @@ namespace ApiLibs
             } catch(Exception e)
             {
                 Print(text);
-                throw;
+                throw e;
             }
             if (returnObj is ObjectSearcher)
             {

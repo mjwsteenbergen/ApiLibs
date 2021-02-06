@@ -25,7 +25,7 @@ namespace ApiLibsTest.Spotify
         [Test]
         public async Task GetMyTracksTest()
         {
-            Assert.NotNull(await libraryService.GetMyTracks());
+            Assert.NotNull(await libraryService.GetMySavedTracks());
         }
     }
 }
