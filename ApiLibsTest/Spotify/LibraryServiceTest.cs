@@ -9,6 +9,7 @@ using NUnit.Framework;
 
 namespace ApiLibsTest.Spotify
 {
+    [Explicit]
     class LibraryServiceTest
     {
         private LibraryService libraryService;

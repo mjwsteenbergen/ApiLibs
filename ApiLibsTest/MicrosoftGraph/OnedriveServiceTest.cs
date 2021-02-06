@@ -7,6 +7,7 @@ using NUnit.Framework;
 
 namespace ApiLibsTest.MicrosoftGraph
 {
+    [Explicit]
     class OnedriveServiceTest
     {
         private OneDriveService oneDrive;

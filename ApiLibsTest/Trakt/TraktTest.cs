@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibsTest.Trakt
 {
+    [Explicit]
     class TraktTest
     {
         public static async Task<TraktService> GetTrakt()

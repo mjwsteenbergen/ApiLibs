@@ -5,6 +5,7 @@ using NUnit.Framework;
 
 namespace ApiLibsTest.MicrosoftGraph
 {
+    [Explicit]
     class ContactServiceTest
     {
         private PeopleService contacts;

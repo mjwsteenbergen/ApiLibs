@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibsTest.MicrosoftGraph
 {
+    [Explicit]
     public class OneNoteServiceTest
     {
         private OneNoteService onenote;

@@ -9,6 +9,7 @@ using System.IO;
 
 namespace ApiLibsTest
 {
+    [Explicit]
     public class PasswordTest 
     {
         [Test]

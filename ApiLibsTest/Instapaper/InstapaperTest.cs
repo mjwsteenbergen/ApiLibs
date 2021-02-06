@@ -9,6 +9,7 @@ using NUnit.Framework;
 
 namespace ApiLibsTest.Instapaper
 {
+    [Explicit]
     class InstapaperTest
     {
         InstapaperService instapaper;

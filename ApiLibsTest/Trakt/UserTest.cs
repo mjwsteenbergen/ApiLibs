@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibsTest.Trakt
 {
+    [Explicit]
     class UserTest
     {
         private UserService user;

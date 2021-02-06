@@ -9,6 +9,7 @@ using NUnit.Framework;
 
 namespace ApiLibsTest.Reddit
 {
+    [Explicit]
     class RedditTest
     {
         private RedditService reddit;

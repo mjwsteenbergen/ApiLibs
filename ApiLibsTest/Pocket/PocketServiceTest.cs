@@ -9,6 +9,7 @@ using NUnit.Framework;
 
 namespace ApiLibsTest
 {
+    [Explicit]
     class PocketServiceTest
     {
         PocketService pocket;
@@ -21,7 +22,6 @@ namespace ApiLibsTest
         }
 
         [Test]
-        [Ignore("Startup")]
         public async Task ConnectTest()
         {
             Passwords passwords = await Passwords.ReadPasswords();
@@ -30,7 +30,6 @@ namespace ApiLibsTest
         }
 
         [Test]
-        [Ignore("Startup")]
         public async Task GetToken()
         {
             Passwords passwords = await Passwords.ReadPasswords();

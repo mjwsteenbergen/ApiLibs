@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibsTest.Feedly
 {
+    [Explicit]
     class FeedlyServiceTest
     {
         private FeedlyService feedly;

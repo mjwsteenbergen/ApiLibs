@@ -11,6 +11,7 @@ using RestSharp.Authenticators.OAuth;
 
 namespace ApiLibsTest.Spotify
 {
+    [Explicit]
     class SpotifyTest
     {
         private SpotifyService spotify;

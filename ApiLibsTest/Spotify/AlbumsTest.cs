@@ -6,6 +6,7 @@ using NUnit.Framework;
 
 namespace ApiLibsTest.Spotify
 {
+    [Explicit]
     class AlbumsTest
     {
         private AlbumService albumService;

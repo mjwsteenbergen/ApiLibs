@@ -9,6 +9,7 @@ using NUnit.Framework;
 
 namespace ApiLibsTest.Todoist
 {
+    [Explicit]
     class TodoistServiceTest
     {
         private TodoistService Todoist;

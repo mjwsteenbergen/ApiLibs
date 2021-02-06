@@ -8,6 +8,7 @@ using NUnit.Framework;
 
 namespace ApiLibsTest.BingMaps
 {
+    [Explicit]
     class BingMapsTest
     {
         private BingMapsService bingMaps;

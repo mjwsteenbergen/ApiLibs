@@ -10,6 +10,7 @@ using NUnit.Framework;
 
 namespace ApiLibsTest.Spotify
 {
+    [Explicit]
     class PlaylistServiceTest
     {
         private PlaylistService playlistService;
