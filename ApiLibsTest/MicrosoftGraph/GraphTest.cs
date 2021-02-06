@@ -21,11 +21,6 @@ namespace ApiLibsTest.MicrosoftGraph
         {
             Passwords passwords = await Passwords.ReadPasswords();
             var _graph = new GraphService(passwords.OutlookRefreshToken, passwords.OutlookClientID, passwords.OutlookClientSecret, passwords.OutlookEmail);
-            _graph.Changed += (sender, args) =>
-            {
-                passwords.OutlookRefreshToken = args.RefreshToken;
-                passwords.WriteToFile();
-            };
             return _graph;
         }
 
