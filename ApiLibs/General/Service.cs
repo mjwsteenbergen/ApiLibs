@@ -105,7 +105,7 @@ namespace ApiLibs
             return await HandleRequest(request, parameters, headers, content, statusCode);
         }
 
-        protected async Task<string> HandleRequest(IRestRequest request, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        internal async Task<string> HandleRequest(IRestRequest request, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             if (headers != null)
             {
@@ -165,17 +165,10 @@ namespace ApiLibs
                     request.AddParameter("application/json", text, ParameterType.RequestBody);
                     request.AddHeader("Content-Type", "application/json");
                     break;
-
-                case HtmlContent htmlContent:
-                    request.AddParameter("text/html", htmlContent.Content, ParameterType.RequestBody);
-                    request.AddHeader("Content-Type", "text/html");
+                case RequestContent rcontent:
+                    request.AddParameter(rcontent.ContentType, rcontent.Content, ParameterType.RequestBody);
+                    request.AddHeader("Content-Type", rcontent.ContentType);
                     break;
-
-                case PlainTextContent plainText:
-                    request.AddParameter("text/html", plainText.Content, ParameterType.RequestBody);
-                    request.AddHeader("Content-Type", "text/plain");
-                    break;
-
                 default:
                     JsonSerializerSettings settings = new JsonSerializerSettings
                     {
