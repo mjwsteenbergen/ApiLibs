@@ -83,7 +83,7 @@ namespace ApiLibs.TodoistRest
         public long? Id { get; set; }
 
         [JsonProperty("label_ids")]
-        public List<int> LabelIds { get; set; }
+        public List<long> LabelIds { get; set; }
 
         [JsonProperty("order")]
         public int? Order { get; set; }
@@ -139,6 +139,10 @@ namespace ApiLibs.TodoistRest
         }
 
         public TodoistRequestTask() {}
+
+        public TodoistRequestTask(long id) {
+            Id = id;
+        }
 
     }
 
@@ -202,7 +206,7 @@ namespace ApiLibs.TodoistRest
         public string Content { get; set; }
 
         [JsonProperty("id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         [JsonProperty("posted")]
         public DateTimeOffset Posted { get; set; }
@@ -232,7 +236,7 @@ namespace ApiLibs.TodoistRest
     public partial class TodoistLabel
     {
         [JsonProperty("id")]
-        public int? Id { get; set; }
+        public long? Id { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }

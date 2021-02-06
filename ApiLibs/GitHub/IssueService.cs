@@ -12,9 +12,27 @@ namespace ApiLibs.GitHub
         {
         }
 
-        public async Task<List<Issue>> GetIssues()
+        public async IAsyncEnumerable<Issue> GetAllMyIssues()
         {
-            return await MakeRequest<List<Issue>>("user/issues", parameters: new List<Param> { new Param("per_page", 100) });
+            for (int i = 1; i < int.MaxValue; i++)
+            {
+                var issues = await GetMyIssues(i);
+
+                if(issues.Count == 0) { break; }
+
+                foreach (var issue in issues)
+                {
+                    yield return issue;
+                }
+            }
+        }
+
+        public async Task<List<Issue>> GetMyIssues(int page = 1)
+        {
+            return await MakeRequest<List<Issue>>("user/issues", parameters: new List<Param> { 
+                new Param("per_page", 100),
+                new Param("page", page)
+            });
         }
 
         public async Task<List<Issue>> GetIssues(Repository repo, string filter = null, string state = null, string labels = null, string sort = null, string direction = null, string since = null, int? per_page = null, int? page = null)

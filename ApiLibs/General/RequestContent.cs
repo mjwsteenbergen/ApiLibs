@@ -4,8 +4,9 @@ using System.Text;
 
 namespace ApiLibs.General
 {
-    public class RequestContent
+    public abstract class RequestContent
     {
+        public abstract string ContentType { get; }
         public RequestContent(string content)
         {
             Content = content;
@@ -20,6 +21,8 @@ namespace ApiLibs.General
         public HtmlContent(string content) : base(content)
         {
         }
+
+        public override string ContentType => "text/html";
 
         public static HtmlContent BuildWebpage(string title, string body)
         {
@@ -37,5 +40,7 @@ namespace ApiLibs.General
         public PlainTextContent(string content) : base(content)
         {
         }
+
+        public override string ContentType => "text/plain";
     }
 }

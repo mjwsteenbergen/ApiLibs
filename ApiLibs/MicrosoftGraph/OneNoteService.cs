@@ -1,4 +1,11 @@
 ﻿using ApiLibs.General;
+using HttpMultipartParser;
+using Newtonsoft.Json;
+using RestSharp;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -39,7 +46,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task<GraphResult<Section>> GetSections() => MakeRequest<GraphResult<Section>>("me/onenote/sections");
 
-        public Task<Section> CreateSection(Notebook notebook, Section section) => MakeRequest<Section>("me/onenote/notebooks/{id}/sections", Call.POST, content: section);
+        public Task<Section> CreateSection(Notebook notebook, Section section) => MakeRequest<Section>($"me/onenote/notebooks/{notebook.Id}/sections", Call.POST, content: section);
 
         public Task<GraphResult<Page>> GetPage(Section section) => MakeRequest<GraphResult<Page>>($"me/onenote/sections/{section.Id}/pages");
 
@@ -49,6 +56,74 @@ namespace ApiLibs.MicrosoftGraph
         }
 
         public Task<string> GetPageContent(Page p) => MakeRequest<string>($"me/onenote/pages/{p.Id}/content");
+
+        public Task<InkReturnType> GetPageInk(Page p) => GetPageInk(p.Id);
+
+        public async Task<InkReturnType> GetPageInk(string pageId) 
+        {
+            var res = await MakeRequest<string>($"me/onenote/pages/{pageId}/content", 
+            parameters: new List<Param> {
+                new Param("includeInkML","true")
+            }, 
+            header: new List<Param>
+            {
+                new Param("Accept", "*/*")
+            });
+
+            var parser = MultipartFormDataParser.Parse(GenerateStreamFromString(res));
+            return new InkReturnType {
+                HTML = new StreamReader(parser.Files.First(i => i.ContentType == "text/html").Data, Encoding.UTF8).ReadToEnd(),
+                Ink = new StreamReader(parser.Files.First(i => i.ContentType == "application/inkml+xml").Data, Encoding.UTF8).ReadToEnd(),
+            };
+        }
+
+        public class InkReturnType {
+            public string HTML { get; set; }
+            public string Ink { get; set; }
+
+            public static string DefaultInk => "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<inkml:ink xmlns:emma=\"http://www.w3.org/2003/04/emma\" xmlns:msink=\"http://schemas.microsoft.com/ink/2010/main\" xmlns:inkml=\"http://www.w3.org/2003/InkML\">\r\n  <inkml:definitions />\r\n  <inkml:traceGroup />\r\n</inkml:ink>";
+        }
+
+        public static Stream GenerateStreamFromString(string s)
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
+        }
+
+        public Task DeletePage(Page t2) => DeletePage(t2.Id);
+
+        public Task DeletePage(string id) => MakeRequest<string>("/me/onenote/pages/" + id, Call.DELETE, statusCode: System.Net.HttpStatusCode.NoContent);
+
+        public Task UpdatePageTitle(Page page, string name) => UpdatePage(page, new PatchContentCommand {
+            Action = "replace",
+            Content = name,
+            Target = "title"
+        });
+
+        public Task UpdatePage(Page page, PatchContentCommand command) => UpdatePage(page.Id, command);
+
+        public Task UpdatePage(string id, PatchContentCommand command) => UpdatePage(id, new List<PatchContentCommand> { command });
+
+        private Task UpdatePage(string id, List<PatchContentCommand> commands) => MakeRequest<string>($"/me/onenote/pages/{id}/content", Call.PATCH, content: commands, statusCode: System.Net.HttpStatusCode.NoContent);
+    }
+
+    public class PatchContentCommand
+    {
+        [JsonProperty("action")]
+        public string Action { get; set; }
+
+        [JsonProperty("content")]
+        public string Content { get; set; }
+
+        [JsonProperty("position")]
+        public string Position { get; set; }
+
+        [JsonProperty("target")]
+        public string Target { get; set; }
     }
 
     public class OneNoteHtmlContent : HtmlContent

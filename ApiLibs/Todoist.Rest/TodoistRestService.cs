@@ -58,7 +58,7 @@ namespace ApiLibs.TodoistRest
 
         public Task<TodoistTask> GetTask(long id) => MakeRequest<TodoistTask>("tasks/"+id);
         public Task<TodoistTask> CreateTask(TodoistRequestTask task) => MakeRequest<TodoistTask>("tasks", Call.POST, content: task);
-        public Task UpdateTasks(long id, TodoistTask task) => MakeRequest<string>("tasks", Call.POST, content: task, statusCode: System.Net.HttpStatusCode.NoContent);
+        public Task UpdateTasks(long id, TodoistTask task) => MakeRequest<string>("tasks/" + id, Call.POST, content: task, statusCode: System.Net.HttpStatusCode.NoContent);
 
 
         public Task UpdateTasks(TodoistTask task) => UpdateTasks(task.Id ?? throw new ArgumentNullException(nameof(task.Id)), task);
@@ -72,8 +72,8 @@ namespace ApiLibs.TodoistRest
         public Task<List<TodoistLabel>> GetLabels() => MakeRequest<List<TodoistLabel>>("labels");
         public Task<TodoistLabel> CreateLabel(TodoistLabel label) => MakeRequest<TodoistLabel>("labels", Call.POST, content: label);
         public Task UpdateLabel(TodoistLabel label) => UpdateLabel(label.Id ?? throw new ArgumentNullException(nameof(label.Id)), label);
-        public Task UpdateLabel(int id, TodoistLabel label) => MakeRequest<string>("labels/" + id, Call.POST, content: label, statusCode: System.Net.HttpStatusCode.NoContent);
+        public Task UpdateLabel(long id, TodoistLabel label) => MakeRequest<string>("labels/" + id, Call.POST, content: label, statusCode: System.Net.HttpStatusCode.NoContent);
         public Task DeleteLabel(TodoistLabel label) => DeleteLabel(label.Id ?? throw new ArgumentNullException(nameof(label.Id)));
-        public Task DeleteLabel(int id) => MakeRequest<string>("labels/" + id, Call.DELETE, statusCode: System.Net.HttpStatusCode.NoContent);
+        public Task DeleteLabel(long id) => MakeRequest<string>("labels/" + id, Call.DELETE, statusCode: System.Net.HttpStatusCode.NoContent);
     }
 }
