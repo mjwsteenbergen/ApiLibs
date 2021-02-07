@@ -24,6 +24,7 @@ namespace ApiLibs.MicrosoftGraph
         public TodoService TodoService { get; }
         public OneNoteService OneNoteService { get; set; }
         public CloudCommunicationsService CloudCommunicationsService { get; }
+        public ChangeNotificationService ChangeNotificationService { get; }
 
         private static readonly string basePath = "https://graph.microsoft.com/";
 
@@ -39,6 +40,8 @@ namespace ApiLibs.MicrosoftGraph
             TodoService = new TodoService(this);
             OneNoteService = new OneNoteService(this);
             CloudCommunicationsService = new CloudCommunicationsService(this);
+            ChangeNotificationService = new ChangeNotificationService(this);
+            //Don't forget the other constructor
         }
 
         /// <summary>
@@ -64,6 +67,8 @@ namespace ApiLibs.MicrosoftGraph
             TodoService = new TodoService(this);
             OneNoteService = new OneNoteService(this);
             CloudCommunicationsService = new CloudCommunicationsService(this);
+            ChangeNotificationService = new ChangeNotificationService(this);
+            //Don't forget the other constructor
         }
 
         public async Task ConvertToToken(string clientId, string clientSecret, string username, string password, string TenantID)
