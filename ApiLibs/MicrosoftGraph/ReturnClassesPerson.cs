@@ -1,20 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace ApiLibs.MicrosoftGraph
 {
-    public partial class PersonResult
-    {
-        [JsonProperty("@odata.context")]
-        public Uri OdataContext { get; set; }
-
-        [JsonProperty("@odata.nextLink")]
-        public Uri OdataNextLink { get; set; }
-
-        [JsonProperty("value")]
-        public List<Person> Value { get; set; }
-    }
+    public partial class PersonResult : ValueResult<Person> { }
 
     public partial class Person
     {

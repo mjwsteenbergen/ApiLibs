@@ -4,17 +4,7 @@ using Newtonsoft.Json;
 
 namespace ApiLibs.MicrosoftGraph
 {
-    public partial class Calendars
-    {
-        [JsonProperty("@odata.context")]
-        public string OdataContext { get; set; }
-
-        [JsonProperty("value")]
-        public List<Calendar> Value { get; set; }
-
-        [JsonProperty("@odata.nextLink")]
-        public string OdataNextLink { get; set; }
-    }
+    public partial class Calendars : ValueResult<Calendar> { }
 
     public partial class Calendar
     {
@@ -72,17 +62,7 @@ namespace ApiLibs.MicrosoftGraph
         public string Address { get; set; }
     }
 
-    public partial class Events
-    {
-        [JsonProperty("@odata.context")]
-        public string OdataContext { get; set; }
-
-        [JsonProperty("value")]
-        public List<Event> Value { get; set; }
-
-        [JsonProperty("@odata.nextLink")]
-        public string OdataNextLink { get; set; }
-    }
+    public partial class Events : ValueResult<Event> { }
 
     public partial class TeamsMeeting
     {

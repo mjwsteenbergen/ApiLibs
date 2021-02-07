@@ -59,17 +59,14 @@ namespace ApiLibs.MicrosoftGraph
     }
 
 
-    public class FolderRoot : ObjectSearcher
+    public class FolderRoot : ValueResult<EmailFolder>
     {
-        public string odatacontext { get; set; }
-        public EmailFolder[] value { get; set; }
-        public string odatanextLink { get; set; }
 
         public new void Search(Service inputService)
         {
             base.Search(inputService);
 
-            foreach (EmailFolder folder in value)
+            foreach (EmailFolder folder in Value)
             {
                 folder.service = inputService;
             }
@@ -100,12 +97,7 @@ namespace ApiLibs.MicrosoftGraph
         }
     }
 
-    public class MessageRoot : ObjectSearcher
-    {
-        public string odatacontext { get; set; }
-        public EmailMessage[] value { get; set; }
-        public string odatanextLink { get; set; }
-    }
+    public class MessageRoot : ValueResult<EmailMessage> { }
 
     public class EmailMessage : ObjectSearcher
     {

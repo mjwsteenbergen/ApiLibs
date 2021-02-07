@@ -4,17 +4,7 @@ using Newtonsoft.Json;
 
 namespace ApiLibs.MicrosoftGraph
 {
-    public partial class FolderResult
-    {
-        [JsonProperty("@odata.context")]
-        public Uri OdataContext { get; set; }
-
-        [JsonProperty("@odata.nextLink")]
-        public Uri OdataNextLink { get; set; }
-
-        [JsonProperty("value")]
-        public List<TaskFolder> Value { get; set; }
-    }
+    public partial class FolderResult : ValueResult<TaskFolder> { }
 
     public partial class TaskFolder
     {
@@ -40,17 +30,7 @@ namespace ApiLibs.MicrosoftGraph
         public string Id { get; set; }
     }
 
-    public partial class TaskResult
-    {
-        [JsonProperty("@odata.context")]
-        public Uri OdataContext { get; set; }
-
-        [JsonProperty("@odata.nextLink")]
-        public Uri OdataNextLink { get; set; }
-
-        [JsonProperty("value")]
-        public List<Todo> Value { get; set; }
-    }
+    public partial class TaskResult : ValueResult<Todo> { }
 
     public partial class Todo
     {
