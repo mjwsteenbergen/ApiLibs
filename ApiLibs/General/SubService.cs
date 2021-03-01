@@ -31,7 +31,7 @@ namespace ApiLibs.General
         {
             requestMiddleware ??= new List<Func<Request, Task<Request>>>();
             requestResponseMiddleware ??= new List<Func<RequestResponse, Task<RequestResponse>>>();
-            return base.HandleRequest(request, RequestMiddleware.Concat(requestMiddleware), RequestResponseMiddleware.Concat(requestResponseMiddleware));
+            return Service.HandleRequest(request, RequestMiddleware.Concat(requestMiddleware), RequestResponseMiddleware.Concat(requestResponseMiddleware));
         }
     }
 }

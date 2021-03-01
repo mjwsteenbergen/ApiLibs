@@ -218,15 +218,9 @@ namespace ApiLibs.MicrosoftGraph
 
     public abstract class GraphSubService : SubService<GraphService>
     {
-        public GraphSubService(GraphService service, string version) : base(service)
+        public GraphSubService(GraphService service, string version) : base(service, version)
         {
             Version = version;
-
-            RequestMiddleware.Add((req) =>
-            {
-                req.EndPoint = $"{Version}/" + req.EndPoint;
-                return Task.FromResult(req);
-            });
         }
 
         public string Version { get; }

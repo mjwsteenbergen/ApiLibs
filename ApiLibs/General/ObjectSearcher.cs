@@ -6,16 +6,16 @@ namespace ApiLibs.General
     public abstract class ObjectSearcher
     {
         [JsonIgnore]
-        public Service service {get; set;}
+        public Service Service {get; set;}
 
         public void Search(Service inputService)
         {
-            if (service != null)
+            if (Service != null)
             {
                 return;
             }
 
-            service = inputService;
+            Service = inputService;
 
             foreach (var item in GetType().GetProperties())
             {
