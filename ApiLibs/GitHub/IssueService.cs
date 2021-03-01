@@ -61,7 +61,7 @@ namespace ApiLibs.GitHub
 
         public async Task<Issue> AddIssue(OpenIssue issue, Repository repo)
         {
-            return await MakeRequest<Issue>(IssueUrl(repo), Call.POST, new List<Param>(), content: issue);
+            return await MakeRequest<Issue>(IssueUrl(repo), Call.POST, new List<Param>(), content: issue, statusCode: System.Net.HttpStatusCode.Created);
         }
 
         public async Task<Issue> CloseIssue(Issue it)
