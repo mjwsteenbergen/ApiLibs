@@ -36,8 +36,8 @@ namespace ApiLibs
     {
         internal ICallImplementation Implementation { get; }
 
-        internal readonly List<Func<Request, Task<Request>>> RequestMiddleware = new();
-        internal readonly List<Func<RequestResponse, Task<RequestResponse>>> RequestResponseMiddleware = new();
+        protected readonly List<Func<Request, Task<Request>>> RequestMiddleware = new();
+        protected readonly List<Func<RequestResponse, Task<RequestResponse>>> RequestResponseMiddleware = new();
 
         public Service(ICallImplementation implementation)
         {
@@ -130,8 +130,8 @@ namespace ApiLibs
             var resp = await HandleRequest(new Request(endPoint)
             {
                 Content = content,
-                Headers = headers,
-                Parameters = parameters,
+                Headers = headers ?? new List<Param>(),
+                Parameters = parameters ?? new List<Param>(),
                 Method = method,
             });
 
@@ -141,7 +141,7 @@ namespace ApiLibs
             }
             else
             {
-                throw new RequestException(resp);
+                throw RequestException.ConvertToException(resp);
             }
         }
 
@@ -152,8 +152,8 @@ namespace ApiLibs
             var resp = await HandleRequest(new Request(endPoint)
             {
                 Content = content,
-                Headers = headers,
-                Parameters = parameters,
+                Headers = headers ?? new List<Param>(),
+                Parameters = parameters ?? new List<Param>(),
                 Method = method,
             });
 
@@ -181,7 +181,7 @@ namespace ApiLibs
                 }
             }
 
-            throw new RequestException(resp);
+            throw RequestException.ConvertToException(resp);
         }
 
 

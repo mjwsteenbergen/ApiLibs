@@ -83,7 +83,7 @@ namespace ApiLibs.GitHub
             {
                 throw new ArgumentException("This should be an issue or pull request");
             }
-            return await (service as GitHubService).IssueService.GetIssue(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
+            return await (Service as GitHubService).IssueService.GetIssue(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
 
         }
 
@@ -94,7 +94,7 @@ namespace ApiLibs.GitHub
                 throw new ArgumentException("This should be an release");
             }
             Match match = Regex.Match(subject.url, "https:\\/\\/api.github.com\\/repos\\/([^//]+)\\/([^//]+)\\/releases\\/(\\d+)");
-            return await (service as GitHubService).RepositoryService.GetRelease(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
+            return await (Service as GitHubService).RepositoryService.GetRelease(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
         }
 
         public async Task<List<Event>> GetEvents()
@@ -116,7 +116,7 @@ namespace ApiLibs.GitHub
             {
                 throw new ArgumentException("Unrecognized subject type");
             }
-            return await (service as GitHubService).ActivityService.GetEvents(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
+            return await (Service as GitHubService).ActivityService.GetEvents(match.Groups[1].Value, match.Groups[2].Value, int.Parse(match.Groups[3].Value));
 
         }
 

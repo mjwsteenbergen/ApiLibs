@@ -89,7 +89,7 @@ namespace ApiLibs.GitHub
 
         public async Task<Issue> Modify(ModifyIssue it)
         {
-            return await (service as GitHubService).IssueService.ModifyIssue(Url, it);
+            return await (Service as GitHubService).IssueService.ModifyIssue(Url, it);
         }
 
         //Added by me
