@@ -30,7 +30,7 @@ namespace ApiLibs.Spotify
 
         public async Task Follow(UserType type, List<string> ids)
         {
-            await HandleRequest("me/following", Call.PUT, new List<Param>
+            await MakeRequest<string>("me/following", Call.PUT, new List<Param>
             {
                 new Param("type",type.ToString().ToLower()),
                 new Param("ids", ids.Aggregate((i,j) => i + "," + j))
@@ -47,7 +47,7 @@ namespace ApiLibs.Spotify
 
         public async Task Unfollow(UserType type, List<string> ids)
         {
-            await HandleRequest("me/following", Call.DELETE, new List<Param>
+            await MakeRequest<string>("me/following", Call.DELETE, new List<Param>
             {
                 new Param("type",type.ToString().ToLower()),
                 new Param("ids", ids.Aggregate((i,j) => i + "," + j))
@@ -56,11 +56,11 @@ namespace ApiLibs.Spotify
 
         public async Task<bool> CheckIfFollowing(UserType type, List<string> ids)
         {
-            string output = (await HandleRequest("me/following/contains", parameters: new List<Param>
+            string output = await MakeRequest<string>("me/following/contains", parameters: new List<Param>
             {
                 new Param("type", type.ToString().ToLower()),
                 new Param("ids", ids.Aggregate((i, j) => i + "," + j))
-            }));
+            });
             return bool.Parse(output.Replace("[", "").Replace("]", ""));
         }
 

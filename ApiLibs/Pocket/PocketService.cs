@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibs.Pocket
 {
-    public class PocketService : Service
+    public class PocketService : RestSharpService
     {
         private string PocketKey;
 
@@ -44,7 +44,7 @@ namespace ApiLibs.Pocket
                 new Param("redirect_uri", "zeus://")
             };
 
-            string content = await HandleRequest("oauth/request.php", Call.POST, parameters: parameters);
+            string content = await MakeRequest<string>("oauth/request.php", Call.POST, parameters: parameters);
             
             string code = content.Replace("code=", "");
 
@@ -60,7 +60,7 @@ namespace ApiLibs.Pocket
                 new Param("code", code)
             };
 
-            var content = await HandleRequest("oauth/authorize.php", Call.POST, parameters: parameters);
+            var content = await MakeRequest<string>("oauth/authorize.php", Call.POST, parameters: parameters);
 
             var noAccessToken = content.Replace("access_token=", "");
             string accessToken = noAccessToken.Remove(30, content.Length - 13 - 30);
@@ -91,7 +91,7 @@ namespace ApiLibs.Pocket
             parameters.Add(new Param("detailType", detail.ToString().ToLower()));
 
 
-            var resContent = await HandleRequest("get.php", Call.POST, parameters);
+            var resContent = await MakeRequest<string>("get.php", Call.POST, parameters);
 
             var regexd = Regex.Replace(Regex.Replace(resContent, @"""\d+"":", "").Replace("\"list\":{", "\"list\":[").Replace("}},\"error\"", "}],\"error\""), "{{(([^{}]|{[^{}]+}|)+)}(([^{}]|{[^{}]+}|)+)}", "[{$1}$3]");
             return JsonConvert.DeserializeObject<ReadingList>(regexd);
@@ -114,7 +114,7 @@ namespace ApiLibs.Pocket
             {
                 new Param("actions", new List<PocketAction> {pa})
             };
-            await HandleRequest("send.php", parameters: parameters);
+            await MakeRequest<string>("send.php", parameters: parameters);
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]

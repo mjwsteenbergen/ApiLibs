@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 using ApiLibs.General;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using RestSharp;
 
 
 namespace ApiLibs.Todoist
 {
-    public class TodoistService : Service
+    public class TodoistService : RestSharpService
     {
-        private readonly SyncRoot _syncObject = new SyncRoot();
+        private readonly SyncRoot _syncObject = new();
 
         /// <summary>
         /// Get an access token by going to https://todoist.com/Users/viewPrefs?page=account
@@ -25,35 +24,32 @@ namespace ApiLibs.Todoist
             AddStandardParameter(new Param("user-agent", todoistUserAgent));
             AddStandardParameter(new Param("token", todoistKey));
             AddStandardParameter(new Param("sync_token", "*"));
+
+            RequestResponseMiddleware.Add(resp =>
+            {
+                var request = resp.Request;
+                if (request.EndPoint.ToLower() == "sync")
+                {
+                    var result = JsonConvert.DeserializeObject<SyncResult>(resp.Content);
+                    var jsonError = result.SyncStatus?.FirstOrDefault(i => !(i.Value is string)).Value;
+                    if (jsonError != null)
+                    {
+                        var error = (jsonError as JObject).ToObject(typeof(TodoistError)) as TodoistError;
+                        throw new TodoistException(error, resp);
+                    }
+                }
+                return Task.FromResult(resp);
+            });
         }
 
         private async Task Sync()
         {
-            List<Param> parameters = new List<Param> { new Param("resource_types", @"[""all""]") };
+            List<Param> parameters = new() { new Param("resource_types", @"[""all""]") };
             SyncRoot syncobject = await MakeRequest<SyncRoot>("sync", parameters: parameters);
-            UpdateParameterIfExists(new Param("sync_token", syncobject.SyncToken));
-            this._syncObject.Projects = Merger.Merge(_syncObject.Projects, syncobject.Projects);
-            this._syncObject.Labels = Merger.Merge(_syncObject.Labels, syncobject.Labels);
-            this._syncObject.Items = Merger.Merge(_syncObject.Items, syncobject.Items);
-        }
-
-        protected internal override async Task<string> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null,
-            HttpStatusCode statusCode = HttpStatusCode.OK)
-        {
-            var res = await base.HandleRequest(url, call, parameters, headers, content, statusCode);
-            if (url.ToLower() == "sync")
-            {
-                var result = JsonConvert.DeserializeObject<SyncResult>(res);
-                var jsonError = result.SyncStatus?.FirstOrDefault(i => !(i.Value is string)).Value;
-                if (jsonError != null)
-                {
-                    
-                    var error = (jsonError as JObject).ToObject(typeof(TodoistError)) as TodoistError;
-                    throw new TodoistException(error, error.http_code, "", url, "Wrong call", res);
-                }
-            }
-
-            return res;
+            AddStandardParameter(new Param("sync_token", syncobject.SyncToken));
+            _syncObject.Projects = Merger.Merge(_syncObject.Projects, syncobject.Projects);
+            _syncObject.Labels = Merger.Merge(_syncObject.Labels, syncobject.Labels);
+            _syncObject.Items = Merger.Merge(_syncObject.Items, syncobject.Items);
         }
 
         public async Task<List<Project>> GetProjects()
@@ -128,7 +124,7 @@ namespace ApiLibs.Todoist
 
         public Task MarkTodoAsDone(IEnumerable<long> removableOnes)
         {
-            return HandleRequest("sync", parameters: new List<Param> { TodoistCommand.ToParam(removableOnes.Select(i => new TodoistCommand("item_close", new ItemUpdate(i)))) });
+            return MakeRequest<string>("sync", parameters: new List<Param> { TodoistCommand.ToParam(removableOnes.Select(i => new TodoistCommand("item_close", new ItemUpdate(i)))) });
         }
 
         public async Task MarkTodoAsDone(long id)
@@ -137,7 +133,7 @@ namespace ApiLibs.Todoist
             {
                 new TodoistCommand("item_close", new ItemUpdate(id)).ToParam()
             };
-            await HandleRequest("sync", parameters: parameters);
+            await MakeRequest<string>("sync", parameters: parameters);
         }
 
         public async Task AddNote(string note, Item todo)
@@ -198,7 +194,7 @@ namespace ApiLibs.Todoist
 
         public async Task Update(ItemUpdate update)
         {
-            var res = await HandleRequest("sync", parameters: new List<Param>
+            var res = await MakeRequest<string>("sync", parameters: new List<Param>
             {
                 new TodoistCommand("item_update", update).ToParam()
             });
@@ -211,7 +207,7 @@ namespace ApiLibs.Todoist
                 return;
             }
 
-            var res = await HandleRequest("sync", parameters: new List<Param>
+            var res = await MakeRequest<string>("sync", parameters: new List<Param>
             {
                 TodoistCommand.ToParam(updates.Select(i => new TodoistCommand("item_update", i)))
             });

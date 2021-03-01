@@ -78,7 +78,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task Delete(string id, string listId)
         {
-            return HandleRequest($"me/todo/lists/{listId}/tasks/{id}", Call.DELETE, statusCode: HttpStatusCode.NoContent);
+            return MakeRequest<string>($"me/todo/lists/{listId}/tasks/{id}", Call.DELETE, statusCode: HttpStatusCode.NoContent);
         }
 
         public Task Delete(Todo todo, TaskFolder listId) => Delete(todo.Id, listId.Id);
@@ -120,7 +120,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task RemoveFolder(string taskFolderId)
         {
-            return HandleRequest($"me/todo/lists('{taskFolderId}')", Call.DELETE, statusCode: HttpStatusCode.NoContent);
+            return MakeRequest<string>($"me/todo/lists('{taskFolderId}')", Call.DELETE, statusCode: HttpStatusCode.NoContent);
         }
     }
 }

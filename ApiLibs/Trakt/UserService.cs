@@ -22,27 +22,16 @@ namespace ApiLibs.Trakt
         /// <returns></returns>
         public Task<List<WrappedMediaObject>> GetHistory(string type = null, string id = null, DateTime? start = null, DateTime? end = null)
         {
-            string typeUrlPart = "";
-            switch(type)
+            string typeUrlPart = type switch
             {
-                case "movies":
-                    typeUrlPart = "movies/";
-                    break;
-                case "shows":
-                    typeUrlPart = "shows/";
-                    break;
-                case "seasons":
-                    typeUrlPart = "seasons/";
-                    break;
-                case "episodes":
-                    typeUrlPart = "episodes/";
-                    break;
-                case null:
-                    typeUrlPart = "";
-                    break;
-                default:
-                    throw new Exception("Invalid type " + type);
-            }
+                "movies" => "movies/",
+                "shows" => "shows/",
+                "seasons" => "seasons/",
+                "episodes" => "episodes/",
+                null => "",
+                _ => throw new Exception("Invalid type " + type),
+            };
+            
             return MakeRequest<List<WrappedMediaObject>>("sync/history/" + typeUrlPart, Call.GET, new List<Param>
             {
                 new OParam("id", id),
@@ -53,14 +42,10 @@ namespace ApiLibs.Trakt
 
         public async Task<Watching> Watching(string id = "me")
         {
-            try
-            {
-                return await MakeRequest<Watching>($"users/{id}/watching/");
-            }
-            catch (NoContentRequestException)
-            {
-                return null;
-            }
+            return (await MakeRequest<OKResponse<Watching>, NoContentResponse<string>>($"users/{id}/watching/")).Match(
+                    (id) => id.Content(),
+                    (id) => null
+            );
         }
 
         public Task<List<WrappedMediaObject>> GetList(string name, string user = "me") => MakeRequest<List<WrappedMediaObject>>($"users/{user}/lists/{name}/items/");

@@ -62,7 +62,7 @@ namespace ApiLibs.MicrosoftGraph
     public class FolderRoot : ValueResult<EmailFolder>
     {
 
-        public new void Search(Service inputService)
+        public new void Search(RestSharpService inputService)
         {
             base.Search(inputService);
 

@@ -10,7 +10,7 @@ using RestSharp;
 
 namespace ApiLibs.Spotify
 {
-    public class SpotifyService : Service
+    public class SpotifyService : RestSharpService
     {
         private string _RefreshToken;
         private string _ClientBase64;
@@ -45,13 +45,29 @@ namespace ApiLibs.Spotify
             LibraryService = new LibraryService(this);
             PlaylistService = new PlaylistService(this);
 
+            RequestResponseMiddleware.Add(async (resp) =>
+            {
+                if (resp.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    var request = resp.Request;
+                    if (request.EndPoint == "api/token")
+                    {
+                        return resp;
+                    }
+                    await RefreshToken();
+                    request.Retries++;
+                    return await base.HandleRequest(request);
+                }
+                return resp;
+            });
+
             AddStandardHeader("Authorization", "To be filled in later");
         }
 
         public void Connect(IOAuth auth, string clientId, string redirectUrl, List<Scope> scopes, bool showDialog = false)
         {
             auth.ActivateOAuth("https://accounts.spotify.com/authorize?response_type=code" + "&client_id=" + clientId + "&redirect_uri=" +
-                               redirectUrl + "&scope=" + String.Join(" ", scopes.Select(i => i.Value)) + "&show_dialog=" + showDialog);
+                               redirectUrl + "&scope=" + string.Join(" ", scopes.Select(i => i.Value)) + "&show_dialog=" + showDialog);
         }
 
         private string Base64Encode(string plainText)
@@ -73,27 +89,10 @@ namespace ApiLibs.Spotify
             });
         }
 
-        protected internal override async Task<string> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
-        {
-            try
-            {
-                return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
-            }
-            catch (BadRequestException)
-            {
-                if (url == "api/token")
-                {
-                    throw;
-                }
-                await RefreshToken();
-                return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
-            }
-        }
-
         public async Task RefreshToken()
         {
             SetBaseUrl("https://accounts.spotify.com/");
-            UpdateHeaderIfExists("Authorization", "Basic " + _ClientBase64);
+            AddStandardHeader("Authorization", "Basic " + _ClientBase64);
 
             var args = await MakeRequest<AccessTokenObject>("api/token", Call.POST, new List<Param>
             {
@@ -102,7 +101,7 @@ namespace ApiLibs.Spotify
             });
 
             SetBaseUrl("https://api.spotify.com/v1/");
-            UpdateHeaderIfExists("Authorization", "Bearer " + args.access_token);
+            AddStandardHeader("Authorization", "Bearer " + args.access_token);
         }
 
         public async Task<SearchObject> Search(string query, SearchType type, int limit = 20, int offset = 0)

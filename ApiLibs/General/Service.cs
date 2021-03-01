@@ -1,223 +1,92 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using ApiLibs.General;
 using Newtonsoft.Json;
+using OneOf;
 using RestSharp;
 using RestSharp.Authenticators;
 
 namespace ApiLibs
 {
-    public abstract class Service
+    public abstract class RestSharpService : Service
     {
-        private readonly bool _debug;
         protected RestClient Client;
-        private readonly List<Param> _standardParameter = new List<Param>();
-        private readonly List<Param> _standardHeader = new List<Param>();
 
-        public Service(string hostUrl, bool debug = false)
+        protected RestSharpService(string hostUrl) : base(new RestSharpImplementation())
         {
-            _debug = debug;
             Client = new RestClient { BaseUrl = new Uri(hostUrl) };
+            (Implementation as RestSharpImplementation).Client = Client;
         }
 
-        protected void AddStandardParameter(string name, string content)
-        {
-            AddStandardParameter(new Param(name, content));
-        }
-
-        protected void AddStandardParameter(Param p)
-        {
-            _standardParameter.Add(p);
-        }
-
-        protected void AddStandardHeader(Param p)
-        {
-            _standardHeader.Add(p);
-        }
-
-        protected void AddStandardHeader(string name, string content)
-        {
-            AddStandardHeader(new Param(name, content));
-        }
-
-        protected void RemoveStandardHeader(string name)
-        {
-            _standardHeader.RemoveAll(p => p.Name == name);
-        }
-
-        protected void UpdateParameterIfExists(Param p)
-        {
-            foreach (Param para in _standardParameter)
-            {
-                if (para.Name == p.Name)
-                {
-                    Print(para.Name + " was: " + para.Value + " is: " + p.Value);
-                    para.Value = p.Value;
-                }
-            }
-        }
-
-        protected void UpdateHeaderIfExists(string name, string value)
-        {
-            UpdateHeaderIfExists(new Param(name, value));
-        }
-
-        protected void UpdateHeaderIfExists(Param p)
-        {
-            foreach (Param para in _standardHeader)
-            {
-                if (para.Name == p.Name)
-                {
-                    Print(para.Name + " was: " + para.Value + " is: " + p.Value);
-                    para.Value = p.Value;
-
-                }
-            }
-        }
-
-        protected void ConnectOAuth(string username, string secret)
+        protected void ConnectBasic(string username, string secret)
         {
             Client.Authenticator = new HttpBasicAuthenticator(username, secret);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T">The class we expect the response text to be</typeparam>
-        /// <param name="url">url to call</param>
-        /// <param name="method">method to use when calling the endpoint</param>
-        /// <param name="parameters">the list of parameters in the url to add.</param>
-        /// <param name="headers">the headers to add to the request</param>
-        /// <param name="content">The content of the request-body</param>
-        /// <param name="statusCode">the headers to add to the request</param>
-        /// <returns></returns>
-        protected internal async Task<T> MakeRequest<T>(string url, Call method = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        protected void SetBaseUrl(string baseurl)
         {
-            return Convert<T>(await HandleRequest(url, method, parameters, headers, content, statusCode));
+            Client.BaseUrl = new Uri(baseurl);
+        }
+    }
+
+    public abstract class Service
+    {
+        internal ICallImplementation Implementation { get; }
+
+        internal readonly List<Func<Request, Task<Request>>> RequestMiddleware = new();
+        internal readonly List<Func<RequestResponse, Task<RequestResponse>>> RequestResponseMiddleware = new();
+
+        public Service(ICallImplementation implementation)
+        {
+            Implementation = implementation;
+
+            RequestMiddleware.Add((req) =>
+            {
+                req.Headers.RemoveAll(i => standardHeaders.Any(j => i.Name == j.Name));
+                req.Headers.AddRange(standardHeaders);
+
+                req.Parameters.RemoveAll(i => standardParameters.Any(j => i.Name == j.Name));
+                req.Parameters.AddRange(standardParameters);
+
+                return Task.FromResult(req);
+            });
         }
 
-        protected internal virtual async Task<string> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        private readonly List<Param> standardHeaders = new();
+        protected void AddStandardHeader(string name, string content) => AddStandardHeader(new Param(name, content));
+        protected void AddStandardHeader(Param p)
         {
-            RestRequest request = new RestRequest(url, Convert(call));
-            return await HandleRequest(request, parameters, headers, content, statusCode);
+            RemoveStandardHeader(p.Name);
+            standardHeaders.Add(p);
+        }
+        protected void RemoveStandardHeader(string name)
+        {
+            standardHeaders.RemoveAll(p => p.Name == name);
         }
 
-        internal async Task<string> HandleRequest(IRestRequest request, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        private readonly List<Param> standardParameters = new();
+        protected void AddStandardParameter(string name, string content) => AddStandardParameter(new Param(name, content));
+        protected void AddStandardParameter(Param p)
         {
-            if (headers != null)
-            {
-                foreach (Param p in headers)
-                {
-                    request.AddHeader(p.Name, p.Value);
-                }
-            }
-
-            foreach (Param para in _standardHeader)
-            {
-                if (para is OParam && para.Value == null)
-                {
-                    continue;
-                }
-
-                request.AddHeader(para.Name, para.Value);
-            }
-
-            parameters = parameters ?? new List<Param>();
-            parameters.AddRange(_standardParameter);
-
-            foreach (Param para in parameters)
-            {
-                if (para is OParam && para.Value == null)
-                {
-                    continue;
-                }
-
-                if (request.Method == Method.GET || request.Method == Method.POST)
-                {
-
-                    request.AddParameter(para.Name, para.Value);
-                }
-                else
-                {
-                    request.AddParameter(para.Name, para.Value, ParameterType.QueryString);
-                }
-            }
-
-
-            if (content != null)
-            {
-                AddBody(request, content);
-            }
-
-            IRestResponse restResponse = (await ExcecuteRequest(request, statusCode));
-            return restResponse.Content;
+            RemoveStandardParameter(p.Name);
+            standardParameters.Add(p);
+        }
+        protected void RemoveStandardParameter(string name)
+        {
+            standardParameters.RemoveAll(p => p.Name == name);
         }
 
-
-        private static void AddBody(IRestRequest request, object content)
+        internal R Convert<R>(string text)
         {
-            switch (content)
+            if (typeof(R) == typeof(string))
             {
-                case string text:
-                    request.AddParameter("application/json", text, ParameterType.RequestBody);
-                    request.AddHeader("Content-Type", "application/json");
-                    break;
-                case RequestContent rcontent:
-                    request.AddParameter(rcontent.ContentType, rcontent.Content, ParameterType.RequestBody);
-                    request.AddHeader("Content-Type", rcontent.ContentType);
-                    break;
-                default:
-                    JsonSerializerSettings settings = new JsonSerializerSettings
-                    {
-                        NullValueHandling = NullValueHandling.Ignore
-                    };
-                    string jsonText = JsonConvert.SerializeObject(content, settings);
-                    request.AddParameter("application/json", jsonText, ParameterType.RequestBody);
-                    request.AddHeader("Content-Type", "application/json");
-                    break;
+                return (R)(object)text;
             }
-        }
-
-        internal async Task<IRestResponse> ExcecuteRequest(IRestRequest request, HttpStatusCode statusCode = HttpStatusCode.OK)
-        {
-            Debug.Assert(Client != null, "Client != null");
-            IRestResponse resp = await Client.ExecuteAsync(request);
-
-            if (resp.StatusCode != statusCode && resp.StatusCode.ToString() != "Created" && resp.StatusCode.ToString() != "ResetContent")
-            {
-                if (resp.ErrorException != null)
-                {
-                    if (resp.ErrorException is System.Net.WebException)
-                    {
-
-                        throw new NoInternetException(resp.ErrorException);
-                    }
-
-                    throw resp.ErrorException;
-                }
-
-                throw RequestException.ConvertToException((int)resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp);
-            }
-            return resp;
-        }
-
-        protected T Convert<T>(string text)
-        {
-            if (typeof(T) == typeof(string))
-            {
-                return (T) (object) text;
-            }
-            T returnObj;
-            try {
-                returnObj = JsonConvert.DeserializeObject<T>(text);
-            } catch(Exception e)
-            {
-                Print(text);
-                throw e;
-            }
+            R returnObj;
+            returnObj = JsonConvert.DeserializeObject<R>(text);
             if (returnObj is ObjectSearcher)
             {
                 //Enable better OOP
@@ -226,43 +95,123 @@ namespace ApiLibs
             return returnObj;
         }
 
-        private Method Convert(Call m)
+        protected internal virtual async Task<RequestResponse> HandleRequest(Request request, IEnumerable<Func<Request, Task<Request>>> requestMiddleware = null, IEnumerable<Func<RequestResponse, Task<RequestResponse>>> requestResponseMiddleware = null)
         {
-            switch (m)
+            requestMiddleware ??= new List<Func<Request, Task<Request>>>();
+            foreach (var func in RequestMiddleware.Concat(requestMiddleware))
             {
-                case Call.POST:
-                    return Method.POST;
-                case Call.PATCH:
-                    return Method.PATCH;
-                case Call.DELETE:
-                    return Method.DELETE;
-                case Call.PUT:
-                    return Method.PUT;
-                default:
-                    return Method.GET;
+                request = await func(request);
+            }
+
+            var resp = await Implementation.ExecuteRequest(this, request);
+
+            requestResponseMiddleware ??= new List<Func<RequestResponse, Task<RequestResponse>>>();
+            foreach (var func in RequestResponseMiddleware.Concat(requestResponseMiddleware))
+            {
+                resp = await func(resp);
+            }
+
+            return resp;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T">The class we expect the response text to be</typeparam>
+        /// <param name="endPoint">endPoint to call</param>
+        /// <param name="method">method to use when calling the endpoint</param>
+        /// <param name="parameters">the list of parameters in the url to add.</param>
+        /// <param name="headers">the headers to add to the request</param>
+        /// <param name="content">The content of the request-body</param>
+        /// <param name="statusCode">the headers to add to the request</param>
+        /// <returns></returns>
+        protected internal async Task<T> MakeRequest<T>(string endPoint, Call method = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        {
+            var resp = await HandleRequest(new Request(endPoint)
+            {
+                Content = content,
+                Headers = headers,
+                Parameters = parameters,
+                Method = method,
+            });
+
+            if (resp.StatusCode == statusCode)
+            {
+                return Convert<T>(resp.Content);
+            }
+            else
+            {
+                throw new RequestException(resp);
             }
         }
 
-        protected void SetBaseUrl(string baseurl)
+        protected internal async Task<OneOf<E0, E1>> MakeRequest<E0, E1>(string endPoint, Call method = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null)
+            where E0 : GenericBaseRequestResponse, new()
+            where E1 : GenericBaseRequestResponse, new()
         {
-            Client.BaseUrl = new Uri(baseurl);
+            var resp = await HandleRequest(new Request(endPoint)
+            {
+                Content = content,
+                Headers = headers,
+                Parameters = parameters,
+                Method = method,
+            });
+
+            {
+                var e0 = new E0
+                {
+                    Response = resp
+                };
+
+                if (e0.StatusCode == resp.StatusCode)
+                {
+                    return e0;
+                }
+            }
+
+            {
+                var e1 = new E1
+                {
+                    Response = resp
+                };
+
+                if (e1.StatusCode == resp.StatusCode)
+                {
+                    return e1;
+                }
+            }
+
+            throw new RequestException(resp);
         }
 
-        protected void Print(string s)
+
+    }
+
+    public class Request
+    {
+        public Request(string endPoint)
         {
-            if (_debug)
-            {
-                Console.WriteLine(s);
-            }
+            EndPoint = endPoint;
+            Retries = 0;
         }
+
+        public string EndPoint { get; set; }
+        public Call Method { get; set; } = Call.GET;
+        public List<Param> Parameters { get; set; }
+        public List<Param> Headers { get; set; }
+        public object Content { get; set; }
+
+        public int Retries { get; set; }
+    }
+
+    public enum Call
+    {
+        POST,
+        GET,
+        PATCH,
+        DELETE,
+        PUT
     }
 }
 
-public enum Call
-{
-    POST,
-    GET,
-    PATCH,
-    DELETE,
-    PUT
-}
+

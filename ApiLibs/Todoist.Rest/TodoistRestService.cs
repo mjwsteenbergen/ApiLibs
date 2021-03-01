@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace ApiLibs.TodoistRest
 {
-    public class TodoistRestService : Service
+    public class TodoistRestService : RestSharpService
     {
-        public TodoistRestService(string token) : base("https://api.todoist.com/rest/v1/", false)
+        public TodoistRestService(string token) : base("https://api.todoist.com/rest/v1/")
         {
             AddStandardHeader("Authorization", $"Bearer {token}");
         }
