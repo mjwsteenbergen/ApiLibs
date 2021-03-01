@@ -61,7 +61,7 @@ In many cases, an API is so large, it warrents splitting up the original service
 Create a subservice like so:
 
 ```csharp
-public class AlbumService : SubService
+public class AlbumService : SubService<SpotifyService>
 {
     public AlbumService(SpotifyService spotify) : base(spotify) { }
 }
@@ -70,7 +70,7 @@ public class AlbumService : SubService
 and initiate it in the main Service:
 
 ```csharp
-public class SpotifyService : Service
+public class SpotifyService : RestSharpService
 {
     public SpotifyService() : base("https://api.spotify.com/v1/")
     {
