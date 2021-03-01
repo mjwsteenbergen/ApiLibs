@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibs.BingMaps
 {
-    public class BingMapsService : Service
+    public class BingMapsService : RestSharpService
     {
         public BingMapsService(string key) : base("https://dev.virtualearth.net/REST/v1/")
         {

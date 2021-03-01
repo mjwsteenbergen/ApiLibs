@@ -6,7 +6,7 @@ using RestSharp;
 
 namespace ApiLibs.Wunderlist
 {
-    public class WunderlistService : Service
+    public class WunderlistService : RestSharpService
     {
         /// <summary>
         /// Use this constructor if you don't have a wunderlist token
@@ -98,7 +98,7 @@ namespace ApiLibs.Wunderlist
 
             try
             {
-                await HandleRequest("tasks/" + it.id, Call.DELETE, new List<Param>
+                await MakeRequest<string>("tasks/" + it.id, Call.DELETE, new List<Param>
                 {
                     new Param("revision", it.revision.ToString())
                 });

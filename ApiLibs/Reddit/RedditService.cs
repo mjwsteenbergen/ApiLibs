@@ -14,7 +14,7 @@ namespace ApiLibs.Reddit
     /// <summary>
     /// For more explanation see the reddit documentation: https://www.reddit.com/dev/api/
     /// </summary>
-    public class RedditService : Service
+    public class RedditService : RestSharpService
     {
         public UserService UserService => new UserService(this, _user);
         public PostService PostService => new PostService(this, _user);
@@ -39,6 +39,19 @@ namespace ApiLibs.Reddit
             ClientSecret = clientSecret;
             _clientId = clientId;
             _user = user;
+
+            RequestResponseMiddleware.Add(async (resp) =>
+            {
+               if (resp.StatusCode == HttpStatusCode.Unauthorized)
+               {
+                   var request = resp.Request;
+                   await RefreshToken();
+                   request.Retries++;
+                   return await base.HandleRequest(request);
+               }
+
+               return resp;
+            });
         }
 
         /// <summary>
@@ -96,21 +109,6 @@ namespace ApiLibs.Reddit
             SetBaseUrl("https://oauth.reddit.com");
             AddStandardHeader("Authorization", "bearer " + returns.access_token);
         }
-
-        protected internal override async Task<string> HandleRequest(string url, Call call = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
-        {
-            try
-            {
-                return await base.HandleRequest(url, call, parameters, headers, content);
-            }
-            catch (UnAuthorizedException)
-            {
-                await RefreshToken();
-                return await base.HandleRequest(url, call, parameters, headers, content);
-            }
-            
-        }
-
     }
 
     public class RedditScopes

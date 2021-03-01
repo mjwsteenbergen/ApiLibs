@@ -65,7 +65,7 @@ namespace ApiLibs.MicrosoftGraph
             parameters: new List<Param> {
                 new Param("includeInkML","true")
             }, 
-            header: new List<Param>
+            headers: new List<Param>
             {
                 new Param("Accept", "*/*")
             });
