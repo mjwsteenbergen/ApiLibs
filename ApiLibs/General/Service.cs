@@ -97,6 +97,11 @@ namespace ApiLibs
 
         protected internal virtual async Task<RequestResponse> HandleRequest(Request request, IEnumerable<Func<Request, Task<Request>>> requestMiddleware = null, IEnumerable<Func<RequestResponse, Task<RequestResponse>>> requestResponseMiddleware = null)
         {
+            if(request.Retries > 3)
+            {
+                throw new TooManyRetriesException();
+            }
+
             requestMiddleware ??= new List<Func<Request, Task<Request>>>();
             foreach (var func in RequestMiddleware.Concat(requestMiddleware))
             {
@@ -145,9 +150,8 @@ namespace ApiLibs
             }
         }
 
-        protected internal async Task<OneOf<E0, E1>> MakeRequest<E0, E1>(string endPoint, Call method = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null)
+        protected internal async Task<E0> MakeRequestExpert<E0>(string endPoint, Call method = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null)
             where E0 : GenericBaseRequestResponse, new()
-            where E1 : GenericBaseRequestResponse, new()
         {
             var resp = await HandleRequest(new Request(endPoint)
             {
@@ -169,23 +173,56 @@ namespace ApiLibs
                 }
             }
 
-            {
-                var e1 = new E1
-                {
-                    Response = resp
-                };
-
-                if (e1.StatusCode == resp.StatusCode)
-                {
-                    return e1;
-                }
-            }
-
             throw RequestException.ConvertToException(resp);
         }
 
 
+
+        protected internal async Task<E0> MakeRequest<E0, E1>(string endPoint, Call method = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, Func<E1, RequestResponse, Task<RequestResponse>> funcE1 = null)
+            where E0 : GenericBaseRequestResponse, new()
+            where E1 : GenericBaseRequestResponse, new()
+        {
+            var resp = await HandleRequest(new Request(endPoint)
+            {
+                Content = content,
+                Headers = headers ?? new List<Param>(),
+                Parameters = parameters ?? new List<Param>(),
+                Method = method,
+            }, requestResponseMiddleware: new List<Func<RequestResponse, Task<RequestResponse>>>() {
+                (resp) =>  {
+                    {
+                        var e1 = new E1
+                        {
+                            Response = resp
+                        };
+
+                        if (e1.StatusCode == resp.StatusCode)
+                        {
+                            return funcE1?.Invoke(e1, resp);
+                        }
+                    }
+
+                    return Task.FromResult(resp);
+                }
+            });
+
+            var e0 = new E0
+            {
+                Response = resp
+            };
+
+            if (e0.StatusCode == resp.StatusCode)
+            {
+                return e0;
+            }
+            else
+            {
+                throw RequestException.ConvertToException(resp);
+            }
+        }
     }
+
+    public class TooManyRetriesException : Exception {}
 
     public class Request
     {

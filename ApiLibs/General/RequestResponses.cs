@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace ApiLibs
 {
@@ -44,6 +45,13 @@ namespace ApiLibs
         public string ResponseUri => Response.ResponseUri;
         public string ErrorMessage => Response.ErrorMessage;
         public object Resp => Response.Resp;
+        public Request Request => Response.Request;
+
+        public Task<RequestResponse> Retry()
+        {
+            Request.Retries++;
+            return Response.Service.HandleRequest(Request);
+        } 
     }
 
     public class RequestResponse<T> : GenericBaseRequestResponse
