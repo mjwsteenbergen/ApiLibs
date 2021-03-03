@@ -22,8 +22,8 @@ namespace ApiLibs
 
         public string Message => $"Got {(int)StatusCode}:{StatusDescription} while trying to access \"{ResponseUri}\". {ErrorMessage} \n";
 
-        public HttpStatusCode StatusCode { get; }
-        public string StatusDescription { get; }
+        public HttpStatusCode StatusCode { get; protected set; }
+        public string StatusDescription { get; protected set; }
         public string ResponseUri { get; }
         public string ErrorMessage { get; }
         public string Content { get; }
