@@ -2,287 +2,568 @@ using System.Net;
 
 namespace ApiLibs
 {
-    public class ContinueResponse<T> : RequestResponse<T>
+    public class ContinueResponse : RequestResponse
     {
-        public ContinueResponse() : base(null, HttpStatusCode.Continue) { }
-        public ContinueResponse(RequestResponse resp) : base(resp, HttpStatusCode.Continue) { }
+        public ContinueResponse() : base(HttpStatusCode.Continue) { }
+        public ContinueResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class SwitchingProtocolsResponse<T> : RequestResponse<T>
+    public class ContinueResponse<T> : ContinueResponse
     {
-        public SwitchingProtocolsResponse() : base(null, HttpStatusCode.SwitchingProtocols) { }
-        public SwitchingProtocolsResponse(RequestResponse resp) : base(resp, HttpStatusCode.SwitchingProtocols) { }
+        public ContinueResponse() : base() { }
+        public ContinueResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class SwitchingProtocolsResponse : RequestResponse
+    {
+        public SwitchingProtocolsResponse() : base(HttpStatusCode.Continue) { }
+        public SwitchingProtocolsResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class OKResponse<T> : RequestResponse<T>
+    public class SwitchingProtocolsResponse<T> : SwitchingProtocolsResponse
     {
-        public OKResponse() : base(null, HttpStatusCode.OK) { }
-        public OKResponse(RequestResponse resp) : base(resp, HttpStatusCode.OK) { }
+        public SwitchingProtocolsResponse() : base() { }
+        public SwitchingProtocolsResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class OKResponse : RequestResponse
+    {
+        public OKResponse() : base(HttpStatusCode.Continue) { }
+        public OKResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class CreatedResponse<T> : RequestResponse<T>
+    public class OKResponse<T> : OKResponse
     {
-        public CreatedResponse() : base(null, HttpStatusCode.Created) { }
-        public CreatedResponse(RequestResponse resp) : base(resp, HttpStatusCode.Created) { }
+        public OKResponse() : base() { }
+        public OKResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class CreatedResponse : RequestResponse
+    {
+        public CreatedResponse() : base(HttpStatusCode.Continue) { }
+        public CreatedResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class AcceptedResponse<T> : RequestResponse<T>
+    public class CreatedResponse<T> : CreatedResponse
     {
-        public AcceptedResponse() : base(null, HttpStatusCode.Accepted) { }
-        public AcceptedResponse(RequestResponse resp) : base(resp, HttpStatusCode.Accepted) { }
+        public CreatedResponse() : base() { }
+        public CreatedResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class AcceptedResponse : RequestResponse
+    {
+        public AcceptedResponse() : base(HttpStatusCode.Continue) { }
+        public AcceptedResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class NonAuthoritativeInformationResponse<T> : RequestResponse<T>
+    public class AcceptedResponse<T> : AcceptedResponse
     {
-        public NonAuthoritativeInformationResponse() : base(null, HttpStatusCode.NonAuthoritativeInformation) { }
-        public NonAuthoritativeInformationResponse(RequestResponse resp) : base(resp, HttpStatusCode.NonAuthoritativeInformation) { }
+        public AcceptedResponse() : base() { }
+        public AcceptedResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class NonAuthoritativeInformationResponse : RequestResponse
+    {
+        public NonAuthoritativeInformationResponse() : base(HttpStatusCode.Continue) { }
+        public NonAuthoritativeInformationResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class NoContentResponse<T> : RequestResponse<T>
+    public class NonAuthoritativeInformationResponse<T> : NonAuthoritativeInformationResponse
     {
-        public NoContentResponse() : base(null, HttpStatusCode.NoContent) { }
-        public NoContentResponse(RequestResponse resp) : base(resp, HttpStatusCode.NoContent) { }
+        public NonAuthoritativeInformationResponse() : base() { }
+        public NonAuthoritativeInformationResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class NoContentResponse : RequestResponse
+    {
+        public NoContentResponse() : base(HttpStatusCode.Continue) { }
+        public NoContentResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class ResetContentResponse<T> : RequestResponse<T>
+    public class NoContentResponse<T> : NoContentResponse
     {
-        public ResetContentResponse() : base(null, HttpStatusCode.ResetContent) { }
-        public ResetContentResponse(RequestResponse resp) : base(resp, HttpStatusCode.ResetContent) { }
+        public NoContentResponse() : base() { }
+        public NoContentResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class ResetContentResponse : RequestResponse
+    {
+        public ResetContentResponse() : base(HttpStatusCode.Continue) { }
+        public ResetContentResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class PartialContentResponse<T> : RequestResponse<T>
+    public class ResetContentResponse<T> : ResetContentResponse
     {
-        public PartialContentResponse() : base(null, HttpStatusCode.PartialContent) { }
-        public PartialContentResponse(RequestResponse resp) : base(resp, HttpStatusCode.PartialContent) { }
+        public ResetContentResponse() : base() { }
+        public ResetContentResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class PartialContentResponse : RequestResponse
+    {
+        public PartialContentResponse() : base(HttpStatusCode.Continue) { }
+        public PartialContentResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class AmbiguousResponse<T> : RequestResponse<T>
+    public class PartialContentResponse<T> : PartialContentResponse
     {
-        public AmbiguousResponse() : base(null, HttpStatusCode.Ambiguous) { }
-        public AmbiguousResponse(RequestResponse resp) : base(resp, HttpStatusCode.Ambiguous) { }
+        public PartialContentResponse() : base() { }
+        public PartialContentResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class AmbiguousResponse : RequestResponse
+    {
+        public AmbiguousResponse() : base(HttpStatusCode.Continue) { }
+        public AmbiguousResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class MultipleChoicesResponse<T> : RequestResponse<T>
+    public class AmbiguousResponse<T> : AmbiguousResponse
     {
-        public MultipleChoicesResponse() : base(null, HttpStatusCode.MultipleChoices) { }
-        public MultipleChoicesResponse(RequestResponse resp) : base(resp, HttpStatusCode.MultipleChoices) { }
+        public AmbiguousResponse() : base() { }
+        public AmbiguousResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class MultipleChoicesResponse : RequestResponse
+    {
+        public MultipleChoicesResponse() : base(HttpStatusCode.Continue) { }
+        public MultipleChoicesResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class MovedResponse<T> : RequestResponse<T>
+    public class MultipleChoicesResponse<T> : MultipleChoicesResponse
     {
-        public MovedResponse() : base(null, HttpStatusCode.Moved) { }
-        public MovedResponse(RequestResponse resp) : base(resp, HttpStatusCode.Moved) { }
+        public MultipleChoicesResponse() : base() { }
+        public MultipleChoicesResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class MovedResponse : RequestResponse
+    {
+        public MovedResponse() : base(HttpStatusCode.Continue) { }
+        public MovedResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class MovedPermanentlyResponse<T> : RequestResponse<T>
+    public class MovedResponse<T> : MovedResponse
     {
-        public MovedPermanentlyResponse() : base(null, HttpStatusCode.MovedPermanently) { }
-        public MovedPermanentlyResponse(RequestResponse resp) : base(resp, HttpStatusCode.MovedPermanently) { }
+        public MovedResponse() : base() { }
+        public MovedResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class MovedPermanentlyResponse : RequestResponse
+    {
+        public MovedPermanentlyResponse() : base(HttpStatusCode.Continue) { }
+        public MovedPermanentlyResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class FoundResponse<T> : RequestResponse<T>
+    public class MovedPermanentlyResponse<T> : MovedPermanentlyResponse
     {
-        public FoundResponse() : base(null, HttpStatusCode.Found) { }
-        public FoundResponse(RequestResponse resp) : base(resp, HttpStatusCode.Found) { }
+        public MovedPermanentlyResponse() : base() { }
+        public MovedPermanentlyResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class FoundResponse : RequestResponse
+    {
+        public FoundResponse() : base(HttpStatusCode.Continue) { }
+        public FoundResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class RedirectResponse<T> : RequestResponse<T>
+    public class FoundResponse<T> : FoundResponse
     {
-        public RedirectResponse() : base(null, HttpStatusCode.Redirect) { }
-        public RedirectResponse(RequestResponse resp) : base(resp, HttpStatusCode.Redirect) { }
+        public FoundResponse() : base() { }
+        public FoundResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class RedirectResponse : RequestResponse
+    {
+        public RedirectResponse() : base(HttpStatusCode.Continue) { }
+        public RedirectResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class RedirectMethodResponse<T> : RequestResponse<T>
+    public class RedirectResponse<T> : RedirectResponse
     {
-        public RedirectMethodResponse() : base(null, HttpStatusCode.RedirectMethod) { }
-        public RedirectMethodResponse(RequestResponse resp) : base(resp, HttpStatusCode.RedirectMethod) { }
+        public RedirectResponse() : base() { }
+        public RedirectResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class RedirectMethodResponse : RequestResponse
+    {
+        public RedirectMethodResponse() : base(HttpStatusCode.Continue) { }
+        public RedirectMethodResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class SeeOtherResponse<T> : RequestResponse<T>
+    public class RedirectMethodResponse<T> : RedirectMethodResponse
     {
-        public SeeOtherResponse() : base(null, HttpStatusCode.SeeOther) { }
-        public SeeOtherResponse(RequestResponse resp) : base(resp, HttpStatusCode.SeeOther) { }
+        public RedirectMethodResponse() : base() { }
+        public RedirectMethodResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class SeeOtherResponse : RequestResponse
+    {
+        public SeeOtherResponse() : base(HttpStatusCode.Continue) { }
+        public SeeOtherResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class NotModifiedResponse<T> : RequestResponse<T>
+    public class SeeOtherResponse<T> : SeeOtherResponse
     {
-        public NotModifiedResponse() : base(null, HttpStatusCode.NotModified) { }
-        public NotModifiedResponse(RequestResponse resp) : base(resp, HttpStatusCode.NotModified) { }
+        public SeeOtherResponse() : base() { }
+        public SeeOtherResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class NotModifiedResponse : RequestResponse
+    {
+        public NotModifiedResponse() : base(HttpStatusCode.Continue) { }
+        public NotModifiedResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class UseProxyResponse<T> : RequestResponse<T>
+    public class NotModifiedResponse<T> : NotModifiedResponse
     {
-        public UseProxyResponse() : base(null, HttpStatusCode.UseProxy) { }
-        public UseProxyResponse(RequestResponse resp) : base(resp, HttpStatusCode.UseProxy) { }
+        public NotModifiedResponse() : base() { }
+        public NotModifiedResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class UseProxyResponse : RequestResponse
+    {
+        public UseProxyResponse() : base(HttpStatusCode.Continue) { }
+        public UseProxyResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class UnusedResponse<T> : RequestResponse<T>
+    public class UseProxyResponse<T> : UseProxyResponse
     {
-        public UnusedResponse() : base(null, HttpStatusCode.Unused) { }
-        public UnusedResponse(RequestResponse resp) : base(resp, HttpStatusCode.Unused) { }
+        public UseProxyResponse() : base() { }
+        public UseProxyResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class UnusedResponse : RequestResponse
+    {
+        public UnusedResponse() : base(HttpStatusCode.Continue) { }
+        public UnusedResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class RedirectKeepVerbResponse<T> : RequestResponse<T>
+    public class UnusedResponse<T> : UnusedResponse
     {
-        public RedirectKeepVerbResponse() : base(null, HttpStatusCode.RedirectKeepVerb) { }
-        public RedirectKeepVerbResponse(RequestResponse resp) : base(resp, HttpStatusCode.RedirectKeepVerb) { }
+        public UnusedResponse() : base() { }
+        public UnusedResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class RedirectKeepVerbResponse : RequestResponse
+    {
+        public RedirectKeepVerbResponse() : base(HttpStatusCode.Continue) { }
+        public RedirectKeepVerbResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class TemporaryRedirectResponse<T> : RequestResponse<T>
+    public class RedirectKeepVerbResponse<T> : RedirectKeepVerbResponse
     {
-        public TemporaryRedirectResponse() : base(null, HttpStatusCode.TemporaryRedirect) { }
-        public TemporaryRedirectResponse(RequestResponse resp) : base(resp, HttpStatusCode.TemporaryRedirect) { }
+        public RedirectKeepVerbResponse() : base() { }
+        public RedirectKeepVerbResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class TemporaryRedirectResponse : RequestResponse
+    {
+        public TemporaryRedirectResponse() : base(HttpStatusCode.Continue) { }
+        public TemporaryRedirectResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class BadRequestResponse<T> : RequestResponse<T>
+    public class TemporaryRedirectResponse<T> : TemporaryRedirectResponse
     {
-        public BadRequestResponse() : base(null, HttpStatusCode.BadRequest) { }
-        public BadRequestResponse(RequestResponse resp) : base(resp, HttpStatusCode.BadRequest) { }
+        public TemporaryRedirectResponse() : base() { }
+        public TemporaryRedirectResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class BadRequestResponse : RequestResponse
+    {
+        public BadRequestResponse() : base(HttpStatusCode.Continue) { }
+        public BadRequestResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class UnauthorizedResponse<T> : RequestResponse<T>
+    public class BadRequestResponse<T> : BadRequestResponse
     {
-        public UnauthorizedResponse() : base(null, HttpStatusCode.Unauthorized) { }
-        public UnauthorizedResponse(RequestResponse resp) : base(resp, HttpStatusCode.Unauthorized) { }
+        public BadRequestResponse() : base() { }
+        public BadRequestResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class UnauthorizedResponse : RequestResponse
+    {
+        public UnauthorizedResponse() : base(HttpStatusCode.Continue) { }
+        public UnauthorizedResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class PaymentRequiredResponse<T> : RequestResponse<T>
+    public class UnauthorizedResponse<T> : UnauthorizedResponse
     {
-        public PaymentRequiredResponse() : base(null, HttpStatusCode.PaymentRequired) { }
-        public PaymentRequiredResponse(RequestResponse resp) : base(resp, HttpStatusCode.PaymentRequired) { }
+        public UnauthorizedResponse() : base() { }
+        public UnauthorizedResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class PaymentRequiredResponse : RequestResponse
+    {
+        public PaymentRequiredResponse() : base(HttpStatusCode.Continue) { }
+        public PaymentRequiredResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class ForbiddenResponse<T> : RequestResponse<T>
+    public class PaymentRequiredResponse<T> : PaymentRequiredResponse
     {
-        public ForbiddenResponse() : base(null, HttpStatusCode.Forbidden) { }
-        public ForbiddenResponse(RequestResponse resp) : base(resp, HttpStatusCode.Forbidden) { }
+        public PaymentRequiredResponse() : base() { }
+        public PaymentRequiredResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class ForbiddenResponse : RequestResponse
+    {
+        public ForbiddenResponse() : base(HttpStatusCode.Continue) { }
+        public ForbiddenResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class NotFoundResponse<T> : RequestResponse<T>
+    public class ForbiddenResponse<T> : ForbiddenResponse
     {
-        public NotFoundResponse() : base(null, HttpStatusCode.NotFound) { }
-        public NotFoundResponse(RequestResponse resp) : base(resp, HttpStatusCode.NotFound) { }
+        public ForbiddenResponse() : base() { }
+        public ForbiddenResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class NotFoundResponse : RequestResponse
+    {
+        public NotFoundResponse() : base(HttpStatusCode.Continue) { }
+        public NotFoundResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class MethodNotAllowedResponse<T> : RequestResponse<T>
+    public class NotFoundResponse<T> : NotFoundResponse
     {
-        public MethodNotAllowedResponse() : base(null, HttpStatusCode.MethodNotAllowed) { }
-        public MethodNotAllowedResponse(RequestResponse resp) : base(resp, HttpStatusCode.MethodNotAllowed) { }
+        public NotFoundResponse() : base() { }
+        public NotFoundResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class MethodNotAllowedResponse : RequestResponse
+    {
+        public MethodNotAllowedResponse() : base(HttpStatusCode.Continue) { }
+        public MethodNotAllowedResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class NotAcceptableResponse<T> : RequestResponse<T>
+    public class MethodNotAllowedResponse<T> : MethodNotAllowedResponse
     {
-        public NotAcceptableResponse() : base(null, HttpStatusCode.NotAcceptable) { }
-        public NotAcceptableResponse(RequestResponse resp) : base(resp, HttpStatusCode.NotAcceptable) { }
+        public MethodNotAllowedResponse() : base() { }
+        public MethodNotAllowedResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class NotAcceptableResponse : RequestResponse
+    {
+        public NotAcceptableResponse() : base(HttpStatusCode.Continue) { }
+        public NotAcceptableResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class ProxyAuthenticationRequiredResponse<T> : RequestResponse<T>
+    public class NotAcceptableResponse<T> : NotAcceptableResponse
     {
-        public ProxyAuthenticationRequiredResponse() : base(null, HttpStatusCode.ProxyAuthenticationRequired) { }
-        public ProxyAuthenticationRequiredResponse(RequestResponse resp) : base(resp, HttpStatusCode.ProxyAuthenticationRequired) { }
+        public NotAcceptableResponse() : base() { }
+        public NotAcceptableResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class ProxyAuthenticationRequiredResponse : RequestResponse
+    {
+        public ProxyAuthenticationRequiredResponse() : base(HttpStatusCode.Continue) { }
+        public ProxyAuthenticationRequiredResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class RequestTimeoutResponse<T> : RequestResponse<T>
+    public class ProxyAuthenticationRequiredResponse<T> : ProxyAuthenticationRequiredResponse
     {
-        public RequestTimeoutResponse() : base(null, HttpStatusCode.RequestTimeout) { }
-        public RequestTimeoutResponse(RequestResponse resp) : base(resp, HttpStatusCode.RequestTimeout) { }
+        public ProxyAuthenticationRequiredResponse() : base() { }
+        public ProxyAuthenticationRequiredResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class RequestTimeoutResponse : RequestResponse
+    {
+        public RequestTimeoutResponse() : base(HttpStatusCode.Continue) { }
+        public RequestTimeoutResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class ConflictResponse<T> : RequestResponse<T>
+    public class RequestTimeoutResponse<T> : RequestTimeoutResponse
     {
-        public ConflictResponse() : base(null, HttpStatusCode.Conflict) { }
-        public ConflictResponse(RequestResponse resp) : base(resp, HttpStatusCode.Conflict) { }
+        public RequestTimeoutResponse() : base() { }
+        public RequestTimeoutResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class ConflictResponse : RequestResponse
+    {
+        public ConflictResponse() : base(HttpStatusCode.Continue) { }
+        public ConflictResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class GoneResponse<T> : RequestResponse<T>
+    public class ConflictResponse<T> : ConflictResponse
     {
-        public GoneResponse() : base(null, HttpStatusCode.Gone) { }
-        public GoneResponse(RequestResponse resp) : base(resp, HttpStatusCode.Gone) { }
+        public ConflictResponse() : base() { }
+        public ConflictResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class GoneResponse : RequestResponse
+    {
+        public GoneResponse() : base(HttpStatusCode.Continue) { }
+        public GoneResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class LengthRequiredResponse<T> : RequestResponse<T>
+    public class GoneResponse<T> : GoneResponse
     {
-        public LengthRequiredResponse() : base(null, HttpStatusCode.LengthRequired) { }
-        public LengthRequiredResponse(RequestResponse resp) : base(resp, HttpStatusCode.LengthRequired) { }
+        public GoneResponse() : base() { }
+        public GoneResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class LengthRequiredResponse : RequestResponse
+    {
+        public LengthRequiredResponse() : base(HttpStatusCode.Continue) { }
+        public LengthRequiredResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class PreconditionFailedResponse<T> : RequestResponse<T>
+    public class LengthRequiredResponse<T> : LengthRequiredResponse
     {
-        public PreconditionFailedResponse() : base(null, HttpStatusCode.PreconditionFailed) { }
-        public PreconditionFailedResponse(RequestResponse resp) : base(resp, HttpStatusCode.PreconditionFailed) { }
+        public LengthRequiredResponse() : base() { }
+        public LengthRequiredResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class PreconditionFailedResponse : RequestResponse
+    {
+        public PreconditionFailedResponse() : base(HttpStatusCode.Continue) { }
+        public PreconditionFailedResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class RequestEntityTooLargeResponse<T> : RequestResponse<T>
+    public class PreconditionFailedResponse<T> : PreconditionFailedResponse
     {
-        public RequestEntityTooLargeResponse() : base(null, HttpStatusCode.RequestEntityTooLarge) { }
-        public RequestEntityTooLargeResponse(RequestResponse resp) : base(resp, HttpStatusCode.RequestEntityTooLarge) { }
+        public PreconditionFailedResponse() : base() { }
+        public PreconditionFailedResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class RequestEntityTooLargeResponse : RequestResponse
+    {
+        public RequestEntityTooLargeResponse() : base(HttpStatusCode.Continue) { }
+        public RequestEntityTooLargeResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class RequestUriTooLongResponse<T> : RequestResponse<T>
+    public class RequestEntityTooLargeResponse<T> : RequestEntityTooLargeResponse
     {
-        public RequestUriTooLongResponse() : base(null, HttpStatusCode.RequestUriTooLong) { }
-        public RequestUriTooLongResponse(RequestResponse resp) : base(resp, HttpStatusCode.RequestUriTooLong) { }
+        public RequestEntityTooLargeResponse() : base() { }
+        public RequestEntityTooLargeResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class RequestUriTooLongResponse : RequestResponse
+    {
+        public RequestUriTooLongResponse() : base(HttpStatusCode.Continue) { }
+        public RequestUriTooLongResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class UnsupportedMediaTypeResponse<T> : RequestResponse<T>
+    public class RequestUriTooLongResponse<T> : RequestUriTooLongResponse
     {
-        public UnsupportedMediaTypeResponse() : base(null, HttpStatusCode.UnsupportedMediaType) { }
-        public UnsupportedMediaTypeResponse(RequestResponse resp) : base(resp, HttpStatusCode.UnsupportedMediaType) { }
+        public RequestUriTooLongResponse() : base() { }
+        public RequestUriTooLongResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class UnsupportedMediaTypeResponse : RequestResponse
+    {
+        public UnsupportedMediaTypeResponse() : base(HttpStatusCode.Continue) { }
+        public UnsupportedMediaTypeResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class RequestedRangeNotSatisfiableResponse<T> : RequestResponse<T>
+    public class UnsupportedMediaTypeResponse<T> : UnsupportedMediaTypeResponse
     {
-        public RequestedRangeNotSatisfiableResponse() : base(null, HttpStatusCode.RequestedRangeNotSatisfiable) { }
-        public RequestedRangeNotSatisfiableResponse(RequestResponse resp) : base(resp, HttpStatusCode.RequestedRangeNotSatisfiable) { }
+        public UnsupportedMediaTypeResponse() : base() { }
+        public UnsupportedMediaTypeResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class RequestedRangeNotSatisfiableResponse : RequestResponse
+    {
+        public RequestedRangeNotSatisfiableResponse() : base(HttpStatusCode.Continue) { }
+        public RequestedRangeNotSatisfiableResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class ExpectationFailedResponse<T> : RequestResponse<T>
+    public class RequestedRangeNotSatisfiableResponse<T> : RequestedRangeNotSatisfiableResponse
     {
-        public ExpectationFailedResponse() : base(null, HttpStatusCode.ExpectationFailed) { }
-        public ExpectationFailedResponse(RequestResponse resp) : base(resp, HttpStatusCode.ExpectationFailed) { }
+        public RequestedRangeNotSatisfiableResponse() : base() { }
+        public RequestedRangeNotSatisfiableResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class ExpectationFailedResponse : RequestResponse
+    {
+        public ExpectationFailedResponse() : base(HttpStatusCode.Continue) { }
+        public ExpectationFailedResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class UpgradeRequiredResponse<T> : RequestResponse<T>
+    public class ExpectationFailedResponse<T> : ExpectationFailedResponse
     {
-        public UpgradeRequiredResponse() : base(null, HttpStatusCode.UpgradeRequired) { }
-        public UpgradeRequiredResponse(RequestResponse resp) : base(resp, HttpStatusCode.UpgradeRequired) { }
+        public ExpectationFailedResponse() : base() { }
+        public ExpectationFailedResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class UpgradeRequiredResponse : RequestResponse
+    {
+        public UpgradeRequiredResponse() : base(HttpStatusCode.Continue) { }
+        public UpgradeRequiredResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class InternalServerErrorResponse<T> : RequestResponse<T>
+    public class UpgradeRequiredResponse<T> : UpgradeRequiredResponse
     {
-        public InternalServerErrorResponse() : base(null, HttpStatusCode.InternalServerError) { }
-        public InternalServerErrorResponse(RequestResponse resp) : base(resp, HttpStatusCode.InternalServerError) { }
+        public UpgradeRequiredResponse() : base() { }
+        public UpgradeRequiredResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class InternalServerErrorResponse : RequestResponse
+    {
+        public InternalServerErrorResponse() : base(HttpStatusCode.Continue) { }
+        public InternalServerErrorResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class NotImplementedResponse<T> : RequestResponse<T>
+    public class InternalServerErrorResponse<T> : InternalServerErrorResponse
     {
-        public NotImplementedResponse() : base(null, HttpStatusCode.NotImplemented) { }
-        public NotImplementedResponse(RequestResponse resp) : base(resp, HttpStatusCode.NotImplemented) { }
+        public InternalServerErrorResponse() : base() { }
+        public InternalServerErrorResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class NotImplementedResponse : RequestResponse
+    {
+        public NotImplementedResponse() : base(HttpStatusCode.Continue) { }
+        public NotImplementedResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class BadGatewayResponse<T> : RequestResponse<T>
+    public class NotImplementedResponse<T> : NotImplementedResponse
     {
-        public BadGatewayResponse() : base(null, HttpStatusCode.BadGateway) { }
-        public BadGatewayResponse(RequestResponse resp) : base(resp, HttpStatusCode.BadGateway) { }
+        public NotImplementedResponse() : base() { }
+        public NotImplementedResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class BadGatewayResponse : RequestResponse
+    {
+        public BadGatewayResponse() : base(HttpStatusCode.Continue) { }
+        public BadGatewayResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class ServiceUnavailableResponse<T> : RequestResponse<T>
+    public class BadGatewayResponse<T> : BadGatewayResponse
     {
-        public ServiceUnavailableResponse() : base(null, HttpStatusCode.ServiceUnavailable) { }
-        public ServiceUnavailableResponse(RequestResponse resp) : base(resp, HttpStatusCode.ServiceUnavailable) { }
+        public BadGatewayResponse() : base() { }
+        public BadGatewayResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class ServiceUnavailableResponse : RequestResponse
+    {
+        public ServiceUnavailableResponse() : base(HttpStatusCode.Continue) { }
+        public ServiceUnavailableResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class GatewayTimeoutResponse<T> : RequestResponse<T>
+    public class ServiceUnavailableResponse<T> : ServiceUnavailableResponse
     {
-        public GatewayTimeoutResponse() : base(null, HttpStatusCode.GatewayTimeout) { }
-        public GatewayTimeoutResponse(RequestResponse resp) : base(resp, HttpStatusCode.GatewayTimeout) { }
+        public ServiceUnavailableResponse() : base() { }
+        public ServiceUnavailableResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class GatewayTimeoutResponse : RequestResponse
+    {
+        public GatewayTimeoutResponse() : base(HttpStatusCode.Continue) { }
+        public GatewayTimeoutResponse(RequestResponse resp) : base(resp) { }
     }
 
-    public class HttpVersionNotSupportedResponse<T> : RequestResponse<T>
+    public class GatewayTimeoutResponse<T> : GatewayTimeoutResponse
     {
-        public HttpVersionNotSupportedResponse() : base(null, HttpStatusCode.HttpVersionNotSupported) { }
-        public HttpVersionNotSupportedResponse(RequestResponse resp) : base(resp, HttpStatusCode.HttpVersionNotSupported) { }
+        public GatewayTimeoutResponse() : base() { }
+        public GatewayTimeoutResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
+    public class HttpVersionNotSupportedResponse : RequestResponse
+    {
+        public HttpVersionNotSupportedResponse() : base(HttpStatusCode.Continue) { }
+        public HttpVersionNotSupportedResponse(RequestResponse resp) : base(resp) { }
     }
 
-
+    public class HttpVersionNotSupportedResponse<T> : HttpVersionNotSupportedResponse
+    {
+        public HttpVersionNotSupportedResponse() : base() { }
+        public HttpVersionNotSupportedResponse(RequestResponse resp) : base(resp) { }
+        public new T Content() => base.Convert<T>();
+    }
 }

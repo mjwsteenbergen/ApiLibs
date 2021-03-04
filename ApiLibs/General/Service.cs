@@ -35,6 +35,9 @@ namespace ApiLibs
     public abstract class Service
     {
         internal ICallImplementation Implementation { get; }
+        private int? maxRetries;
+
+        public virtual int? MaxRetries { get => maxRetries ?? 3; set => maxRetries = value; }
 
         protected readonly List<Func<Request, Task<Request>>> RequestMiddleware = new();
         protected readonly List<Func<RequestResponse, Task<RequestResponse>>> RequestResponseMiddleware = new();
@@ -97,7 +100,7 @@ namespace ApiLibs
 
         protected internal virtual async Task<RequestResponse> HandleRequest(Request request, IEnumerable<Func<Request, Task<Request>>> requestMiddleware = null, IEnumerable<Func<RequestResponse, Task<RequestResponse>>> requestResponseMiddleware = null)
         {
-            if(request.Retries > 3)
+            if (request.Retries > MaxRetries)
             {
                 throw new TooManyRetriesException();
             }
@@ -118,6 +121,89 @@ namespace ApiLibs
 
             return resp;
         }
+
+        protected internal virtual async Task<OneOf<E0,RequestResponse>> HandleRequest<E0>(Request request, IEnumerable<Func<Request, Task<Request>>> requestMiddleware = null, IEnumerable<Func<RequestResponse, Task<RequestResponse>>> requestResponseMiddleware = null)
+            where E0 : RequestResponse, new()
+        {
+            var resp = await HandleRequest(request, requestMiddleware, requestResponseMiddleware);
+
+            var e0 = new E0();
+
+            if (e0.StatusCode == resp.StatusCode)
+            {
+                return (E0)Activator.CreateInstance(typeof(E0), new object[] { resp });
+            }
+
+            return resp;
+        }
+
+        protected internal virtual async Task<OneOf<E0, E1, RequestResponse>> HandleRequest<E0, E1>(Request request, IEnumerable<Func<Request, Task<Request>>> requestMiddleware = null, IEnumerable<Func<RequestResponse, Task<RequestResponse>>> requestResponseMiddleware = null)
+            where E0 : RequestResponse, new()
+            where E1 : RequestResponse, new()
+        {
+            return (await HandleRequest<E0>(request, requestMiddleware, requestResponseMiddleware)).Match(
+                i => i,
+                resp =>
+                {
+                    var e1 = new E1();
+
+                    if (e1.StatusCode == resp.StatusCode)
+                    {
+                        return (E1)Activator.CreateInstance(typeof(E1), new object[] { resp });
+                    }
+
+                    return resp;
+                }
+            );
+        }
+
+        protected internal virtual async Task<OneOf<E0, E1, E2, RequestResponse>> HandleRequest<E0, E1, E2>(Request request, IEnumerable<Func<Request, Task<Request>>> requestMiddleware = null, IEnumerable<Func<RequestResponse, Task<RequestResponse>>> requestResponseMiddleware = null)
+            where E0 : RequestResponse, new()
+            where E1 : RequestResponse, new()
+            where E2 : RequestResponse, new()
+        {
+            return (await HandleRequest<E0, E1>(request, requestMiddleware, requestResponseMiddleware)).Match(
+                i => i,
+                i => i,
+                resp =>
+                {
+                    var e2 = new E2();
+
+                    if (e2.StatusCode == resp.StatusCode)
+                    {
+                        return (E2)Activator.CreateInstance(typeof(E2), new object[] { resp });
+                    }
+
+                    return resp;
+                }
+            );
+        }
+
+        protected internal virtual async Task<OneOf<E0, E1, E2, E3, RequestResponse>> HandleRequest<E0, E1, E2, E3>(Request request, IEnumerable<Func<Request, Task<Request>>> requestMiddleware = null, IEnumerable<Func<RequestResponse, Task<RequestResponse>>> requestResponseMiddleware = null)
+            where E0 : RequestResponse, new()
+            where E1 : RequestResponse, new()
+            where E2 : RequestResponse, new()
+            where E3 : RequestResponse, new()
+        {
+            return (await HandleRequest<E0, E1, E2>(request, requestMiddleware, requestResponseMiddleware)).Match(
+                i => i,
+                i => i,
+                i => i,
+                resp =>
+                {
+                    var e3 = new E3();
+
+                    if (e3.StatusCode == resp.StatusCode)
+                    {
+                        return (E3)Activator.CreateInstance(typeof(E3), new object[] { resp });
+                    }
+
+                    return resp;
+                }
+            );
+        }
+
+        
 
         /// <summary>
         /// 
@@ -150,8 +236,12 @@ namespace ApiLibs
             }
         }
 
-        protected internal async Task<E0> MakeRequestExpert<E0>(string endPoint, Call method = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null)
-            where E0 : GenericBaseRequestResponse, new()
+        protected internal async Task<E0> MakeRequestExpert<E0>(
+            string endPoint, Call method = Call.GET, List<Param> parameters = null, List<Param> headers = null,
+            object content = null,
+            IEnumerable<Func<Request, Task<Request>>> requestMiddleware = null,
+            IEnumerable<Func<RequestResponse, Task<RequestResponse>>> requestResponseMiddleware = null)
+            where E0 : RequestResponse, new()
         {
             var resp = await HandleRequest(new Request(endPoint)
             {
@@ -159,66 +249,70 @@ namespace ApiLibs
                 Headers = headers ?? new List<Param>(),
                 Parameters = parameters ?? new List<Param>(),
                 Method = method,
-            });
+            }, requestMiddleware, requestResponseMiddleware);
 
+            return (await HandleRequest<E0>(new Request(endPoint)
             {
-                var e0 = new E0
-                {
-                    Response = resp
-                };
-
-                if (e0.StatusCode == resp.StatusCode)
-                {
-                    return e0;
-                }
-            }
-
-            throw RequestException.ConvertToException(resp);
+                Content = content,
+                Headers = headers ?? new List<Param>(),
+                Parameters = parameters ?? new List<Param>(),
+                Method = method,
+            }, requestMiddleware, requestResponseMiddleware)).Match(
+                i => i,
+                resp => throw RequestException.ConvertToException(resp)
+            );
         }
 
 
 
-        protected internal async Task<E0> MakeRequest<E0, E1>(string endPoint, Call method = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, Func<E1, RequestResponse, Task<RequestResponse>> funcE1 = null)
-            where E0 : GenericBaseRequestResponse, new()
-            where E1 : GenericBaseRequestResponse, new()
+        protected internal async Task<OneOf<E0, E1>> MakeRequest<E0, E1>(
+                string endPoint,
+                Call method = Call.GET,
+                List<Param> parameters = null,
+                List<Param> headers = null,
+                object content = null,
+                IEnumerable<Func<Request, Task<Request>>> requestMiddleware = null,
+                IEnumerable<Func<RequestResponse, Task<RequestResponse>>> requestResponseMiddleware = null)
+            where E0 : RequestResponse, new()
+            where E1 : RequestResponse, new()
         {
-            var resp = await HandleRequest(new Request(endPoint)
+            return (await HandleRequest<E0, E1>(new Request(endPoint)
             {
                 Content = content,
                 Headers = headers ?? new List<Param>(),
                 Parameters = parameters ?? new List<Param>(),
                 Method = method,
-            }, requestResponseMiddleware: new List<Func<RequestResponse, Task<RequestResponse>>>() {
-                (resp) =>  {
-                    {
-                        var e1 = new E1
-                        {
-                            Response = resp
-                        };
+            }, requestMiddleware, requestResponseMiddleware)).Match<OneOf<E0, E1>>(
+                i => i,
+                i => i,
+                resp => throw RequestException.ConvertToException(resp)
+            );
+        }
 
-                        if (e1.StatusCode == resp.StatusCode)
-                        {
-                            return funcE1?.Invoke(e1, resp);
-                        }
-                    }
-
-                    return Task.FromResult(resp);
-                }
-            });
-
-            var e0 = new E0
+        protected internal async Task<OneOf<E0, E1, E2>> MakeRequest<E0, E1, E2>(
+                string endPoint,
+                Call method = Call.GET,
+                List<Param> parameters = null,
+                List<Param> headers = null,
+                object content = null,
+                IEnumerable<Func<Request, Task<Request>>> requestMiddleware = null,
+                IEnumerable<Func<RequestResponse, Task<RequestResponse>>> requestResponseMiddleware = null)
+            where E0 : RequestResponse, new()
+            where E1 : RequestResponse, new()
+            where E2 : RequestResponse, new()
+        {
+            return (await HandleRequest<E0, E1, E2>(new Request(endPoint)
             {
-                Response = resp
-            };
-
-            if (e0.StatusCode == resp.StatusCode)
-            {
-                return e0;
-            }
-            else
-            {
-                throw RequestException.ConvertToException(resp);
-            }
+                Content = content,
+                Headers = headers ?? new List<Param>(),
+                Parameters = parameters ?? new List<Param>(),
+                Method = method,
+            }, requestMiddleware, requestResponseMiddleware)).Match<OneOf<E0, E1, E2>>(
+                i => i,
+                i => i,
+                i => i,
+                resp => throw RequestException.ConvertToException(resp)
+            );
         }
     }
 
