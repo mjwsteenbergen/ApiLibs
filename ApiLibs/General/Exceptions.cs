@@ -2,10 +2,15 @@
 
 namespace ApiLibs
 {
-    public class RequestException : InvalidOperationException
+    public class RequestException<T> : InvalidOperationException where T : RequestResponse
+    {
+        public T Response { get; set; }
+
+    }
+
+    public class RequestException : RequestException<RequestResponse>
     {
         public override string Message => $"Got {Response.StatusCode}:{Response.StatusDescription} while trying to access \"{Response.ResponseUri}\". {Response.ErrorMessage}";
-        public RequestResponse Response { get; set; }
 
         public RequestException(RequestResponse response) : base()
         {

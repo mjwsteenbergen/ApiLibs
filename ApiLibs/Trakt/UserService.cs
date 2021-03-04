@@ -42,10 +42,10 @@ namespace ApiLibs.Trakt
 
         public async Task<Watching> Watching(string id = "me")
         {
-            return (await MakeRequest<OKResponse<Watching>, NoContentResponse<string>>($"users/{id}/watching/", funcE1: (r, r2) =>  {
-                r2.StatusCode = System.Net.HttpStatusCode.OK;
-                return Task.FromResult(r2);
-            })).Content();
+            return (await MakeRequest<OKResponse<Watching>, NoContentResponse>($"users/{id}/watching/")).Match(
+                i => i.Content(),
+                i => null
+            );
         }
 
         public Task<List<WrappedMediaObject>> GetList(string name, string user = "me") => MakeRequest<List<WrappedMediaObject>>($"users/{user}/lists/{name}/items/");
