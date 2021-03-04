@@ -52,7 +52,7 @@ namespace ApiLibs.Telegram
                 {
                     if (!s.Content().Contains("QUERY_ID_INVALID"))
                     {
-                        throw new RequestException(s.Response);
+                        throw new RequestException(s);
                     }
                     else
                     {

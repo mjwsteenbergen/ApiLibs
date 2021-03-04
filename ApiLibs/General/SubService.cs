@@ -7,7 +7,11 @@ namespace ApiLibs.General
 {
     public abstract class SubService<T> : Service where T : Service
     {
+        private int? maxRetries;
+
         public T Service { get; }
+
+        public override int? MaxRetries { get => maxRetries ?? base.MaxRetries; set => maxRetries = value; }
 
         protected SubService(T service) : base(service.Implementation)
         {
