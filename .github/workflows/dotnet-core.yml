@@ -37,6 +37,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: nupkg
+          retention-days: 1
           path: ${{ env.PROJECT_NAME }}/bin/Release/*.nupkg
   deploy:
     needs: build
