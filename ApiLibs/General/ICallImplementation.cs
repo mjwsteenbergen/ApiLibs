@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
-using ApiLibs.General;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -61,13 +60,12 @@ namespace ApiLibs
 
             if (resp.ErrorException != null)
             {
-                if (resp.ErrorException is WebException)
+                var rex = resp.ErrorException switch
                 {
-
-                    throw new NoInternetException(resp.ErrorException);
-                }
-
-                throw resp.ErrorException;
+                    WebException webE when webE.Message == "No such host is known." => new NoInternetException(resp.ErrorException),
+                    _ => resp.ErrorException,
+                };
+                throw rex;
             }
 
             return new RequestResponse(resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp, aRequest, service);
