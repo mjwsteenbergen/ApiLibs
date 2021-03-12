@@ -52,7 +52,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task<Page> CreatePage(Section section, HtmlContent page)
         {
-            return MakeRequest<Page>($"/me/onenote/sections/{section.Id}/pages", Call.POST, content: page);
+            return MakeRequest<Page>($"/me/onenote/sections/{section.Id}/pages", Call.POST, content: page, statusCode: System.Net.HttpStatusCode.Created);
         }
 
         public Task<string> GetPageContent(Page p) => MakeRequest<string>($"me/onenote/pages/{p.Id}/content");
