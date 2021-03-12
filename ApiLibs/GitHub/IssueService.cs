@@ -81,15 +81,21 @@ namespace ApiLibs.GitHub
             return await MakeRequest<Issue>("/repos/" + user + "/" + repo + "/issues/" + issueNumber);
         }
 
+        public Task<List<Comment>> GetCommentsFromIssue(Issue issue) => GetCommentsFromIssue(issue.Repository, issue.Number);
+
+        private Task<List<Comment>> GetCommentsFromIssue(Repository repository, long number) => GetCommentsFromIssue(repository.Owner.Login, repository.Name, number);
+
+        private Task<List<Comment>> GetCommentsFromIssue(string owner, string name, long number) => MakeRequest<List<Comment>>($"/repos/{owner}/{name}/issues/{number}/comments");
+
         public Task<Comment> AddComment(Issue issue, string body) => AddComment(issue.RepositoryOwner, issue.RepositoryName, issue.Number.ToString(), body);
 
         public Task<Comment> AddComment(string owner, string repo, string issue_number, string body) => MakeRequest<Comment>($"/repos/{owner}/{repo}/issues/{issue_number}/comments", Call.POST, content: new {
-            body = body
-        });
+            body
+        }, statusCode: System.Net.HttpStatusCode.Created);
 
         public async Task<List<Issue>> GetPullRequests(Repository repo)
         {
-            List<Issue> res = new List<Issue>();
+            List<Issue> res = new();
             foreach (Issue issue in await GetIssuesAndPRs(repo))
             {
                 if (issue.PullRequest != null)
