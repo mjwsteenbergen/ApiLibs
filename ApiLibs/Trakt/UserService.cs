@@ -55,7 +55,7 @@ namespace ApiLibs.Trakt
 
         public Task AddList(string list, ShowSmall show, string user = "me") => AddList(list, new SyncRequestObject {
             shows = new List<Media> { show }
-        });
-        public Task AddList(string list, SyncRequestObject requestObject, string user = "me") => MakeRequest<string>($"users/{user}/lists/{list}/items", Call.POST, content: requestObject);
+        }, user);
+        public Task AddList(string list, SyncRequestObject requestObject, string user = "me") => MakeRequest<string>($"users/{user}/lists/{list}/items", Call.POST, content: requestObject, statusCode: System.Net.HttpStatusCode.Created);
     }
 }
