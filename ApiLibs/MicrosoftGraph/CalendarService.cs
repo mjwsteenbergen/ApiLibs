@@ -30,7 +30,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task<Event> GetEvent(string id)
         {
-            if (string.IsNullOrEmpty(id)) { throw new PageNotFoundException(null); }
+            if (string.IsNullOrEmpty(id)) { throw new ArgumentNullException(nameof(id)); }
             return MakeRequest<Event>($"/me/events/{id}");
         }
 
