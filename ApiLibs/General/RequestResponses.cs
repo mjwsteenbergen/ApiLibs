@@ -44,14 +44,16 @@ namespace ApiLibs
             return Service.HandleRequest(Request);
         }
 
-        public static Func<RequestResponse, Task<RequestResponse>> RetryWhen<T>(int timeout = 100) where T : RequestResponse, new()
+        public static Func<RequestResponse, Task<RequestResponse>> RetryWhen<T>(TimeSpan? time = null) where T : RequestResponse, new() => RetryWhen((int) new T().StatusCode, time);
+
+        public static Func<RequestResponse, Task<RequestResponse>> RetryWhen(int statusCode, TimeSpan? time = null)
         {
-            var expectedStatuscode = new T().StatusCode;
+            time ??= TimeSpan.FromMilliseconds(100);
             return async (i) =>
             {
-                if (expectedStatuscode == i.StatusCode)
+                if (statusCode == (int)i.StatusCode)
                 {
-                    await Task.Delay(timeout);
+                    await Task.Delay((int)time.Value.TotalMilliseconds);
                     return await i.Retry();
                 }
                 else
