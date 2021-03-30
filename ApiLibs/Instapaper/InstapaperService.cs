@@ -93,28 +93,16 @@ namespace ApiLibs.Instapaper
         /// <param name="folderId">Optional. The integer folder ID as returned by the folders/list method described below.</param>
         /// <param name="finalUrl"> Optional, default 1. Specify 1 if the url might not be the final URL that a browser would resolve when fetching it, such as if it's a shortened URL, it's a URL from an RSS feed that might be proxied, or it's likely to go through any other redirection when viewed in a browser.</param>
         /// <returns></returns>
-        public async Task<Bookmark> AddBookmark(string url, string title = "", string description = "", string folderId = null,
+        public async Task<Bookmark> AddBookmark(string url, string title = null, string description = null, string folderId = null,
             string finalUrl = "")
         {
-            List<Param> param = new List<Param> { new Param("url", url)};
-            if (title != "")
-            {
-                param.Add(new Param("title", title));
-            }
-
-            if (description != "")
-            {
-                param.Add(new Param("description", description));
-            }
-
-            param.Add(new OParam("folder_id", folderId));
-
-            if (finalUrl != "")
-            {
-                param.Add(new Param("final_url", finalUrl));
-            }
-
-            return (await MakeRequest<List<Bookmark>>("bookmarks/add", parameters: param))[0];
+            return (await MakeRequest<List<Bookmark>>("bookmarks/add", parameters: new List<Param> {
+                new Param("url", url),
+                // new OParam("title", title),
+                new OParam("description", description),
+                new OParam("folder_id", folderId),
+                new OParam("final_url", finalUrl)
+            }))[0];
         }
 
         /// <summary>
