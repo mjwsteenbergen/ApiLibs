@@ -631,7 +631,7 @@ namespace ApiLibs.Todoist
         public object PremiumUntil { get; set; }
 
         [JsonProperty("business_account_id")]
-        public long BusinessAccountId { get; set; }
+        public long? BusinessAccountId { get; set; }
 
         [JsonProperty("mobile_number")]
         public object MobileNumber { get; set; }
