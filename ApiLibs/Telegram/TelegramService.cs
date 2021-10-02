@@ -26,15 +26,14 @@ namespace ApiLibs.Telegram
                 message = message.Substring(4090);
             }
 
-            return (await MakeRequest<TgSendUpdateObject>("/sendMessage", Call.GET, new List<Param>
-            {
-                new Param("chat_id", id.ToString()),
-                new Param("text", message),
-                new Param("disable_web_page_preview", (!webPreview).ToString()),
-                new OParam("parse_mode", mode.ToString()),
-                new OParam("reply_to_message_id", replyToMessageId),
-                new OParam("reply_markup", replyMarkup),
-                new OParam("disable_notification", disableNotification)
+            return (await MakeRequest<TgSendUpdateObject>("/sendMessage", Call.POST, content: new {
+                chat_id = id.ToString(),
+                text = message,
+                disable_web_page_preview = (!webPreview).ToString(),
+                parse_mode = mode.ToString(),
+                reply_to_message_id = replyToMessageId,
+                reply_markup = replyMarkup,
+                disable_notification = disableNotification
             })).result;
         }
 
