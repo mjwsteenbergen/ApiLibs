@@ -44,19 +44,19 @@ namespace ApiLibs.General
         }
     }
 
-    public abstract class ObjectSearcher<T> where T:Service
+    public abstract class ObjectSearcher<T> where T : Service
     {
         [JsonIgnore]
-        public T service { get; set; }
+        public T Service { get; set; }
 
         public void Search(T inputService)
         {
-            if (service != null)
+            if (Service != null)
             {
                 return;
             }
 
-            service = inputService;
+            Service = inputService;
 
             foreach (var item in GetType().GetProperties())
             {

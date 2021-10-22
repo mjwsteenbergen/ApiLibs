@@ -8,7 +8,7 @@ using ApiLibs.GitHub;
 
 namespace ApiLibs.Travis
 {
-    public class TravisService : Service
+    public class TravisService : RestSharpService
     {
         private string Travis_Token;
 

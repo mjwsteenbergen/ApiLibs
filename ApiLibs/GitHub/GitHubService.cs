@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibs.GitHub
 {
-    public class GitHubService : Service
+    public class GitHubService : RestSharpService
     {
         internal string GitHub_access_token;
         internal readonly string GitHub_clientID;
@@ -55,7 +55,7 @@ namespace ApiLibs.GitHub
         public async Task<string> ConvertToToken(string returnValue)
         {
             
-            List<Param> parameters = new List<Param>
+            List<Param> parameters = new()
             {
                 new Param("client_id", GitHub_clientID),
                 new Param("client_secret", GitHub_client_secret),
@@ -63,7 +63,7 @@ namespace ApiLibs.GitHub
             };
 
             SetBaseUrl("https://github.com/");
-            var content = await HandleRequest("login/oauth/access_token", Call.POST, parameters: parameters);
+            var content = await MakeRequest<string>("login/oauth/access_token", Call.POST, parameters: parameters);
 
             Match m = Regex.Match(content, @"{""access_token"":""(\w+)""");
             GitHub_access_token = m.Groups[1].ToString();

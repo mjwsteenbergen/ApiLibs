@@ -38,7 +38,7 @@ namespace ApiLibs.Spotify
 
         public async Task DeletePlaylist(string ownerId, string playlistId)
         {
-            await HandleRequest($"users/{ownerId}/playlists/{playlistId}/followers", Call.DELETE);
+            await MakeRequest<string>($"users/{ownerId}/playlists/{playlistId}/followers", Call.DELETE);
         }
 
         public async Task DeletePlaylist(Playlist playlist)
@@ -72,7 +72,7 @@ namespace ApiLibs.Spotify
 
         public async Task AddTracksSingleCall(IEnumerable<string> tracks, string playlistId, string owner)
         {
-            await HandleRequest($"users/{owner}/playlists/{playlistId}/tracks", Call.POST, content: tracks);
+            await MakeRequest<string>($"users/{owner}/playlists/{playlistId}/tracks", Call.POST, content: tracks);
         }
 
         public async Task<List<Track>> GetAllTracks(Playlist playlist)
@@ -124,7 +124,7 @@ namespace ApiLibs.Spotify
 
         private async Task RemoveTracks(string playlistId, string ownerId, IEnumerable<string> tracks)
         {
-            await HandleRequest($"users/{ownerId}/playlists/{playlistId}/tracks", Call.DELETE, content: new
+            await MakeRequest<string>($"users/{ownerId}/playlists/{playlistId}/tracks", Call.DELETE, content: new
             {
                 tracks = tracks.Select(i => new
                 {

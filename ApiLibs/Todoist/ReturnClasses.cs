@@ -742,8 +742,7 @@ namespace ApiLibs.Todoist
     {
         public TodoistError Error { private set; get; }
 
-        public TodoistException(TodoistError error, int statusCode, string statusDescription, string responseUri, string errorMessage, string content)
-            : base(statusCode, statusDescription, responseUri, error.error, content, null)
+        public TodoistException(TodoistError error, RequestResponse response) : base(response)
         {
             Error = error;
         }

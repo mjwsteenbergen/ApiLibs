@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibs.Telegram
 {
-    public class TelegramService : Service
+    public class TelegramService : RestSharpService
     {
         public string Telegram_token;
 
@@ -40,26 +40,27 @@ namespace ApiLibs.Telegram
 
         public async Task AnswerInlineQuery(string inlineQueryId, IEnumerable<InlineQueryResultArticle> results)
         {
-            try
-            {
-                await HandleRequest("answerInlineQuery", parameters: new List<Param>
+            var req = await MakeRequest<OKResponse<string>, BadRequestResponse<string>>("answerInlineQuery", parameters: new List<Param>
                 {
                     new Param("inline_query_id", inlineQueryId),
                     new Param("results", results)
-                });
-            }
-            catch (BadRequestException e)
-            {
-                if (!e.Message.Contains("QUERY_ID_INVALID"))
+            });
+
+            req.Switch(
+                (s) => {},
+                (s) =>
                 {
-                    throw;
+                    if (!s.Content().Contains("QUERY_ID_INVALID"))
+                    {
+                        throw new RequestException(s.Response);
+                    }
+                    else
+                    {
+                        Console.WriteLine(inlineQueryId);
+                        results.ToList().ForEach(Console.WriteLine);
+                    }
                 }
-                else
-                {
-                    Console.WriteLine(inlineQueryId);
-                    results.ToList().ForEach(Console.WriteLine);
-                }
-            }
+            );
         }
 
         public async Task<TgMessage> EditMessageText(TgMessage message, string newText, ParseMode? mode = null, bool? disableWebPagePreview = null)

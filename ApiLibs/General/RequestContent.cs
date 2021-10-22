@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ApiLibs.General
+namespace ApiLibs
 {
     public abstract class RequestContent
     {
@@ -31,7 +31,7 @@ namespace ApiLibs.General
 
         internal static string GetHtml(string title, string body)
         {
-            return $@"<html><head><title>{title}</title><meta name=""created"" content=""{DateTime.Now.ToString()}"" /></head><body>{body}</body></html>";
+            return $@"<html><head><title>{title}</title><meta name=""created"" content=""{DateTime.Now}"" /></head><body>{body}</body></html>";
         }
     }
 
