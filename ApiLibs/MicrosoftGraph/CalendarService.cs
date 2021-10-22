@@ -20,7 +20,7 @@ namespace ApiLibs.MicrosoftGraph
             {
                 Top = 20
             };
-            return (await MakeRequest<Events>("/me/events" + data.ConvertToUrl())).Value;
+            return (await MakeRequest<Events>("/me/events", parameters: data.ConvertToParams())).Value;
         }
         
         public Task<List<Event>> GetEvents(Calendar calendar, OData data = null)

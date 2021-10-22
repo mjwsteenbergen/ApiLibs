@@ -16,7 +16,7 @@ namespace ApiLibs.MicrosoftGraph
         public async Task<List<EmailMessage>> GetFlaggedEmail(OData data)
         {
             data.Filter = "Flag/FlagStatus eq 'Flagged'";
-            return (await MakeRequest<MessageRoot>("me/messages" + data.ConvertToUrl())).Value;
+            return (await MakeRequest<MessageRoot>("me/messages", parameters: data.ConvertToParams())).Value;
         }
 
         private class Flagger
@@ -64,7 +64,7 @@ namespace ApiLibs.MicrosoftGraph
         /// <returns></returns>
         public async Task<List<EmailFolder>> GetFolders(OData oData)
         {
-            var returns = (await MakeRequest<FolderRoot>("me/MailFolders" + oData.ConvertToUrl())).Value;
+            var returns = (await MakeRequest<FolderRoot>("me/MailFolders", parameters: oData.ConvertToParams())).Value;
             return returns;
         }
 
@@ -87,7 +87,7 @@ namespace ApiLibs.MicrosoftGraph
         /// <returns></returns>
         public async Task<List<EmailMessage>> GetMessages(EmailFolder folder, OData data)
         {
-            return (await MakeRequest<MessageRoot>("me/MailFolders/" + folder.Id + "/messages" + data.ConvertToUrl())).Value;
+            return (await MakeRequest<MessageRoot>("me/MailFolders/" + folder.Id + "/messages", parameters: data.ConvertToParams())).Value;
         }
 
 
