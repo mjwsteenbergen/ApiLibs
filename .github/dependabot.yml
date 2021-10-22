@@ -3,13 +3,9 @@ updates:
 - package-ecosystem: nuget
   directory: "/"
   schedule:
-    interval: weekly
-    day: saturday
+    interval: monthly
+    time: "9:00"
     timezone: Europe/Amsterdam
   open-pull-requests-limit: 10
   assignees:
   - mjwsteenbergen
-  ignore:
-  - dependency-name: NUnit
-    versions:
-    - 3.13.0
