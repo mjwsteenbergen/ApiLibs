@@ -127,10 +127,7 @@ namespace ApiLibs.MicrosoftGraph
             return DeleteEvent(e.Id);
         }
 
-        public Task DeleteEvent(string id)
-        {
-            return MakeRequest<string>($"me/events/{id}", Call.DELETE, statusCode: HttpStatusCode.NoContent);
-        }
+        public Task DeleteEvent(string id) => MakeRequest($"me/events/{id}", Call.DELETE);
 
         #endregion Events
 

@@ -40,12 +40,17 @@ namespace ApiLibs.Trakt
             });
         }
 
-        public async Task<Watching> Watching(string id = "me")
+        public Task<Watching> Watching(string id = "me")
         {
-            return (await MakeRequest<OKResponse<Watching>, NoContentResponse>($"users/{id}/watching/")).Match(
-                i => i.Content(),
-                i => null
-            );
+            return MakeRequest<Watching>(new Request<Watching>($"users/{id}/watching/")
+            {
+                RequestHandler = (resp) => resp switch
+                {
+                    OKResponse response => response.Convert<Watching>(),
+                    NoContentResponse response => null,
+                    _ => throw resp.ToException()
+                }
+            });
         }
 
         public Task<List<WrappedMediaObject>> GetList(string name, string user = "me") => MakeRequest<List<WrappedMediaObject>>($"users/{user}/lists/{name}/items/");

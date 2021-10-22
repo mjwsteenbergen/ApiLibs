@@ -38,29 +38,16 @@ namespace ApiLibs
         public Request Request { get; }
 
         public virtual T Convert<T>() => Service.Convert<T>(Content);
+
         public Task<RequestResponse> Retry()
         {
             Request.Retries++;
             return Service.HandleRequest(Request);
         }
 
-        public static Func<RequestResponse, Task<RequestResponse>> RetryWhen<T>(TimeSpan? time = null) where T : RequestResponse, new() => RetryWhen((int) new T().StatusCode, time);
-
-        public static Func<RequestResponse, Task<RequestResponse>> RetryWhen(int statusCode, TimeSpan? time = null)
+        internal Exception ToException()
         {
-            time ??= TimeSpan.FromMilliseconds(100);
-            return async (i) =>
-            {
-                if (statusCode == (int)i.StatusCode)
-                {
-                    await Task.Delay((int)time.Value.TotalMilliseconds);
-                    return await i.Retry();
-                }
-                else
-                {
-                    return i;
-                }
-            };
+            return RequestException.ConvertToException(this);
         }
     }
 }

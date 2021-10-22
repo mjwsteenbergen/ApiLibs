@@ -61,7 +61,6 @@ namespace ApiLibs.Spotify
                 return resp;
             });
 
-            RequestResponseMiddleware.Add(RequestResponse.RetryWhen(429, TimeSpan.FromSeconds(2))); // Retry after 2 seconds after Too Many Requests
             AddStandardHeader("Authorization", "To be filled in later");
         }
 
