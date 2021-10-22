@@ -206,7 +206,7 @@ namespace ApiLibs
         {
         }
 
-        public Func<RequestResponse, T> RequestHandler { get; set; }
+        public new Func<RequestResponse, T> RequestHandler { get; set; }
     }
 
     public enum Call
