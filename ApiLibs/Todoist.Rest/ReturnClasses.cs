@@ -40,8 +40,8 @@ namespace ApiLibs.TodoistRest
         [JsonProperty("inbox_project")]
         public bool? InboxProject { get; set; }
 
-        public Task Delete() => service.DeleteProject(this);
-        public Task Update() => service.UpdateProject(this);
+        public Task Delete() => Service.DeleteProject(this);
+        public Task Update() => Service.UpdateProject(this);
     }
 
     public partial class TodoistSection : ObjectSearcher<TodoistRestService>
@@ -58,8 +58,8 @@ namespace ApiLibs.TodoistRest
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        public Task Delete() => service.DeleteSection(this);
-        public Task Update() => service.UpdateSection(this);
+        public Task Delete() => Service.DeleteSection(this);
+        public Task Update() => Service.UpdateSection(this);
     }
 
     public partial class TodoistTask : ObjectSearcher<TodoistRestService>
@@ -103,10 +103,10 @@ namespace ApiLibs.TodoistRest
         [JsonProperty("url")]
         public Uri Url { get; set; }
 
-        public Task Update() => this.service.UpdateTasks(this);
-        public Task Delete() => this.service.DeleteTask(this);
-        public Task Close() => this.service.Close(this);
-        public Task Reopen() => this.service.Reopen(this);
+        public Task Update() => this.Service.UpdateTasks(this);
+        public Task Delete() => this.Service.DeleteTask(this);
+        public Task Close() => this.Service.Close(this);
+        public Task Reopen() => this.Service.Reopen(this);
     }
 
     public class TodoistRequestTask : TodoistTask

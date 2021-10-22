@@ -1,32 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
-using RestSharp;
 
 namespace ApiLibs.General
 {
-    public class SubService<T> where T : Service
+    public abstract class SubService<T> : Service where T : Service
     {
-        private readonly string partialEndpoint;
+        private int? maxRetries;
 
-        protected T Service { get; }
-        public SubService(T service, string partialEndpoint = "")
+        public T Service { get; }
+
+        public override int? MaxRetries { get => maxRetries ?? base.MaxRetries; set => maxRetries = value; }
+
+        protected SubService(T service) : base(service.Implementation)
         {
             Service = service;
-            this.partialEndpoint = partialEndpoint;
         }
 
-        protected virtual async Task<S> MakeRequest<S>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+        protected SubService(T service, string endpoint) : this(service)
         {
-            return await Service.MakeRequest<S>(partialEndpoint + url, m, parameters, header, content, statusCode);
+            if (!string.IsNullOrEmpty(endpoint))
+            {
+                RequestMiddleware.Add((req) =>
+                {
+                    req.EndPoint = endpoint + "/" + req.EndPoint;
+                    return Task.FromResult(req);
+                });
+            }
         }
 
-        protected virtual async Task<string> HandleRequest(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
+
+        protected internal override Task<RequestResponse> HandleRequest(Request request, IEnumerable<Func<Request, Task<Request>>> requestMiddleware = null, IEnumerable<Func<RequestResponse, Task<RequestResponse>>> requestResponseMiddleware = null)
         {
-            return await Service.HandleRequest(partialEndpoint + url, m, parameters, header, content, statusCode);
+            requestMiddleware ??= new List<Func<Request, Task<Request>>>();
+            requestResponseMiddleware ??= new List<Func<RequestResponse, Task<RequestResponse>>>();
+            return Service.HandleRequest(request, RequestMiddleware.Concat(requestMiddleware), RequestResponseMiddleware.Concat(requestResponseMiddleware));
         }
     }
 }

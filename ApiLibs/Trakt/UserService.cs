@@ -22,27 +22,16 @@ namespace ApiLibs.Trakt
         /// <returns></returns>
         public Task<List<WrappedMediaObject>> GetHistory(string type = null, string id = null, DateTime? start = null, DateTime? end = null)
         {
-            string typeUrlPart = "";
-            switch(type)
+            string typeUrlPart = type switch
             {
-                case "movies":
-                    typeUrlPart = "movies/";
-                    break;
-                case "shows":
-                    typeUrlPart = "shows/";
-                    break;
-                case "seasons":
-                    typeUrlPart = "seasons/";
-                    break;
-                case "episodes":
-                    typeUrlPart = "episodes/";
-                    break;
-                case null:
-                    typeUrlPart = "";
-                    break;
-                default:
-                    throw new Exception("Invalid type " + type);
-            }
+                "movies" => "movies/",
+                "shows" => "shows/",
+                "seasons" => "seasons/",
+                "episodes" => "episodes/",
+                null => "",
+                _ => throw new Exception("Invalid type " + type),
+            };
+            
             return MakeRequest<List<WrappedMediaObject>>("sync/history/" + typeUrlPart, Call.GET, new List<Param>
             {
                 new OParam("id", id),
@@ -51,16 +40,17 @@ namespace ApiLibs.Trakt
             });
         }
 
-        public async Task<Watching> Watching(string id = "me")
+        public Task<Watching> Watching(string id = "me")
         {
-            try
+            return MakeRequest<Watching>(new Request<Watching>($"users/{id}/watching/")
             {
-                return await MakeRequest<Watching>($"users/{id}/watching/");
-            }
-            catch (NoContentRequestException)
-            {
-                return null;
-            }
+                RequestHandler = (resp) => resp switch
+                {
+                    OKResponse response => response.Convert<Watching>(),
+                    NoContentResponse response => null,
+                    _ => throw resp.ToException()
+                }
+            });
         }
 
         public Task<List<WrappedMediaObject>> GetList(string name, string user = "me") => MakeRequest<List<WrappedMediaObject>>($"users/{user}/lists/{name}/items/");
@@ -70,7 +60,7 @@ namespace ApiLibs.Trakt
 
         public Task AddList(string list, ShowSmall show, string user = "me") => AddList(list, new SyncRequestObject {
             shows = new List<Media> { show }
-        });
-        public Task AddList(string list, SyncRequestObject requestObject, string user = "me") => MakeRequest<string>($"users/{user}/lists/{list}/items", Call.POST, content: requestObject);
+        }, user);
+        public Task AddList(string list, SyncRequestObject requestObject, string user = "me") => MakeRequest<string>($"users/{user}/lists/{list}/items", Call.POST, content: requestObject, statusCode: System.Net.HttpStatusCode.Created);
     }
 }

@@ -44,10 +44,6 @@ namespace ApiLibs.GitHub
             //new Param("all","true") //TODO
             var parameters = new List<Param> { };
             var res = await MakeRequest<List<NotificationsObject>>("notifications", parameters: parameters);
-            foreach (var notificationsObject in res)
-            {
-                notificationsObject.Search(this.Service);
-            }
             return res;
         }
 

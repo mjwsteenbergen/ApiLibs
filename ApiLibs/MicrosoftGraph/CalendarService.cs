@@ -30,6 +30,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task<Event> GetEvent(string id)
         {
+            if (string.IsNullOrEmpty(id)) { throw new ArgumentNullException(nameof(id)); }
             return MakeRequest<Event>($"/me/events/{id}");
         }
 
@@ -126,10 +127,7 @@ namespace ApiLibs.MicrosoftGraph
             return DeleteEvent(e.Id);
         }
 
-        public Task DeleteEvent(string id)
-        {
-            return HandleRequest($"me/events/{id}", Call.DELETE, statusCode: HttpStatusCode.NoContent);
-        }
+        public Task DeleteEvent(string id) => MakeRequest($"me/events/{id}", Call.DELETE);
 
         #endregion Events
 

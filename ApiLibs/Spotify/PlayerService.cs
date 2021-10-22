@@ -61,7 +61,7 @@ namespace ApiLibs.Spotify
         {
             Dictionary<string, object> kvp = new Dictionary<string, object>();
             kvp.Add("device_ids", new[] {id}); 
-            await Service.HandleRequest("me/player", Call.PUT, content: kvp, statusCode: System.Net.HttpStatusCode.NoContent);
+            await Service.MakeRequest<string>("me/player", Call.PUT, content: kvp, statusCode: System.Net.HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace ApiLibs.Spotify
                 {"uris", trackIds.ConvertAll<string>(i => "spotify:track:" + i).ToArray()}
             };
             deviceId = deviceId == null ? "" : "?device_id = " + deviceId;
-            await Service.HandleRequest("me/player/play" + deviceId, Call.PUT, new List<Param>
+            await MakeRequest<string>("me/player/play" + deviceId, Call.PUT, new List<Param>
             {
 //                new Param("device_id", deviceId)
             }, content: kvp, statusCode: System.Net.HttpStatusCode.NoContent);
@@ -142,15 +142,15 @@ namespace ApiLibs.Spotify
         {
             try
             {
-                if (await (Service as SpotifyService).IsPremiumUser())
+                if (await Service.IsPremiumUser())
                 {
                     PlayContext kvp = new PlayContext {context_uri = "spotify:" + type + ":" + contextUri};
                     deviceId = deviceId == null ? "" : "?device_id = " + deviceId;
-                    await Service.HandleRequest("me/player/play" + deviceId, Call.PUT, content: kvp,
+                    await MakeRequest<string>("me/player/play" + deviceId, Call.PUT, content: kvp,
                         statusCode: HttpStatusCode.NoContent);
                 }
             }
-            catch (PageNotFoundException) { }
+            catch (RequestException) { }
         }
 
         class PlayContext
@@ -166,7 +166,7 @@ namespace ApiLibs.Spotify
         public async Task Pause(string deviceId = null)
         {
             deviceId = deviceId == null ? "" : "?device_id = " + deviceId;
-            await Service.HandleRequest("me/player/pause" + deviceId, Call.PUT, statusCode: System.Net.HttpStatusCode.NoContent);
+            await MakeRequest<string>("me/player/pause" + deviceId, Call.PUT, statusCode: System.Net.HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace ApiLibs.Spotify
             {
                 param.Add(new Param("device_id", deviceId));
             }
-            await HandleRequest("me/player/next", Call.POST, param, statusCode: System.Net.HttpStatusCode.NoContent);
+            await MakeRequest<string>("me/player/next", Call.POST, param, statusCode: System.Net.HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace ApiLibs.Spotify
             {
                 param.Add(new Param("device_id", deviceId));
             }
-            await HandleRequest("me/player/previous", Call.POST, param, statusCode: System.Net.HttpStatusCode.NoContent);
+            await MakeRequest<string>("me/player/previous", Call.POST, param, statusCode: System.Net.HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -207,7 +207,7 @@ namespace ApiLibs.Spotify
         /// <returns></returns>
         public async Task Seek(int position, string deviceId = null)
         {
-            await HandleRequest("me/player/seek", Call.PUT, new List<Param>
+            await MakeRequest<string>("me/player/seek", Call.PUT, new List<Param>
             {
                 new Param("position_ms", position),
                 new OParam("device_id", deviceId)
@@ -230,7 +230,7 @@ namespace ApiLibs.Spotify
             {
                 param.Add(new Param("device_id", deviceId));
             }
-            await HandleRequest("me/player/repeat", Call.PUT, param, statusCode: System.Net.HttpStatusCode.NoContent);
+            await MakeRequest<string>("me/player/repeat", Call.PUT, param, statusCode: System.Net.HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace ApiLibs.Spotify
             {
                 param.Add(new Param("device_id", deviceId));
             }
-            await HandleRequest("me/player/volume", Call.PUT, param, statusCode: System.Net.HttpStatusCode.NoContent);
+            await MakeRequest<string>("me/player/volume", Call.PUT, param, statusCode: System.Net.HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -264,16 +264,19 @@ namespace ApiLibs.Spotify
             {
                 if (await (Service as SpotifyService).IsPremiumUser())
                 {
-                    await HandleRequest("me/player/shuffle", Call.PUT, new List<Param>
+                    await MakeRequest<string>("me/player/shuffle", Call.PUT, new List<Param>
                     {
                         new Param("state", state),
                         new OParam("device_id", device_id)
                     }, statusCode: HttpStatusCode.NoContent);
                 }
             }
-            catch (PageNotFoundException)
+            catch (RequestException e) 
             {
-
+                if(e.Response.StatusCode != HttpStatusCode.NotFound)
+                {
+                    throw e;
+                }
             }
         }
     }

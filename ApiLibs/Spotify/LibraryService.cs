@@ -49,7 +49,6 @@ namespace ApiLibs.Spotify
                 await Task.Delay(50);
 
             } while(res.Items.Count > 0);
-            throw new System.NotImplementedException();
         }
 
         public Task SaveTracks(IEnumerable<Track> ids) => SaveTracks(ids.Select(i => i.Id));
@@ -58,7 +57,7 @@ namespace ApiLibs.Spotify
         {
             return ids
                 .Split(50)
-                .Select(i => HandleRequest("me/tracks", Call.PUT, new List<Param> {
+                .Select(i => MakeRequest<string>("me/tracks", Call.PUT, new List<Param> {
                     new Param("ids", i.Combine(","))
                 })).ToIAsyncEnumberable().ToList();
         }
@@ -75,7 +74,7 @@ namespace ApiLibs.Spotify
             return ids 
                 .Split(50)
                 .Select(i => 
-                    HandleRequest("me/tracks", Call.DELETE, new List<Param> 
+                    MakeRequest<string>("me/tracks", Call.DELETE, new List<Param> 
                     {
                         new Param("ids", i.Combine(","))
                     })

@@ -1,57 +1,55 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using RestSharp;
 
-namespace ApiLibs.General
+namespace ApiLibs
 {
-    public class RequestException : InvalidOperationException
+    public class RequestException<T> : InvalidOperationException where T : RequestResponse
     {
-        public override string Message => _message;
-        private readonly string _message;
-        public object Response { get; set; }
+        public T Response { get; set; }
 
-        public RequestException(int statusCode, string statusDescription, string responseUri, string errorMessage, string responseContent, object response) : base()
+    }
+
+    public class RequestException : RequestException<RequestResponse>
+    {
+        public override string Message => $"Got {Response.StatusCode}:{Response.StatusDescription} while trying to access \"{Response.ResponseUri}\". {Response.ErrorMessage}";
+
+        public RequestException(RequestResponse response) : base()
         {
-            Response = response;
-            _message = $"Got {statusCode.ToString()}:{statusDescription} while trying to access \"{responseUri.ToString()}\". {errorMessage} \n {responseContent}";
+            Response = response ?? throw new ArgumentNullException(nameof(response));
         }
 
-        public static RequestException ConvertToException(int statuscode, string statusDescription, string responseuri, string errorMessage, string responseContent, object response)
+        public static RequestException ConvertToException(RequestResponse response)
         {
-            switch(statuscode)
+            switch ((int)response.StatusCode)
             {
                 case 204:
-                    return new NoContentRequestException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
+                    return new NoContentRequestException(response);
+
                 case 400:
-                    return new BadRequestException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
+                    return new BadRequestException(response);
                 case 401:
-                    return new UnAuthorizedException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
+                    return new UnAuthorizedException(response);
                 case 403:
-                    return new ForbiddenException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
+                    return new ForbiddenException(response);
                 case 404:
-                    return new PageNotFoundException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
+                    return new PageNotFoundException(response);
                 case 405:
-                    return new MethodNotAllowedException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
+                    return new MethodNotAllowedException(response);
                 case 406:
-                    return new NotAcceptableException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
+                    return new NotAcceptableException(response);
                 case 408:
-                    return new RequestTimeoutException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
+                    return new RequestTimeoutException(response);
                 case 409:
-                    return new ConflictException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
+                    return new ConflictException(response);
 
                 case 500:
-                    return new InternalServerErrorException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
+                    return new InternalServerErrorException(response);
                 case 501:
-                    return new NotImplementedException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
+                    return new NotImplementedException(response);
                 case 502:
-                    return new BadGateWayException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
+                    return new BadGateWayException(response);
 
                 default:
-                    return new RequestException(statuscode, statusDescription, responseuri, errorMessage, responseContent, response);
+                    return new RequestException(response);
             }
         }
     }
@@ -63,28 +61,28 @@ namespace ApiLibs.General
 
     public class NoContentRequestException : RequestException
     {
-        public NoContentRequestException(int statuscode, string statusDescription, string responseuri, string errorMessage, string responseContent, object response) : base(statuscode, statusDescription, responseuri, errorMessage, responseContent, response)
+        public NoContentRequestException(RequestResponse response) : base(response)
         {
         }
     }
 
     public class BadRequestException : RequestException
     {
-        public BadRequestException(int statuscode, string statusDescription, string responseuri, string errorMessage, string responseContent, object response) : base(statuscode, statusDescription, responseuri, errorMessage, responseContent, response)
+        public BadRequestException(RequestResponse response) : base(response)
         {
         }
     }
 
     public class ForbiddenException : RequestException
     {
-        public ForbiddenException(int statuscode, string statusDescription, string responseuri, string errorMessage, string responseContent, object response) : base(statuscode, statusDescription, responseuri, errorMessage, responseContent, response)
+        public ForbiddenException(RequestResponse response) : base(response)
         {
         }
     }
 
     public class UnAuthorizedException : RequestException
     {
-        public UnAuthorizedException(int statuscode, string statusDescription, string responseuri, string errorMessage, string responseContent, object response) : base(statuscode, statusDescription, responseuri, errorMessage, responseContent, response)
+        public UnAuthorizedException(RequestResponse response) : base(response)
         {
         }
     }
@@ -92,56 +90,56 @@ namespace ApiLibs.General
 
     public class PageNotFoundException : RequestException
     {
-        public PageNotFoundException(int statuscode, string statusDescription, string responseuri, string errorMessage, string responseContent, object response) : base(statuscode, statusDescription, responseuri, errorMessage, responseContent, response)
+        public PageNotFoundException(RequestResponse response) : base(response)
         {
         }
     }
 
     public class MethodNotAllowedException : RequestException
     {
-        public MethodNotAllowedException(int statuscode, string statusDescription, string responseuri, string errorMessage, string responseContent, object response) : base(statuscode, statusDescription, responseuri, errorMessage, responseContent, response)
+        public MethodNotAllowedException(RequestResponse response) : base(response)
         {
         }
     }
 
     internal class NotAcceptableException : RequestException
     {
-        public NotAcceptableException(int statusCode, string statusDescription, string responseUri, string errorMessage, string responseContent, object response) : base(statusCode, statusDescription, responseUri, errorMessage, responseContent, response)
+        public NotAcceptableException(RequestResponse response) : base(response)
         {
         }
     }
 
     internal class RequestTimeoutException : RequestException
     {
-        public RequestTimeoutException(int statusCode, string statusDescription, string responseUri, string errorMessage, string responseContent, object response) : base(statusCode, statusDescription, responseUri, errorMessage, responseContent, response)
+        public RequestTimeoutException(RequestResponse response) : base(response)
         {
         }
     }
 
     internal class ConflictException : RequestException
     {
-        public ConflictException(int statusCode, string statusDescription, string responseUri, string errorMessage, string responseContent, object response) : base(statusCode, statusDescription, responseUri, errorMessage, responseContent, response)
+        public ConflictException(RequestResponse response) : base(response)
         {
         }
     }
 
     public class InternalServerErrorException : RequestException
     {
-        public InternalServerErrorException(int statusCode, string statusDescription, string responseUri, string errorMessage, string responseContent, object response) : base(statusCode, statusDescription, responseUri, errorMessage, responseContent, response)
+        public InternalServerErrorException(RequestResponse response) : base(response)
         {
         }
     }
 
     public class NotImplementedException : RequestException
     {
-        public NotImplementedException(int statusCode, string statusDescription, string responseUri, string errorMessage, string responseContent, object response) : base(statusCode, statusDescription, responseUri, errorMessage, responseContent, response)
+        public NotImplementedException(RequestResponse response) : base(response)
         {
         }
     }
 
     public class BadGateWayException : RequestException
     {
-        public BadGateWayException(int statusCode, string statusDescription, string responseUri, string errorMessage, string responseContent, object response) : base(statusCode, statusDescription, responseUri, errorMessage, responseContent, response)
+        public BadGateWayException(RequestResponse response) : base(response)
         {
         }
     }

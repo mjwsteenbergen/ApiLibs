@@ -631,7 +631,7 @@ namespace ApiLibs.Todoist
         public object PremiumUntil { get; set; }
 
         [JsonProperty("business_account_id")]
-        public long BusinessAccountId { get; set; }
+        public long? BusinessAccountId { get; set; }
 
         [JsonProperty("mobile_number")]
         public object MobileNumber { get; set; }
@@ -742,8 +742,7 @@ namespace ApiLibs.Todoist
     {
         public TodoistError Error { private set; get; }
 
-        public TodoistException(TodoistError error, int statusCode, string statusDescription, string responseUri, string errorMessage, string content)
-            : base(statusCode, statusDescription, responseUri, error.error, content, null)
+        public TodoistException(TodoistError error, RequestResponse response) : base(response)
         {
             Error = error;
         }

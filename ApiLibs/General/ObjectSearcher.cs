@@ -6,16 +6,16 @@ namespace ApiLibs.General
     public abstract class ObjectSearcher
     {
         [JsonIgnore]
-        public Service service {get; set;}
+        public Service Service {get; set;}
 
         public void Search(Service inputService)
         {
-            if (service != null)
+            if (Service != null)
             {
                 return;
             }
 
-            service = inputService;
+            Service = inputService;
 
             foreach (var item in GetType().GetProperties())
             {
@@ -44,19 +44,19 @@ namespace ApiLibs.General
         }
     }
 
-    public abstract class ObjectSearcher<T> where T:Service
+    public abstract class ObjectSearcher<T> where T : Service
     {
         [JsonIgnore]
-        public T service { get; set; }
+        public T Service { get; set; }
 
         public void Search(T inputService)
         {
-            if (service != null)
+            if (Service != null)
             {
                 return;
             }
 
-            service = inputService;
+            Service = inputService;
 
             foreach (var item in GetType().GetProperties())
             {

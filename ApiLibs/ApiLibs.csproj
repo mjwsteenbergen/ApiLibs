@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <PackageReleaseNotes>To see what is new, go to https://github.com/mjwsteenbergen/ApiLibs</PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/mjwsteenbergen/ApiLibs</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mjwsteenbergen/ApiLibs.git</RepositoryUrl>
@@ -13,6 +13,7 @@
   <ItemGroup>
     <PackageReference Include="RestSharp" Version="106.12.0" />
     <PackageReference Include="HttpMultipartParser" Version="5.0.1" />
+    <PackageReference Include="OneOf" Version="3.0.178" />
     <PackageReference Include="Martijn.Extensions" Version="1.15.0" /> 
   </ItemGroup>
 </Project>

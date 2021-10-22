@@ -46,7 +46,7 @@ namespace ApiLibsTest
 
         public override string ActivateOAuth(Uri url, string redirectUrl)
         {
-            throw new NotImplementedException();
+            throw new System.NotImplementedException();
         }
     }
 }

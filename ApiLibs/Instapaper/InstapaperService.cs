@@ -12,7 +12,7 @@ namespace ApiLibs.Instapaper
     /// <summary>
     /// Documentation partly gathered from the instapaper api website
     /// </summary>
-    public class InstapaperService : Service
+    public class InstapaperService : RestSharpService
     {
         private string AcessToken { get; set; }
 
@@ -93,28 +93,16 @@ namespace ApiLibs.Instapaper
         /// <param name="folderId">Optional. The integer folder ID as returned by the folders/list method described below.</param>
         /// <param name="finalUrl"> Optional, default 1. Specify 1 if the url might not be the final URL that a browser would resolve when fetching it, such as if it's a shortened URL, it's a URL from an RSS feed that might be proxied, or it's likely to go through any other redirection when viewed in a browser.</param>
         /// <returns></returns>
-        public async Task<Bookmark> AddBookmark(string url, string title = "", string description = "", string folderId = null,
+        public async Task<Bookmark> AddBookmark(string url, string title = null, string description = null, string folderId = null,
             string finalUrl = "")
         {
-            List<Param> param = new List<Param> { new Param("url", url)};
-            if (title != "")
-            {
-                param.Add(new Param("title", title));
-            }
-
-            if (description != "")
-            {
-                param.Add(new Param("description", description));
-            }
-
-            param.Add(new OParam("folder_id", folderId));
-
-            if (finalUrl != "")
-            {
-                param.Add(new Param("final_url", finalUrl));
-            }
-
-            return (await MakeRequest<List<Bookmark>>("bookmarks/add", parameters: param))[0];
+            return (await MakeRequest<List<Bookmark>>("bookmarks/add", parameters: new List<Param> {
+                new Param("url", url),
+                // new OParam("title", title),
+                new OParam("description", description),
+                new OParam("folder_id", folderId),
+                new OParam("final_url", finalUrl)
+            }))[0];
         }
 
         /// <summary>
@@ -124,7 +112,7 @@ namespace ApiLibs.Instapaper
         /// <returns></returns>
         public async Task DeleteBookmark(int bookmarkId)
         {
-            await HandleRequest("bookmarks/delete", parameters: new List<Param> {new Param("bookmark_id", bookmarkId.ToString())});
+            await MakeRequest<string>("bookmarks/delete", parameters: new List<Param> {new Param("bookmark_id", bookmarkId.ToString())});
         }
 
         public async Task DeleteBookmark(Bookmark bm)
@@ -138,7 +126,7 @@ namespace ApiLibs.Instapaper
         /// <param name="bookmarkId"></param>
         public async Task StarBookmark(int bookmarkId)
         {
-            await HandleRequest("bookmarks/star", parameters: new List<Param> { new Param("bookmark_id", bookmarkId.ToString()) });
+            await MakeRequest<string>("bookmarks/star", parameters: new List<Param> { new Param("bookmark_id", bookmarkId.ToString()) });
         }
 
         /// <summary>
@@ -147,7 +135,7 @@ namespace ApiLibs.Instapaper
         /// <param name="bookmarkId"></param>
         public async Task UnstarBookmark(int bookmarkId)
         {
-            await HandleRequest("bookmarks/unstar", parameters: new List<Param> { new Param("bookmark_id", bookmarkId.ToString()) });
+            await MakeRequest<string>("bookmarks/unstar", parameters: new List<Param> { new Param("bookmark_id", bookmarkId.ToString()) });
         }
 
         /// <summary>
@@ -156,7 +144,7 @@ namespace ApiLibs.Instapaper
         /// <param name="bookmarkId"></param>
         public async Task ArchiveBookmark(int bookmarkId)
         {
-            await HandleRequest("bookmarks/archive", parameters: new List<Param> { new Param("bookmark_id", bookmarkId.ToString()) });
+            await MakeRequest<string>("bookmarks/archive", parameters: new List<Param> { new Param("bookmark_id", bookmarkId.ToString()) });
         }
 
         /// <summary>
@@ -165,12 +153,12 @@ namespace ApiLibs.Instapaper
         /// <param name="bookmarkId"></param>
         public async Task UnarchiveBookmark(int bookmarkId)
         {
-            await HandleRequest("bookmarks/unarchive", parameters: new List<Param> { new Param("bookmark_id", bookmarkId.ToString()) });
+            await MakeRequest<string>("bookmarks/unarchive", parameters: new List<Param> { new Param("bookmark_id", bookmarkId.ToString()) });
         }
 
         public async Task MoveBookmark(int bookmarkId, string folderId)
         {
-            await HandleRequest("bookmarks/move", parameters: new List<Param>
+            await MakeRequest<string>("bookmarks/move", parameters: new List<Param>
             {
                 new Param("bookmark_id", bookmarkId.ToString()),
                 new Param("folder_id", folderId)
@@ -203,7 +191,7 @@ namespace ApiLibs.Instapaper
         /// <returns></returns>
         public async Task AddFolder(string title)
         {
-            await HandleRequest("folders/add", parameters: new List<Param> {new Param("title", title)});
+            await MakeRequest<string>("folders/add", parameters: new List<Param> {new Param("title", title)});
         }
 
         /// <summary>
@@ -213,7 +201,7 @@ namespace ApiLibs.Instapaper
         /// <returns></returns>
         public async Task DeleteFolder(int folderId)
         {
-            await HandleRequest("folders/delete", parameters: new List<Param> {new Param("folder_id", folderId.ToString())});
+            await MakeRequest<string>("folders/delete", parameters: new List<Param> {new Param("folder_id", folderId.ToString())});
         }
 
         /// <summary>

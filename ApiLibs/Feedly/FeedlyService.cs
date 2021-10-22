@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibs.Feedly
 {
-    public class FeedlyService : Service
+    public class FeedlyService : RestSharpService
     {
         public FeedlyService() : base("https://cloud.feedly.com") { }
 
@@ -42,7 +42,7 @@ namespace ApiLibs.Feedly
 
         public Task MarkAsUnsaved(string id)
         {
-            return HandleRequest("/markers", Call.POST, content: new
+            return MakeRequest<string>("/markers", Call.POST, content: new
             {
                 action = "markAsUnsaved",
                 type = "entries",
@@ -59,7 +59,7 @@ namespace ApiLibs.Feedly
 
         public Task MarkAsSaved(string id)
         {
-            return HandleRequest("/markers", Call.POST, content: new
+            return MakeRequest<string>("/markers", Call.POST, content: new
             {
                 action = "markAsSaved",
                 type = "entries",

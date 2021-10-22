@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ApiLibs.Trakt
 {
-    public class TraktService : Service
+    public class TraktService : RestSharpService
     {
         private string accessToken;
         private string refreshToken;
@@ -30,6 +30,20 @@ namespace ApiLibs.Trakt
             MovieService = new MovieService(this);
             SearchService = new SearchService(this);
             ShowService = new ShowService(this);
+
+            RequestResponseMiddleware.Add(async (resp) =>
+            {
+                var request = resp.Request;
+                if (resp.StatusCode == HttpStatusCode.BadRequest && request.EndPoint != "oauth/token" && StoreRefreshToken != null)
+                {
+                    var res = await RefreshAccessToken();
+                    await StoreRefreshToken(res);
+                    request.Retries++;
+                    return await base.HandleRequest(request);
+                }
+
+                return resp;
+            });
         }
 
         public TraktService(string accessToken, string refreshToken, string clientId, string clientSecret, string redirectUrl) : this()
@@ -61,36 +75,9 @@ namespace ApiLibs.Trakt
             });
         }
 
-        protected internal override async Task<string> HandleRequest(string url, Call call = Call.GET,
-            List<Param> parameters = null, List<Param> headers = null, object content = null,
-            HttpStatusCode statusCode = HttpStatusCode.OK)
-        {
-            try
-            {
-                return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
-            }
-            catch (UnAuthorizedException)
-            {
-                if(url == "oauth/token")
-                {
-                    throw;
-                }
-                if(StoreRefreshToken != null)
-                {
-                    var res = await RefreshAccessToken();
-                    await StoreRefreshToken(res);
-                    return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
-                } 
-                else
-                {
-                    throw;
-                }
-            }
-
-        }
-
         public async Task<AccessObject> RefreshAccessToken()
         {
+
            RemoveStandardHeader("Authorization");
 
             var obj = await MakeRequest<AccessObject>("oauth/token", Call.POST,
@@ -102,8 +89,8 @@ namespace ApiLibs.Trakt
                     redirect_uri = redirectUrl,
                     grant_type = "refresh_token"
                 });
-            this.accessToken = obj.AccessToken;
-            this.refreshToken = obj.RefreshToken;
+            accessToken = obj.AccessToken;
+            refreshToken = obj.RefreshToken;
             AddStandardHeader("Authorization", $"Bearer {obj.AccessToken}");
             return obj;
         }

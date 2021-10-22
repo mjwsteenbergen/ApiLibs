@@ -1,15 +1,11 @@
-﻿using ApiLibs.General;
-using RestSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace ApiLibs.Telegram
 {
-    public class TelegramService : Service
+    public class TelegramService : RestSharpService
     {
         public string Telegram_token;
 
@@ -26,40 +22,44 @@ namespace ApiLibs.Telegram
                 message = message.Substring(4090);
             }
 
-            return (await MakeRequest<TgSendUpdateObject>("/sendMessage", Call.GET, new List<Param>
-            {
-                new Param("chat_id", id.ToString()),
-                new Param("text", message),
-                new Param("disable_web_page_preview", (!webPreview).ToString()),
-                new OParam("parse_mode", mode.ToString()),
-                new OParam("reply_to_message_id", replyToMessageId),
-                new OParam("reply_markup", replyMarkup),
-                new OParam("disable_notification", disableNotification)
+            return (await MakeRequest<TgSendUpdateObject>("/sendMessage", Call.POST, content: new {
+                chat_id = id.ToString(),
+                text = message,
+                disable_web_page_preview = (!webPreview).ToString(),
+                parse_mode = mode.ToString(),
+                reply_to_message_id = replyToMessageId,
+                reply_markup = replyMarkup,
+                disable_notification = disableNotification
             })).result;
         }
 
-        public async Task AnswerInlineQuery(string inlineQueryId, IEnumerable<InlineQueryResultArticle> results)
+        public Task AnswerInlineQuery(string inlineQueryId, IEnumerable<InlineQueryResultArticle> results)
         {
-            try
-            {
-                await HandleRequest("answerInlineQuery", parameters: new List<Param>
+            Func<BadRequestResponse, string> badr = (BadRequestResponse s) => {
+                if (!s.Content.Contains("QUERY_ID_INVALID"))
                 {
-                    new Param("inline_query_id", inlineQueryId),
-                    new Param("results", results)
-                });
-            }
-            catch (BadRequestException e)
-            {
-                if (!e.Message.Contains("QUERY_ID_INVALID"))
-                {
-                    throw;
+                    throw new RequestException(s);
                 }
                 else
                 {
                     Console.WriteLine(inlineQueryId);
                     results.ToList().ForEach(Console.WriteLine);
                 }
-            }
+                return "";
+            };
+
+            return MakeRequest(new Request("answerInlineQuery") {
+                Parameters = new List<Param>
+                {
+                    new Param("inline_query_id", inlineQueryId),
+                    new Param("results", results)
+                },
+                RequestHandler = (resp) => { var s = resp switch {
+                    OKResponse response => "",
+                    BadRequestResponse res => badr(res),
+                    _ => throw resp.ToException()
+                };}
+            });
         }
 
         public async Task<TgMessage> EditMessageText(TgMessage message, string newText, ParseMode? mode = null, bool? disableWebPagePreview = null)

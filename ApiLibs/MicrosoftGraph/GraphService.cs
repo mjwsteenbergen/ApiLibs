@@ -8,7 +8,7 @@ using ApiLibs.General;
 
 namespace ApiLibs.MicrosoftGraph
 {
-    public class GraphService : Service
+    public class GraphService : RestSharpService
     {
         private string _refreshToken;
         private readonly string _clientId;
@@ -42,6 +42,8 @@ namespace ApiLibs.MicrosoftGraph
             CloudCommunicationsService = new CloudCommunicationsService(this);
             ChangeNotificationService = new ChangeNotificationService(this);
             //Don't forget the other constructor
+
+            SetupBase();
         }
 
         /// <summary>
@@ -51,7 +53,7 @@ namespace ApiLibs.MicrosoftGraph
         /// <param name="clientId"></param>
         /// <param name="clientSecret"></param>
         /// <param name="emailAdress"></param>
-        public GraphService(string refreshToken, string clientId, string clientSecret, string emailAdress): base(basePath)
+        public GraphService(string refreshToken, string clientId, string clientSecret, string emailAdress) : base(basePath)
         {
             _refreshToken = refreshToken;
             _clientId = clientId;
@@ -69,6 +71,24 @@ namespace ApiLibs.MicrosoftGraph
             CloudCommunicationsService = new CloudCommunicationsService(this);
             ChangeNotificationService = new ChangeNotificationService(this);
             //Don't forget the other constructor
+
+            SetupBase();
+        }
+
+        private void SetupBase()
+        {
+            RequestResponseMiddleware.Add(async (resp) =>
+            {
+                if (resp.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    var request = resp.Request;
+                    await RefreshToken();
+                    request.Retries++;
+                    return await base.HandleRequest(request);
+                }
+
+                return resp;
+            });
         }
 
         public async Task ConvertToToken(string clientId, string clientSecret, string username, string password, string TenantID)
@@ -179,7 +199,7 @@ namespace ApiLibs.MicrosoftGraph
 
             _refreshToken = accessToken.refresh_token;
             AddStandardHeader(new Param("Authorization", "Bearer " + accessToken.access_token));
-            Changed?.Invoke(this, new RefreshArgs { RefreshToken = _refreshToken});
+            Changed?.Invoke(this, new RefreshArgs { RefreshToken = _refreshToken });
             SetBaseUrl(basePath);
 
             return accessToken;
@@ -190,23 +210,6 @@ namespace ApiLibs.MicrosoftGraph
             public string RefreshToken { get; set; }
         }
 
-
-        protected internal override async Task<string> HandleRequest(string url, Call call = Call.GET,
-            List<Param> parameters = null, List<Param> headers = null, object content = null,
-            HttpStatusCode statusCode = HttpStatusCode.OK)
-        {
-            try
-            {
-                return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
-            }
-            catch (UnAuthorizedException)
-            {
-                await RefreshToken();
-                return await base.HandleRequest(url, call, parameters, headers, content, statusCode);
-            }
-
-        }
-
         public void PreferTimeZone(TimeZoneInfo timezone)
         {
             AddStandardHeader("Prefer", $"outlook.timezone=\"{timezone.StandardName}\"");
@@ -215,22 +218,12 @@ namespace ApiLibs.MicrosoftGraph
 
     public abstract class GraphSubService : SubService<GraphService>
     {
-        public GraphSubService(GraphService service, string version) : base(service)
+        public GraphSubService(GraphService service, string version) : base(service, version)
         {
             Version = version;
         }
 
         public string Version { get; }
-
-        protected override Task<string> HandleRequest(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
-        {
-            return base.HandleRequest($"{Version}/" + url, m, parameters, header, content, statusCode);
-        }
-
-        protected override Task<T> MakeRequest<T>(string url, Call m = Call.GET, List<Param> parameters = null, List<Param> header = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
-        {
-            return base.MakeRequest<T>($"{Version}/" + url, m, parameters, header, content, statusCode);
-        }
     }
 
     public enum FlagStatus
