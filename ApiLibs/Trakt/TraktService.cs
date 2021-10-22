@@ -77,11 +77,6 @@ namespace ApiLibs.Trakt
 
         public async Task<AccessObject> RefreshAccessToken()
         {
-            var s = (await MakeRequest<OKResponse<Watching>, NoContentResponse<string>>($"users/n/watching/")).Match(
-                    (i) => i.Content(),
-                    (id) => null
-            );
-
 
            RemoveStandardHeader("Authorization");
 

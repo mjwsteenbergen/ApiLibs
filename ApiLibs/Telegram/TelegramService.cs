@@ -1,10 +1,6 @@
-﻿using ApiLibs.General;
-using RestSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace ApiLibs.Telegram
@@ -37,29 +33,33 @@ namespace ApiLibs.Telegram
             })).result;
         }
 
-        public async Task AnswerInlineQuery(string inlineQueryId, IEnumerable<InlineQueryResultArticle> results)
+        public Task AnswerInlineQuery(string inlineQueryId, IEnumerable<InlineQueryResultArticle> results)
         {
-            var req = await MakeRequest<OKResponse<string>, BadRequestResponse<string>>("answerInlineQuery", parameters: new List<Param>
+            Func<BadRequestResponse, string> badr = (BadRequestResponse s) => {
+                if (!s.Content.Contains("QUERY_ID_INVALID"))
+                {
+                    throw new RequestException(s);
+                }
+                else
+                {
+                    Console.WriteLine(inlineQueryId);
+                    results.ToList().ForEach(Console.WriteLine);
+                }
+                return "";
+            };
+
+            return MakeRequest(new Request("answerInlineQuery") {
+                Parameters = new List<Param>
                 {
                     new Param("inline_query_id", inlineQueryId),
                     new Param("results", results)
+                },
+                RequestHandler = (resp) => { var s = resp switch {
+                    OKResponse response => "",
+                    BadRequestResponse res => badr(res),
+                    _ => throw resp.ToException()
+                };}
             });
-
-            req.Switch(
-                (s) => {},
-                (s) =>
-                {
-                    if (!s.Content().Contains("QUERY_ID_INVALID"))
-                    {
-                        throw new RequestException(s);
-                    }
-                    else
-                    {
-                        Console.WriteLine(inlineQueryId);
-                        results.ToList().ForEach(Console.WriteLine);
-                    }
-                }
-            );
         }
 
         public async Task<TgMessage> EditMessageText(TgMessage message, string newText, ParseMode? mode = null, bool? disableWebPagePreview = null)
