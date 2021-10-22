@@ -1,0 +1,11 @@
+version: 2
+updates:
+- package-ecosystem: nuget
+  directory: "/"
+  schedule:
+    interval: monthly
+    time: "09:00"
+    timezone: Europe/Amsterdam
+  open-pull-requests-limit: 10
+  assignees:
+  - mjwsteenbergen
