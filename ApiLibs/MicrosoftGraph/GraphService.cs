@@ -246,44 +246,24 @@ namespace ApiLibs.MicrosoftGraph
 
     public class OData
     {
+        public static Param TopToParam(int number) => new Param("$top", number);
+        public static Param FilterToParam(string filter) => new Param("$filter", filter);
+        public static Param SelectToParam(string select) => new Param("$select", select);
+
         public string Filter;
         public string Select;
         public int Top = -1;
 
-
-        public string ConvertToUrl(bool hasOtherParams = false)
-        {
-            string res = "";
-            string convToken = hasOtherParams ? "" : "?";
-            string switchToken = "&";
-
-            if (Filter != null)
-            {
-                res += convToken + "$filter=" + Filter;
-                convToken = switchToken;
-            }
-            if (Select != null)
-            {
-                res += convToken + "$select=" + Select;
-                convToken = switchToken;
-            }
-            if (Top != -1)
-            {
-                res += convToken + "$top=" + Top;
-                convToken = switchToken;
-            }
-
-            return res;
-        }
-
         public List<Param> ConvertToParams()
         {
-            return new List<Param>
-            {
-                new OParam("$filter", Filter),
-                new OParam("$select", Select),
-                new OParam("$top", Top == -1 ? null : Top.ToString())
-            };
+            return new List<(string param, string value)> {
+                ("$filter", Filter),
+                ("$select", Select),
+                ("$top", Top == -1 ? null : Top.ToString())
+            }
+            .Where(i => i.value != null && i.value != "-1")
+            .Select(i => new Param(i.param, i.value))
+            .ToList();
         }
 
         public OData AddUnreadSelector(bool isRead)
