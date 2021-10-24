@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using ApiLibs.General;
 using Newtonsoft.Json;
+using OneOf;
 using RestSharp;
 using RestSharp.Authenticators;
 
@@ -123,7 +124,7 @@ namespace ApiLibs
 
         protected internal async Task<T> MakeRequest<T>(Request<T> request)
         {
-            return request.RequestHandler(await HandleRequest(request));
+            return await request.RequestHandler(await HandleRequest(request)).Match(i => Task.FromResult(i), i => i);
         }
 
         protected internal async Task MakeRequest(Request request)
@@ -206,7 +207,7 @@ namespace ApiLibs
         {
         }
 
-        public new Func<RequestResponse, T> RequestHandler { get; set; }
+        public new Func<RequestResponse, OneOf<T, Task<T>>> RequestHandler { get; set; }
     }
 
     public enum Call

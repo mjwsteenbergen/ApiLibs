@@ -45,7 +45,7 @@ namespace ApiLibs
             return Service.HandleRequest(Request);
         }
 
-        internal Exception ToException()
+        public Exception ToException()
         {
             return RequestException.ConvertToException(this);
         }
