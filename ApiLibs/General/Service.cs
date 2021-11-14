@@ -34,7 +34,7 @@ namespace ApiLibs
 
     public abstract class Service
     {
-        internal ICallImplementation Implementation { get; }
+        protected internal ICallImplementation Implementation { get; }
         private int? maxRetries;
 
         public virtual int? MaxRetries { get => maxRetries ?? 3; set => maxRetries = value; }
