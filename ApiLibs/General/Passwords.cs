@@ -98,12 +98,14 @@ namespace ApiLibs.General
 
         public static async Task<Passwords> ReadPasswords(AsyncMemory mem = null)
         {
-            mem = mem ?? new Memory
+            mem ??= new Memory
             {
                 Application = "Laurentia"
             };
-            Passwords passwords = new Passwords(await mem.Read<Dictionary<string, string>>(Passwords.FileName));
-            passwords.mem = mem;
+            Passwords passwords = new Passwords(await mem.Read<Dictionary<string, string>>(Passwords.FileName))
+            {
+                mem = mem
+            };
             return passwords;
         }
 
