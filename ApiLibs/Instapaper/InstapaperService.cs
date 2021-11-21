@@ -74,7 +74,7 @@ namespace ApiLibs.Instapaper
         public Task<BookmarksObject> GetAllBookmarkInfo(string folderId = null, int? limit = null, IEnumerable<int> have = null) => MakeRequest<BookmarksObject>("bookmarks/list", Call.POST, parameters: new List<Param>
             {
                 new OParam("folder_id", folderId),
-                new OParam("limit", limit?.ToString()),
+                new OParam("limit", limit),
                 new OParam("have", have?.Select(i => i.ToString()).Combine(","))
             });
 
