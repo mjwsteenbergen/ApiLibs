@@ -30,7 +30,16 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task SetContent(string filepath, string text)
         {
-            return MakeRequest<DriveItem>($"/me/drive/root:/{filepath}:/content", Call.PUT, content: new PlainTextContent(text), statusCode: System.Net.HttpStatusCode.Created);
+            return MakeRequest(new Request<DriveItem>($"/me/drive/root:/{filepath}:/content")
+            {
+                Method = Call.PUT,
+                Content = new PlainTextContent(text),
+                RequestHandler = (resp) => resp switch {
+                    CreatedResponse created => resp.Convert<DriveItem>(),
+                    OKResponse ok => ok.Convert<DriveItem>(),
+                    var resp2 => throw resp2.ToException()
+                }
+            });
         }
     }
 }
