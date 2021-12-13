@@ -153,19 +153,13 @@ namespace ApiLibs.Trakt
         }
     }
 
-    public partial class Episode
+    public partial class Episode : Media
     {
         [JsonProperty("season")]
         public long Season { get; set; }
 
         [JsonProperty("number")]
         public long Number { get; set; }
-
-        [JsonProperty("title")]
-        public string Title { get; set; }
-
-        [JsonProperty("ids")]
-        public Ids Ids { get; set; }
     }
 
     public partial class Ids
