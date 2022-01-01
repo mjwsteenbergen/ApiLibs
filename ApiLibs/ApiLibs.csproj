@@ -13,7 +13,7 @@
   <ItemGroup>
     <PackageReference Include="RestSharp" Version="106.13.0" />
     <PackageReference Include="HttpMultipartParser" Version="5.0.1" />
-    <PackageReference Include="OneOf" Version="3.0.201" />
+    <PackageReference Include="OneOf" Version="3.0.205" />
     <PackageReference Include="Martijn.Extensions" Version="1.15.0" /> 
   </ItemGroup>
 </Project>
