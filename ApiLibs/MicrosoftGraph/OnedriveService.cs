@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using ApiLibs.General;
 
@@ -34,10 +35,10 @@ namespace ApiLibs.MicrosoftGraph
             {
                 Method = Call.PUT,
                 Content = new PlainTextContent(text),
-                RequestHandler = (resp) => resp switch {
-                    CreatedResponse created => resp.Convert<DriveItem>(),
-                    OKResponse ok => ok.Convert<DriveItem>(),
-                    var resp2 => throw resp2.ToException()
+                RequestHandler = (resp) => resp.StatusCode switch {
+                    HttpStatusCode.Created => resp.Convert<DriveItem>(),
+                    HttpStatusCode.OK => resp.Convert<DriveItem>(),
+                    _ => throw resp.ToException()
                 }
             });
         }
