@@ -62,20 +62,20 @@ namespace ApiLibs.MicrosoftGraph
     public class FolderRoot : ValueResult<EmailFolder>
     {
 
-        public void Search(RestSharpService inputService)
+        public new void Search(Service inputService)
         {
             base.Search(inputService);
 
             foreach (EmailFolder folder in Value)
             {
-                folder.Service = inputService;
+                folder._service = inputService as GraphService;
             }
         }
 
 
     }
 
-    public class EmailFolder : ObjectSearcher
+    public class EmailFolder : ObjectSearcher<GraphService>
     {
         public string odataid { get; set; }
         public string Id { get; set; }
@@ -88,7 +88,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public async Task<List<EmailMessage>> GetMessages(OData odata)
         {
-            return await (Service as GraphService).MailService.GetMessages(this, odata);
+            return await Service.MailService.GetMessages(this, odata);
         }
 
         public override string ToString()
@@ -99,7 +99,7 @@ namespace ApiLibs.MicrosoftGraph
 
     public class MessageRoot : ValueResult<EmailMessage> { }
 
-    public class EmailMessage : ObjectSearcher
+    public class EmailMessage : ObjectSearcher<GraphService>
     {
         public string odataid { get; set; }
         public string odataetag { get; set; }
@@ -139,7 +139,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public async Task SetFlag(FlagStatus status)
         {
-            await (Service as GraphService).MailService.SetFlagged(this, status);
+            await Service.MailService.SetFlagged(this, status);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace ApiLibs.MicrosoftGraph
         /// <returns></returns>
         public async Task SetRead(bool read)
         {
-            await (Service as GraphService).MailService.SetRead(this, read);
+            await Service.MailService.SetRead(this, read);
         }
     }
 }

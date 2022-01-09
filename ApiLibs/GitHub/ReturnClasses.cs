@@ -10,7 +10,7 @@ using ApiLibs.Telegram;
 
 namespace ApiLibs.GitHub
 {
-    public class Subject : ObjectSearcher
+    public class Subject : ObjectSearcher<GitHubService>
     {
         public string title { get; set; }
         public string url { get; set; }
@@ -53,7 +53,7 @@ namespace ApiLibs.GitHub
         public DateTime updated_at { get; set; }
     }
 
-    public class NotificationsObject : ObjectSearcher
+    public class NotificationsObject : ObjectSearcher<GitHubService>
     {
         public string id { get; set; }
         public bool unread { get; set; }

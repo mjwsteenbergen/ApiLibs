@@ -14,7 +14,7 @@ namespace ApiLibs.MicrosoftGraph
         public string refresh_token { get; set; }
     }
 
-    public class ValueResult<T> : ObjectSearcher
+    public class ValueResult<T> : ObjectSearcher<GraphService>
     {
         [JsonProperty("@odata.context")]
         public Uri OdataContext { get; set; }

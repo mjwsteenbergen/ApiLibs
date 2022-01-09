@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace ApiLibs.GitHub
 {
-    public partial class Issue : ObjectSearcher
+    public partial class Issue : ObjectSearcher<GitHubService>
     {
         [JsonProperty("id")]
         public long Id { get; set; }

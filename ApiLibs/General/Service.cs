@@ -90,10 +90,10 @@ namespace ApiLibs
             }
             R returnObj;
             returnObj = JsonConvert.DeserializeObject<R>(text);
-            if (returnObj is ObjectSearcher)
+            if (returnObj is ObjectSearcher objectSearcher)
             {
                 //Enable better OOP
-                (returnObj as ObjectSearcher).Search(this);
+                objectSearcher.Search(this);
             }
             return returnObj;
         }

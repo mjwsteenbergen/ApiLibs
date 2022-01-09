@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace ApiLibs.General
@@ -6,16 +8,12 @@ namespace ApiLibs.General
     public abstract class ObjectSearcher
     {
         [JsonIgnore]
-        public Service Service {get; set;}
+        internal Service _service { get; set; }
 
         public void Search(Service inputService)
         {
-            if (Service != null)
-            {
-                return;
-            }
-
-            Service = inputService;
+            _service = inputService;
+            var isObjSearch = (Type o) => o.BaseType == typeof(ObjectSearcher) || o.BaseType?.BaseType == typeof(ObjectSearcher);
 
             foreach (var item in GetType().GetProperties())
             {
@@ -23,7 +21,7 @@ namespace ApiLibs.General
                 {
                     continue;
                 }
-                if (item.GetMethod.ReturnType.BaseType == typeof(ObjectSearcher))
+                if (isObjSearch(item.GetMethod.ReturnType))
                 {
                     ObjectSearcher objectSearcher = item.GetValue(this) as ObjectSearcher;
                     objectSearcher.Search(inputService);
@@ -34,7 +32,19 @@ namespace ApiLibs.General
                     Array a = (Array) item.GetValue(this);
                     foreach (object o in a)
                     {
-                        if (o.GetType().BaseType == typeof(ObjectSearcher))
+                        if (isObjSearch(o.GetType()))
+                        {
+                            (o as ObjectSearcher)?.Search(inputService);
+                        }
+                    }
+                }
+                if (item.GetMethod.ReturnType.IsGenericType && item.GetMethod.ReturnType.GetGenericTypeDefinition()
+        == typeof(List<>))
+                {
+                    Type itemType = item.GetMethod.ReturnType.GetGenericArguments()[0];
+                    if(isObjSearch(itemType))
+                    {
+                        foreach (var o in (IEnumerable) item.GetValue(this))
                         {
                             (o as ObjectSearcher)?.Search(inputService);
                         }
@@ -44,44 +54,16 @@ namespace ApiLibs.General
         }
     }
 
-    public abstract class ObjectSearcher<T> where T : Service
+    public abstract class ObjectSearcher<T> : ObjectSearcher where T : Service
     {
         [JsonIgnore]
-        public T Service { get; set; }
-
-        public void Search(T inputService)
-        {
-            if (Service != null)
-            {
-                return;
-            }
-
-            Service = inputService;
-
-            foreach (var item in GetType().GetProperties())
-            {
-                if (item.GetValue(this) == null)
+        public T Service { get {
+                if (_service == null || _service is not T)
                 {
-                    continue;
+                    return null;
                 }
-                if (item.GetMethod.ReturnType.BaseType == typeof(ObjectSearcher<T>))
-                {
-                    ObjectSearcher<T> objectSearcher = item.GetValue(this) as ObjectSearcher<T>;
-                    objectSearcher.Search(inputService);
-                }
-
-                if (item.PropertyType.IsArray)
-                {
-                    Array a = (Array)item.GetValue(this);
-                    foreach (object o in a)
-                    {
-                        if (o.GetType().BaseType == typeof(ObjectSearcher<T>))
-                        {
-                            (o as ObjectSearcher<T>)?.Search(inputService);
-                        }
-                    }
-                }
-            }
+                return _service as T;
+            } 
         }
     }
 }
