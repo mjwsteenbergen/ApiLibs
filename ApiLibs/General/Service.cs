@@ -189,6 +189,8 @@ namespace ApiLibs
         {
             EndPoint = endPoint;
             Retries = 0;
+            Headers = new();
+            Parameters = new();
         }
 
         public string EndPoint { get; set; }
