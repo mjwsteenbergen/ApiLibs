@@ -151,14 +151,7 @@ namespace ApiLibs
                 Headers = headers ?? new List<Param>(),
                 Parameters = parameters ?? new List<Param>(),
                 Method = method,
-                RequestHandler = (resp) => {
-                    
-                    if(resp.StatusCode == statusCode) {
-                        return resp.Convert<T>();
-                    }
-
-                    throw resp.ToException();
-                }
+                ExpectedStatusCode = statusCode
             });
         }
 
@@ -170,13 +163,7 @@ namespace ApiLibs
                 Headers = headers ?? new List<Param>(),
                 Parameters = parameters ?? new List<Param>(),
                 Method = method,
-                RequestHandler = (resp) =>
-                {
-                    if (resp.StatusCode != statusCode)
-                    {
-                        throw resp.ToException();
-                    }
-                }
+                ExpectedStatusCode = statusCode
             });
         }
     }
@@ -189,8 +176,17 @@ namespace ApiLibs
         {
             EndPoint = endPoint;
             Retries = 0;
-            Headers = new();
-            Parameters = new();
+            RequestHandler = (resp) =>
+            {
+                if (resp.StatusCode != ExpectedStatusCode)
+                {
+                    throw resp.ToException();
+                }
+            };
+
+            Parameters = new ();
+            Headers = new ();
+            ExpectedStatusCode = HttpStatusCode.OK;
         }
 
         public string EndPoint { get; set; }
@@ -198,15 +194,26 @@ namespace ApiLibs
         public List<Param> Parameters { get; set; }
         public List<Param> Headers { get; set; }
         public object Content { get; set; }
+        public HttpStatusCode ExpectedStatusCode { get; set; }
 
         public int Retries { get; set; }
-        public Action<RequestResponse> RequestHandler { get; internal set; }
+        public Action<RequestResponse> RequestHandler { get; set; }
     }
 
     public class Request<T> : Request
     {
         public Request(string endPoint) : base(endPoint)
         {
+            RequestHandler = (resp) =>
+            {
+
+                if (resp.StatusCode == ExpectedStatusCode)
+                {
+                    return resp.Convert<T>();
+                }
+
+                throw resp.ToException();
+            };
         }
 
         public new Func<RequestResponse, OneOf<T, Task<T>>> RequestHandler { get; set; }
