@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
+using Newtonsoft.Json.Converters;
 
 namespace ApiLibs.TodoistRest
 {
@@ -125,16 +126,16 @@ namespace ApiLibs.TodoistRest
 
         public TodoistRequestTask(DateTime dateTime)
         {
-            DueDate = dateTime.Date;
-            // DueString = dateTime.ToString("dd MMM", CultureInfo.InvariantCulture);
+            // DueDate = dateTime.Date;
+            DueString = dateTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             DueLang = "en";
 
 
             if (!DueDate.Equals(dateTime))
             {
-                DueDateTime = dateTime;
-                DueDate = null;
-                // DueString = dateTime.ToString("dd MMM HH:mm", CultureInfo.InvariantCulture);
+                // DueDateTime = dateTime;
+                // DueDate = null;
+                DueString = dateTime.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
             }
         }
 
