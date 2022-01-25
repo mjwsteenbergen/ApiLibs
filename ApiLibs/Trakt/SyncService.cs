@@ -18,7 +18,7 @@ namespace ApiLibs.Trakt
         public Task AddRatings(SyncRequestObject media) => MakeRequest<string>("/sync/ratings", Call.POST, content: media, statusCode: System.Net.HttpStatusCode.Created);
         public Task RemoveFromRatings(SyncRequestObject media) => MakeRequest<string>("/sync/ratings/remove", Call.POST, content: media);
 
-        public Task AddToWatchlist(SyncRequestObject media) => MakeRequest<string>("/sync/watchlist", Call.POST, content: media);
+        public Task AddToWatchlist(SyncRequestObject media) => MakeRequest<string>("/sync/watchlist", Call.POST, content: media, statusCode: System.Net.HttpStatusCode.Created);
         public Task RemoveFromWatchlist(SyncRequestObject media) => MakeRequest<string>("/sync/watchlist/remove", Call.POST, content: media);
 
         public Task<List<WrappedMediaObject>> GetWatchlistMovies(string sort = null) => GetWatchlist<WrappedMediaObject>("movies", sort);
