@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using RestSharp;
@@ -38,15 +39,7 @@ namespace ApiLibs
                     continue;
                 }
 
-                if (request.Method == Method.GET || request.Method == Method.POST)
-                {
-
-                    request.AddParameter(para.Name, para.Value);
-                }
-                else
-                {
-                    request.AddParameter(para.Name, para.Value, ParameterType.QueryString);
-                }
+                request.AddParameter(para.Name, para.Value, ParameterType.QueryString);
             }
 
 
@@ -56,9 +49,9 @@ namespace ApiLibs
             }
 
             Debug.Assert(Client != null, "Client != null");
-            IRestResponse resp = await Client.ExecuteAsync(request);
+            RestResponse resp = await Client.ExecuteAsync(request);
 
-            if (resp.ErrorException != null)
+            if (resp.ErrorException != null && resp.ErrorException is not HttpRequestException)
             {
                 var rex = resp.ErrorException switch
                 {
@@ -71,7 +64,7 @@ namespace ApiLibs
             return new RequestResponse(resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp, aRequest, service);
         }
 
-        private static void AddBody(IRestRequest request, object content)
+        private static void AddBody(RestRequest request, object content)
         {
             switch (content)
             {
@@ -89,21 +82,39 @@ namespace ApiLibs
                         NullValueHandling = NullValueHandling.Ignore
                     };
                     string jsonText = JsonConvert.SerializeObject(content, settings);
-                    request.AddParameter("application/json", jsonText, ParameterType.RequestBody);
                     request.AddHeader("Content-Type", "application/json");
+                    request.AddBody(jsonText, "application/json");
                     break;
             }
         }
+
+                    //     var client = new RestClient("https://api.pushcut.io/rGUKVq1jlGY0JIf5p_Odj/widgets/Widget?content=Status");
+            //     var request = new RestRequest();
+            //     request.AddHeader("Content-Type", "application/json");
+            //     // request.AddJsonBody(new
+            //     // {
+            //     //     content = "Status",
+            //     //     inputs = new { 
+            //     //         input0 = "108",
+            //     //         input1 = "20", 
+            //     //         input2 = "8", 
+            //     //         input3 = "82.70 %",
+            //     //         input4 = "work" 
+            //     //     }
+            //     // });
+            //     // request.AddJsonBody("{\"content\":\"Status\",\"inputs\":{\"input0\":\"108\",\"input1\":\"20\",\"input2\":\"8\",\"input3\":\"82.70%\",\"input4\":\"work\"}}");
+            //     RestResponse response = await client.PostAsync(request);
+            //     Console.WriteLine(response.Content);
 
         private Method Convert(Call m)
         {
             return m switch
             {
-                Call.POST => Method.POST,
-                Call.PATCH => Method.PATCH,
-                Call.DELETE => Method.DELETE,
-                Call.PUT => Method.PUT,
-                _ => Method.GET,
+                Call.POST => Method.Post,
+                Call.PATCH => Method.Patch,
+                Call.DELETE => Method.Delete,
+                Call.PUT => Method.Put,
+                _ => Method.Get,
             };
         }
     }

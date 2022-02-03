@@ -54,7 +54,6 @@ namespace ApiLibs.GitHub
 
         public async Task<string> ConvertToToken(string returnValue)
         {
-            
             List<Param> parameters = new()
             {
                 new Param("client_id", GitHub_clientID),
@@ -62,13 +61,11 @@ namespace ApiLibs.GitHub
                 new Param("code", returnValue.Replace("code=", ""))
             };
 
-            SetBaseUrl("https://github.com/");
-            var content = await MakeRequest<string>("login/oauth/access_token", Call.POST, parameters: parameters);
+            var content = await new BlandService().MakeRequest<string>("https://github.com/login/oauth/access_token", Call.POST, parameters: parameters);
 
             Match m = Regex.Match(content, @"{""access_token"":""(\w+)""");
             GitHub_access_token = m.Groups[1].ToString();
             AddStandardHeader(new Param("Authorization", "token " + GitHub_access_token));
-            SetBaseUrl("https://api.github.com/");
             return GitHub_access_token;
         }
 
