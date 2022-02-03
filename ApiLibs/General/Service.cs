@@ -122,9 +122,9 @@ namespace ApiLibs
             return await request.RequestHandler(await HandleRequest(request)).Match(i => Task.FromResult(i), i => i);
         }
 
-        protected internal async Task MakeRequest(Request request2)
+        protected internal async Task MakeRequest(Request request)
         {
-            request2.RequestHandler(await HandleRequest(request2));
+            request.RequestHandler(await HandleRequest(request));
         }
 
         /// <summary>

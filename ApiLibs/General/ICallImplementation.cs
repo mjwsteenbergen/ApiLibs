@@ -39,7 +39,14 @@ namespace ApiLibs
                     continue;
                 }
 
-                request.AddParameter(para.Name, para.Value, ParameterType.QueryString);
+                if (request.Method == Method.Get || request.Method == Method.Post)
+                {
+                    request.AddParameter(para.Name, para.Value);
+                }
+                else
+                {
+                    request.AddParameter(para.Name, para.Value, ParameterType.QueryString);
+                }
             }
 
 
