@@ -28,7 +28,7 @@ namespace ApiLibsTest.Instapaper
         {
             Passwords passwords = await Passwords.ReadPasswords();
             var insta = new InstapaperService();
-            var res = insta.Connect("username", "password", passwords.Instaper_ID, passwords.Instaper_secret);
+            var res = await insta.Connect("username", "password", passwords.Instaper_ID, passwords.Instaper_secret);
             passwords.Instaper_user_token = res.token;
             passwords.Instaper_user_secret = res.secret;
             await passwords.WriteToFile();
