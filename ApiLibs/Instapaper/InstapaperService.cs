@@ -28,7 +28,7 @@ namespace ApiLibs.Instapaper
             oAuth1Authenticator.SignatureMethod = OAuthSignatureMethod.HmacSha1;
             oAuth1Authenticator.SignatureTreatment = OAuthSignatureTreatment.Escaped;
             oAuth1Authenticator.ParameterHandling = OAuthParameterHandling.HttpAuthorizationHeader;
-            Client.Authenticator = oAuth1Authenticator;
+            (Implementation as RestSharpImplementation).Client.Authenticator = oAuth1Authenticator;
         }
 
         /// <summary>
@@ -38,17 +38,17 @@ namespace ApiLibs.Instapaper
         /// <param name="password">password of the user</param>
         /// <param name="clientId">the id of your application</param>
         /// <param name="clientSecret">secret of your application</param>
-        public (string token, string secret) Connect(string username, string password, string clientId, string clientSecret)
+        public async Task<(string token, string secret)> Connect(string username, string password, string clientId, string clientSecret)
         {
             var client = new RestClient("https://www.instapaper.com/api/1/")
             {
                 Authenticator = OAuth1Authenticator.ForRequestToken(clientId, clientSecret)
             };
-            var request = new RestRequest("/oauth/access_token", Method.POST);
+            var request = new RestRequest("/oauth/access_token", Method.Post);
             request.AddParameter("x_auth_mode", "client_auth", ParameterType.GetOrPost);
             request.AddParameter("x_auth_username", username, ParameterType.GetOrPost);
             request.AddParameter("x_auth_password", password, ParameterType.GetOrPost);
-            var response = client.Execute(request);
+            var response = await client.ExecuteAsync(request);
             string[] respParameters = response.Content.Split('&');
             string tokenSecret = respParameters[0].Replace("oauth_token_secret=", "");
             string token = respParameters[1].Replace("oauth_token=", "");

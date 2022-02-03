@@ -91,16 +91,14 @@ namespace ApiLibs.Spotify
 
         public async Task RefreshToken()
         {
-            SetBaseUrl("https://accounts.spotify.com/");
-            AddStandardHeader("Authorization", "Basic " + _ClientBase64);
-
-            var args = await MakeRequest<AccessTokenObject>("api/token", Call.POST, new List<Param>
+            var args = await new BlandService().MakeRequest<AccessTokenObject>("https://accounts.spotify.com/api/token", Call.POST, new List<Param>
             {
                 new Param("grant_type", "refresh_token"),
                 new Param("refresh_token", _RefreshToken)
+            }, headers: new List<Param>() {
+                new Param("Authorization", "Basic " + _ClientBase64)
             });
 
-            SetBaseUrl("https://api.spotify.com/v1/");
             AddStandardHeader("Authorization", "Bearer " + args.access_token);
         }
 

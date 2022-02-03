@@ -93,8 +93,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public async Task ConvertToToken(string clientId, string clientSecret, string username, string password, string TenantID)
         {
-            SetBaseUrl($"https://login.microsoftonline.com/{TenantID}/oauth2/v2.0/");
-            var res = await MakeRequest<AccessTokenObject>($"token", Call.POST, parameters: new List<Param> {
+            var res = await new  BlandService().MakeRequest<AccessTokenObject>($"https://login.microsoftonline.com/{TenantID}/oauth2/v2.0/token", Call.POST, parameters: new List<Param> {
                 new Param("grant_type", "password"),
                 new Param("client_id", clientId),
                 new Param("client_secret", clientSecret),
@@ -105,7 +104,6 @@ namespace ApiLibs.MicrosoftGraph
 
 
             AddStandardHeader(new Param("Authorization", "Bearer " + res.access_token));
-            SetBaseUrl(basePath);
         }
 
 
@@ -158,8 +156,6 @@ namespace ApiLibs.MicrosoftGraph
         /// <returns></returns>
         public async Task<string> ConvertToToken(string outlookClientId, string outlookClientSecret, string loginCode, string redirect_url)
         {
-            SetBaseUrl("https://login.microsoftonline.com/common/oauth2/v2.0/");
-
             List<Param> parameters = new List<Param>
             {
                 new Param("client_id", outlookClientId),
@@ -169,9 +165,8 @@ namespace ApiLibs.MicrosoftGraph
                 new Param("grant_type", "authorization_code")
             };
 
-            string token = (await MakeRequest<AccessTokenObject>("token", Call.POST, parameters)).refresh_token;
+            string token = (await new BlandService().MakeRequest<AccessTokenObject>("https://login.microsoftonline.com/common/oauth2/v2.0/token", Call.POST, parameters)).refresh_token;
 
-            SetBaseUrl(basePath);
             return token;
         }
 
@@ -182,10 +177,6 @@ namespace ApiLibs.MicrosoftGraph
         /// <returns>An object which has the new token</returns>
         public async Task<AccessTokenObject> RefreshToken()
         {
-            SetBaseUrl("https://login.microsoftonline.com/common/oauth2/v2.0/");
-            RemoveStandardHeader("Authorization");
-
-
             List<Param> parameters = new List<Param>
             {
                 new Param("client_id", _clientId),
@@ -195,12 +186,11 @@ namespace ApiLibs.MicrosoftGraph
                 new Param("grant_type", "refresh_token")
             };
 
-            AccessTokenObject accessToken = await MakeRequest<AccessTokenObject>("token", Call.POST, parameters);
+            AccessTokenObject accessToken = await new BlandService().MakeRequest<AccessTokenObject>("https://login.microsoftonline.com/common/oauth2/v2.0/token", Call.POST, parameters);
 
             _refreshToken = accessToken.refresh_token;
             AddStandardHeader(new Param("Authorization", "Bearer " + accessToken.access_token));
             Changed?.Invoke(this, new RefreshArgs { RefreshToken = _refreshToken });
-            SetBaseUrl(basePath);
 
             return accessToken;
         }

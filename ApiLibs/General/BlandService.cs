@@ -12,7 +12,7 @@ namespace ApiLibs
             RequestMiddleware.Add((req) =>
             {
                 Uri uri = new(req.EndPoint);
-                Client.BaseUrl = new Uri(uri.OriginalString.Replace(uri.PathAndQuery, ""));
+                (Implementation as RestSharpImplementation).Client = new RestSharp.RestClient(new Uri(uri.OriginalString.Replace(uri.PathAndQuery, "")));
                 req.EndPoint = uri.PathAndQuery;
                 return Task.FromResult(req);
             });

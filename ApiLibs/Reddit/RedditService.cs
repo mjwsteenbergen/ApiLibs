@@ -78,7 +78,6 @@ namespace ApiLibs.Reddit
         /// <returns></returns>
         public async Task<TokenObject> GetAccessToken(string code, string redirectUrl)
         {
-            SetBaseUrl("https://www.reddit.com/");
             RemoveStandardHeader("Authorization");
             List<Param> parameters = new List<Param>
             {
@@ -86,8 +85,7 @@ namespace ApiLibs.Reddit
                 new Param("code", code),
                 new Param("redirect_uri", redirectUrl)
             };
-            var returns = await MakeRequest<TokenObject>("api/v1/access_token", Call.POST, parameters, new List<Param> { new Param("Authorization", "Basic " + System.Convert.ToBase64String(Encoding.UTF8.GetBytes(_clientId + ":" + ClientSecret))) });
-            SetBaseUrl("https://oauth.reddit.com");
+            var returns = await new BlandService().MakeRequest<TokenObject>("api/v1/access_token", Call.POST, parameters, new List<Param> { new Param("Authorization", "Basic " + System.Convert.ToBase64String(Encoding.UTF8.GetBytes(_clientId + ":" + ClientSecret))) });
             return returns;
         }
 
@@ -97,16 +95,13 @@ namespace ApiLibs.Reddit
         /// <returns></returns>
         public async Task RefreshToken()
         {
-            SetBaseUrl("https://www.reddit.com/");
-            RemoveStandardHeader("Authorization");
             List<Param> parameters = new List<Param>
             {
                 new Param("grant_type","refresh_token"),
                 new Param("refresh_token", Refreshtoken),
             };
 
-            var returns = await MakeRequest<TokenObject>("api/v1/access_token", Call.POST, parameters, new List<Param> { new Param("Authorization", "Basic " + System.Convert.ToBase64String(Encoding.UTF8.GetBytes(_clientId + ":" + ClientSecret))) });
-            SetBaseUrl("https://oauth.reddit.com");
+            var returns = await new BlandService().MakeRequest<TokenObject>("https://www.reddit.com/api/v1/access_token", Call.POST, parameters, new List<Param> { new Param("Authorization", "Basic " + System.Convert.ToBase64String(Encoding.UTF8.GetBytes(_clientId + ":" + ClientSecret))) });
             AddStandardHeader("Authorization", "bearer " + returns.access_token);
         }
     }

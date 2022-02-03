@@ -9,10 +9,9 @@ namespace ApiLibs.Telegram
     {
         public string Telegram_token;
 
-        public TelegramService(string token, string applicationDirectory) : base("https://api.telegram.org/bot")
+        public TelegramService(string token, string applicationDirectory) : base("https://api.telegram.org/bot" + token)
         {
             Telegram_token = token;
-            SetBaseUrl("https://api.telegram.org/bot" + Telegram_token);
         }
 
         public async Task<TgMessage> SendMessage(int id, string message, ParseMode? mode = null, bool webPreview = true, int? replyToMessageId = null, ReplyKeyboardMarkup replyMarkup = null, bool? disableNotification = null)

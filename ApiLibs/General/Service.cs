@@ -13,22 +13,17 @@ namespace ApiLibs
 {
     public abstract class RestSharpService : Service
     {
-        protected RestClient Client;
+        // protected RestClient Client;
 
         protected RestSharpService(string hostUrl) : base(new RestSharpImplementation())
         {
-            Client = new RestClient { BaseUrl = new Uri(hostUrl) };
-            (Implementation as RestSharpImplementation).Client = Client;
+            (Implementation as RestSharpImplementation).Client = new RestClient(hostUrl);
+            // (Implementation as RestSharpImplementation).Client = Client;
         }
 
         protected void ConnectBasic(string username, string secret)
         {
-            Client.Authenticator = new HttpBasicAuthenticator(username, secret);
-        }
-
-        protected void SetBaseUrl(string baseurl)
-        {
-            Client.BaseUrl = new Uri(baseurl);
+            (Implementation as RestSharpImplementation).Client.Authenticator = new HttpBasicAuthenticator(username, secret);
         }
     }
 

@@ -17,13 +17,15 @@ namespace ApiLibs.Travis
         /// </summary>
         public TravisService() : base("https://api.travis-ci.org")
         {
-
+            (Implementation as RestSharpImplementation).Client = new RestSharp.RestClient(new RestSharp.RestClientOptions
+            {
+                UserAgent = "Travis"
+            });
         }
 
         public TravisService(string travis_Token): base("https://api.travis-ci.org")
         {
             Travis_Token = travis_Token;
-            Client.UserAgent = "Travis";
             AddStandardHeader(new Param("Accept", "application/vnd.travis-ci.2+json"));
             AddStandardHeader(new Param("User-Agent", "Travis"));
             AddStandardHeader(new Param("Authorization", "token" + Travis_Token));
@@ -31,7 +33,6 @@ namespace ApiLibs.Travis
 
         public async Task<string> Connect(string GitHub_access_token)
         {
-            Client.UserAgent = "Travis";
             AddStandardHeader(new Param("Accept", "application/vnd.travis-ci.2+json"));
             AddStandardHeader(new Param("User-Agent", "Travis"));
             if (Travis_Token == null)
