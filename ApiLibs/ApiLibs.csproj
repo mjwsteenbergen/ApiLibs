@@ -8,7 +8,7 @@
     <RepositoryType>git</RepositoryType>
     <Description>An easily extendable restclient library for csharp </Description>
     <Authors>Martijn Steenbergen</Authors>
-    <Version>1.1.0</Version>
+    <Version>2.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="RestSharp" Version="107.1.2" />
