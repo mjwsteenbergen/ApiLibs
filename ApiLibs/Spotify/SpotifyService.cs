@@ -61,6 +61,18 @@ namespace ApiLibs.Spotify
                 return resp;
             });
 
+            RequestResponseMiddleware.Add(async (resp) =>
+            {
+                if((int)resp.StatusCode == 429)
+                {
+                    var request = resp.Request;
+                    await Task.Delay(2000);
+                    request.Retries++;
+                    return await base.HandleRequest(request);
+                }
+                return resp;
+            });
+
             AddStandardHeader("Authorization", "To be filled in later");
         }
 
