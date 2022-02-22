@@ -44,12 +44,12 @@ namespace ApiLibs.MicrosoftGraph
         }
 
 
-        public Task<List<Event>> GetEvents(Calendar calendar, DateTime startTime, DateTime endTime, OData data = null)
+        public Task<List<Event>> GetCalendarView(Calendar calendar, DateTime startTime, DateTime endTime, OData data = null)
         {
-            return GetEvents(calendar.Id, startTime, endTime, data);
+            return GetCalendarView(calendar.Id, startTime, endTime, data);
         }
 
-        public async Task<List<Event>> GetEvents(string calendarId, DateTime startTime, DateTime endTime, OData data = null)
+        public async Task<List<Event>> GetCalendarView(string calendarId, DateTime startTime, DateTime endTime, OData data = null)
         {
             data = data ?? new OData();
             Events events = await MakeRequest<Events>($"/me/calendars/{calendarId}/calendarView", parameters: new List<ApiLibs.Param>
@@ -60,31 +60,23 @@ namespace ApiLibs.MicrosoftGraph
             return events.Value;
         }
 
-        public async Task<List<Event>> GetAllEventsOfAllCalendars(DateTime startTime, DateTime endTime, TimeZoneInfo timezone = null)
+        public async IAsyncEnumerable<Event> GetAllEventsOfAllCalendars(DateTime startTime, DateTime endTime, TimeZoneInfo timezone = null)
         {
             
             var myCals = await GetMyCalendars();
-            var resses = new List<Event>();
-            for (int i = 0; i < myCals.Count; i+=20)
-            {
-                var res = await MakeRequest<BatchResult>("$batch", Call.POST, content: new
+
+            foreach(var cal in myCals) {
+                var events = await GetCalendarView(cal, startTime, endTime, new OData
                 {
-                    requests = myCals.Skip(i).Take(20).Select(i => new
-                    {
-                        url =
-                            $"/me/calendars/{i.Id}/calendarView?startdatetime={startTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&enddatetime={endTime.ToString("s", System.Globalization.CultureInfo.InvariantCulture)}&$top=50",
-                        method = "GET",
-                        id = i.Name,
-                        headers = new
-                        {
-                            Prefer = $"outlook.timezone=\"{(timezone?.StandardName) ?? "UTC"}\""
-                        }
-                    })
+                    Top = 50
                 });
-                resses.AddRange(res.Responses.Select(i => i.Body).Where(i => i.Error == null).SelectMany(i => i.Value));
+
+                foreach (var ev in events)
+                {
+                    yield return ev;
+                }
             }
             
-            return resses;
         }
 
         public Task<Event> EditEvent(Event @event, EventChanges ev)
