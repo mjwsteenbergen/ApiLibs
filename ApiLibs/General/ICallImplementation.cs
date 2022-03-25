@@ -22,6 +22,11 @@ namespace ApiLibs
         {
             RestRequest request = new(aRequest.EndPoint, Convert(aRequest.Method));
 
+            if(aRequest.Timeout.HasValue) 
+            {
+                request.Timeout = aRequest.Timeout.Value;
+            }
+
             foreach (Param para in aRequest.Headers ?? new List<Param>())
             {
                 if (para is OParam && para.Value == null)
@@ -62,6 +67,7 @@ namespace ApiLibs
             {
                 var rex = resp.ErrorException switch
                 {
+                    TaskCanceledException _ => new RequestTimeoutException(new RequestResponse(resp.StatusCode, resp.StatusDescription, resp.ResponseUri?.ToString(), resp.ErrorMessage, resp.Content, resp, aRequest, service)),
                     WebException webE when webE.Message == "No such host is known." => new NoInternetException(resp.ErrorException),
                     _ => resp.ErrorException,
                 };

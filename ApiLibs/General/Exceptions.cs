@@ -102,21 +102,21 @@ namespace ApiLibs
         }
     }
 
-    internal class NotAcceptableException : RequestException
+    public class NotAcceptableException : RequestException
     {
         public NotAcceptableException(RequestResponse response) : base(response)
         {
         }
     }
 
-    internal class RequestTimeoutException : RequestException
+    public class RequestTimeoutException : RequestException
     {
         public RequestTimeoutException(RequestResponse response) : base(response)
         {
         }
     }
 
-    internal class ConflictException : RequestException
+    public class ConflictException : RequestException
     {
         public ConflictException(RequestResponse response) : base(response)
         {

@@ -2,6 +2,7 @@ using ApiLibs.General;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,6 +24,17 @@ namespace ApiLibs.Trakt
         }).ToList();
 
         public Task<List<Episode>> GetEpisodes(string traktSlug, long season) => MakeRequest<List<Episode>>($"/shows/{traktSlug}/seasons/{season}");
+
+        public Task<EpisodeExtended> LastEpisode(long? id) => MakeRequest(new Request<EpisodeExtended>($"/shows/{id}/last_episode?extended=full")
+        {
+            RequestHandler = (resp) => 
+                resp.StatusCode switch
+                {
+                    HttpStatusCode.NoContent => null,
+                    HttpStatusCode.OK => Convert<EpisodeExtended>(resp.Content),
+                    _ => throw resp.ToException()
+                }
+        });
 
         public Task<Episode> GetEpisode(Ids episode) => MakeRequest<Episode>($"/search/trakt/{episode.Trakt}?id_type=episode");
 

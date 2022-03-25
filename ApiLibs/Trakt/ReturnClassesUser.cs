@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace ApiLibs.Trakt
@@ -160,6 +161,39 @@ namespace ApiLibs.Trakt
 
         [JsonProperty("number")]
         public long Number { get; set; }
+
+        public string TorrentFormat => "S"  + Season.ToString("D2", CultureInfo.InvariantCulture) + "E" + Number.ToString("D2", CultureInfo.InvariantCulture);
+
+    }
+
+    public partial class EpisodeExtended : Episode
+    {
+        [JsonProperty("number_abs")]
+        public object NumberAbs { get; set; }
+
+        [JsonProperty("overview")]
+        public string Overview { get; set; }
+
+        [JsonProperty("rating")]
+        public double? Rating { get; set; }
+
+        [JsonProperty("votes")]
+        public long? Votes { get; set; }
+
+        [JsonProperty("comment_count")]
+        public long? CommentCount { get; set; }
+
+        [JsonProperty("first_aired")]
+        public DateTimeOffset? FirstAired { get; set; }
+
+        [JsonProperty("updated_at")]
+        public DateTimeOffset? UpdatedAt { get; set; }
+
+        [JsonProperty("available_translations")]
+        public List<string> AvailableTranslations { get; set; }
+
+        [JsonProperty("runtime")]
+        public long Runtime { get; set; }
     }
 
     public partial class Ids
@@ -216,6 +250,8 @@ namespace ApiLibs.Trakt
 
         [JsonIgnore]
         public ShowSmall Show { get; internal set; }
+
+        public string TorrentFormat => "S" + Number?.ToString("D2", CultureInfo.InvariantCulture);
     }
 
     public partial class Media

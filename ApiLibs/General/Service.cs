@@ -188,6 +188,7 @@ namespace ApiLibs
         public Call Method { get; set; } = Call.GET;
         public List<Param> Parameters { get; set; }
         public List<Param> Headers { get; set; }
+        public int? Timeout { get; set; }
         public object Content { get; set; }
         public HttpStatusCode ExpectedStatusCode { get; set; }
 
