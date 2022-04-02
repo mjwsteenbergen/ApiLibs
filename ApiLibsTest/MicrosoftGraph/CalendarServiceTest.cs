@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using ApiLibs.General;
 using ApiLibs.MicrosoftGraph;
 using NUnit.Framework;
+using Martijn.Extensions.AsyncLinq;
 
 namespace ApiLibsTest.MicrosoftGraph
 {
@@ -43,7 +44,7 @@ namespace ApiLibsTest.MicrosoftGraph
         [Test]
         public async Task GetAllEventsOfAllCalendars()
         {
-            await calendar.GetAllEventsOfAllCalendars(DateTime.Now, DateTime.Now.AddDays(7));
+            await calendar.GetAllEventsOfAllCalendars(DateTime.Now, DateTime.Now.AddDays(7)).ToList();
         }
 
         [Test]
