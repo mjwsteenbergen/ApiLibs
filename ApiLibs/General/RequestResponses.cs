@@ -39,10 +39,10 @@ namespace ApiLibs
 
         public virtual T Convert<T>() => Service.Convert<T>(Content);
 
-        public Task<RequestResponse> Retry()
+        public async Task<RequestResponse> Retry()
         {
             Request.Retries++;
-            return Service.HandleRequest(Request);
+            return await Request.RequestHandler(await Service.HandleRequest(Request));
         }
 
         public Exception ToException()

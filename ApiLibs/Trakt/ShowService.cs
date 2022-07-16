@@ -27,7 +27,8 @@ namespace ApiLibs.Trakt
 
         public Task<EpisodeExtended> LastEpisode(long? id) => MakeRequest(new Request<EpisodeExtended>($"/shows/{id}/last_episode?extended=full")
         {
-            RequestHandler = (resp) => 
+            ExpectedStatusCode = new HttpStatusCode[] { HttpStatusCode.NoContent, HttpStatusCode.OK },
+            ParseHandler = (resp) => 
                 resp.StatusCode switch
                 {
                     HttpStatusCode.NoContent => null,

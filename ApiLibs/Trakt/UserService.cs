@@ -2,6 +2,7 @@ using ApiLibs.General;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace ApiLibs.Trakt
@@ -44,7 +45,8 @@ namespace ApiLibs.Trakt
         {
             return MakeRequest<Watching>(new Request<Watching>($"users/{id}/watching/")
             {
-                RequestHandler = (resp) => resp switch
+                ExpectedStatusCode = new HttpStatusCode[] { HttpStatusCode.NoContent, HttpStatusCode.OK },
+                ParseHandler = (resp) => resp switch
                 {
                     OKResponse response => response.Convert<Watching>(),
                     NoContentResponse response => null,

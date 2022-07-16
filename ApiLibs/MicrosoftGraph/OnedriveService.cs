@@ -35,11 +35,7 @@ namespace ApiLibs.MicrosoftGraph
             {
                 Method = Call.PUT,
                 Content = new PlainTextContent(text),
-                RequestHandler = (resp) => resp.StatusCode switch {
-                    HttpStatusCode.Created => resp.Convert<DriveItem>(),
-                    HttpStatusCode.OK => resp.Convert<DriveItem>(),
-                    _ => throw resp.ToException()
-                }
+                ExpectedStatusCode = new HttpStatusCode[] { HttpStatusCode.NoContent, HttpStatusCode.OK },
             });
         }
     }

@@ -119,12 +119,14 @@ namespace ApiLibs
 
         protected internal async Task<T> MakeRequest<T>(Request<T> request)
         {
-            return await request.RequestHandler(await HandleRequest(request)).Match(i => Task.FromResult(i), i => i);
+            var response = await HandleRequest(request);
+            response = await request.RequestHandler(response);
+            return request.ParseHandler(response);
         }
 
         protected internal async Task MakeRequest(Request request)
         {
-            request.RequestHandler(await HandleRequest(request));
+            await request.RequestHandler(await HandleRequest(request));
         }
 
         /// <summary>
@@ -140,7 +142,7 @@ namespace ApiLibs
         /// <returns></returns>
         protected internal async Task<T> MakeRequest<T>(string endPoint, Call method = Call.GET, List<Param> parameters = null, List<Param> headers = null, object content = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
-            return await MakeRequest<T>(new Request<T>(endPoint)
+            return await MakeRequest(new Request<T>(endPoint)
             {
                 Content = content,
                 Headers = headers ?? new List<Param>(),
@@ -173,10 +175,15 @@ namespace ApiLibs
             Retries = 0;
             RequestHandler = (resp) =>
             {
-                if (resp.StatusCode != ExpectedStatusCode)
+                var matchesStatusCode = ExpectedStatusCode
+                    .Match(i => new HttpStatusCode[] { i }, i => i)
+                    .Any(i => i == resp.StatusCode);
+                if (!matchesStatusCode)
                 {
                     throw resp.ToException();
                 }
+
+                return Task.FromResult(resp);
             };
 
             Parameters = new ();
@@ -190,29 +197,20 @@ namespace ApiLibs
         public List<Param> Headers { get; set; }
         public int? Timeout { get; set; }
         public object Content { get; set; }
-        public HttpStatusCode ExpectedStatusCode { get; set; }
+        public OneOf<HttpStatusCode, IEnumerable<HttpStatusCode>> ExpectedStatusCode { get; set; }
 
         public int Retries { get; set; }
-        public Action<RequestResponse> RequestHandler { get; set; }
+        public Func<RequestResponse, Task<RequestResponse>> RequestHandler { get; set; }
     }
 
     public class Request<T> : Request
     {
         public Request(string endPoint) : base(endPoint)
         {
-            RequestHandler = (resp) =>
-            {
-
-                if (resp.StatusCode == ExpectedStatusCode)
-                {
-                    return resp.Convert<T>();
-                }
-
-                throw resp.ToException();
-            };
+            ParseHandler = (resp) => resp.Convert<T>();
         }
 
-        public new Func<RequestResponse, OneOf<T, Task<T>>> RequestHandler { get; set; }
+        public Func<RequestResponse, T> ParseHandler { get; set; }
     }
 
     public enum Call

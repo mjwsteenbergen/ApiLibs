@@ -34,17 +34,17 @@ namespace ApiLibs.Telegram
 
         public Task AnswerInlineQuery(string inlineQueryId, IEnumerable<InlineQueryResultArticle> results)
         {
-            Func<BadRequestResponse, string> badr = (BadRequestResponse s) => {
+            Func<BadRequestResponse, Exception> badr = (BadRequestResponse s) => {
                 if (!s.Content.Contains("QUERY_ID_INVALID"))
                 {
-                    throw new RequestException(s);
+                    return new RequestException(s);
                 }
                 else
                 {
                     Console.WriteLine(inlineQueryId);
                     results.ToList().ForEach(Console.WriteLine);
                 }
-                return "";
+                return s.ToException();
             };
 
             return MakeRequest(new Request("answerInlineQuery") {
@@ -53,11 +53,11 @@ namespace ApiLibs.Telegram
                     new Param("inline_query_id", inlineQueryId),
                     new Param("results", results)
                 },
-                RequestHandler = (resp) => { var s = resp switch {
-                    OKResponse response => "",
-                    BadRequestResponse res => badr(res),
+                RequestHandler = (resp) => resp switch {
+                    OKResponse response => Task.FromResult<RequestResponse>(response),
+                    BadRequestResponse res => throw badr(res),
                     _ => throw resp.ToException()
-                };}
+                }
             });
         }
 

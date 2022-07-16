@@ -65,16 +65,19 @@ namespace ApiLibs
 
             if (resp.ErrorException != null && resp.ErrorException is not HttpRequestException)
             {
+                if(resp.ErrorException is TaskCanceledException) {
+                    return new RequestResponse(HttpStatusCode.RequestTimeout, resp.StatusDescription, resp.ResponseUri?.ToString(), resp.ErrorMessage, resp.Content, resp, aRequest, service);
+                }
+
                 var rex = resp.ErrorException switch
                 {
-                    TaskCanceledException _ => new RequestTimeoutException(new RequestResponse(resp.StatusCode, resp.StatusDescription, resp.ResponseUri?.ToString(), resp.ErrorMessage, resp.Content, resp, aRequest, service)),
                     WebException webE when webE.Message == "No such host is known." => new NoInternetException(resp.ErrorException),
                     _ => resp.ErrorException,
                 };
                 throw rex;
             }
 
-            return new RequestResponse(resp.StatusCode, resp.StatusDescription, resp.ResponseUri.ToString(), resp.ErrorMessage, resp.Content, resp, aRequest, service);
+            return new RequestResponse(resp.StatusCode, resp.StatusDescription, resp.ResponseUri?.ToString(), resp.ErrorMessage, resp.Content, resp, aRequest, service);
         }
 
         private static void AddBody(RestRequest request, object content)
