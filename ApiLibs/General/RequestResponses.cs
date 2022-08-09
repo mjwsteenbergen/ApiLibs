@@ -41,7 +41,7 @@ namespace ApiLibs
 
         public async Task<RequestResponse> Retry()
         {
-            Request.Retries++;
+            Request.Retried++;
             return await Request.RequestHandler(await Service.HandleRequest(Request));
         }
 

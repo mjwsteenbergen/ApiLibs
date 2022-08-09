@@ -95,7 +95,7 @@ namespace ApiLibs
 
         protected internal virtual async Task<RequestResponse> HandleRequest(Request request, IEnumerable<Func<Request, Task<Request>>> requestMiddleware = null, IEnumerable<Func<RequestResponse, Task<RequestResponse>>> requestResponseMiddleware = null)
         {
-            if (request.Retries > MaxRetries)
+            if (request.Retried > (request.MaxRetries ?? MaxRetries))
             {
                 throw new TooManyRetriesException();
             }
@@ -172,7 +172,7 @@ namespace ApiLibs
         public Request(string endPoint)
         {
             EndPoint = endPoint;
-            Retries = 0;
+            Retried = 0;
             RequestHandler = (resp) =>
             {
                 var matchesStatusCode = ExpectedStatusCode
@@ -199,8 +199,9 @@ namespace ApiLibs
         public object Content { get; set; }
         public OneOf<HttpStatusCode, IEnumerable<HttpStatusCode>> ExpectedStatusCode { get; set; }
 
-        public int Retries { get; set; }
+        public int Retried { get; set; }
         public Func<RequestResponse, Task<RequestResponse>> RequestHandler { get; set; }
+        public int? MaxRetries { get; set; }
     }
 
     public class Request<T> : Request

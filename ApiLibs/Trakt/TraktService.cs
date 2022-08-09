@@ -38,7 +38,7 @@ namespace ApiLibs.Trakt
                 {
                     var res = await RefreshAccessToken();
                     await StoreRefreshToken(res);
-                    request.Retries++;
+                    request.Retried++;
                     return await base.HandleRequest(request);
                 }
 

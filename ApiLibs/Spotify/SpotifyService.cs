@@ -55,7 +55,7 @@ namespace ApiLibs.Spotify
                         return resp;
                     }
                     await RefreshToken();
-                    request.Retries++;
+                    request.Retried++;
                     return await base.HandleRequest(request);
                 }
                 return resp;
@@ -67,7 +67,7 @@ namespace ApiLibs.Spotify
                 {
                     var request = resp.Request;
                     await Task.Delay(2000);
-                    request.Retries++;
+                    request.Retried++;
                     return await base.HandleRequest(request);
                 }
                 return resp;

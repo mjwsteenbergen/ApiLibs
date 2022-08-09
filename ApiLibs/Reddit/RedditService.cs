@@ -46,7 +46,7 @@ namespace ApiLibs.Reddit
                {
                    var request = resp.Request;
                    await RefreshToken();
-                   request.Retries++;
+                   request.Retried++;
                    return await base.HandleRequest(request);
                }
 
