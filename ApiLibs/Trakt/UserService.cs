@@ -58,6 +58,9 @@ namespace ApiLibs.Trakt
         public Task<List<WrappedMediaObject>> GetList(string name, string user = "me") => MakeRequest<List<WrappedMediaObject>>($"users/{user}/lists/{name}/items/");
         public async Task<IEnumerable<MovieSmall>> GetListMovies(string name, string user = "me") => (await MakeRequest<List<WrappedMediaObject>>($"users/{user}/lists/{name}/items/movies")).Select(i => i.Movie);
         public async Task<IEnumerable<ShowSmall>> GetListShow(string name, string user = "me") => (await MakeRequest<List<WrappedMediaObject>>($"users/{user}/lists/{name}/items/show")).Select(i => i.Show);
+        public async Task<IEnumerable<Show>> GetListShowExtended(string name, string user = "me") => (await MakeRequest<List<ExtendedWrappedMediaObject>>($"users/{user}/lists/{name}/items/show", parameters: new List<Param>{
+            new Param("extended", "full")
+        })).Select(i => i.Show);
         public async Task<IEnumerable<SeasonSmall>> GetListSeason(string name, string user = "me") => (await MakeRequest<List<WrappedMediaObject>>($"users/{user}/lists/{name}/items/season")).Select(i => i.Season);
 
         public Task AddList(string list, ShowSmall show, string user = "me") => AddList(list, new SyncRequestObject {

@@ -26,8 +26,10 @@ namespace ApiLibs.Trakt
         public Task<List<WrappedMediaObject>> GetWatchlistSeasons(string sort = null) => GetWatchlist<WrappedMediaObject>("seasons", sort);
         public Task<List<WrappedMediaObject>> GetWatchlistShows(string sort = null) => GetWatchlist<WrappedMediaObject>("shows", sort);
         public Task<List<WrappedMediaObject>> GetWatchlist(string sort = null) => GetWatchlist<WrappedMediaObject>("", sort);
-        private Task<List<T>> GetWatchlist<T>(string type, string sort = null) => MakeRequest<List<T>>($"/sync/watchlist/{type}", parameters: new List<Param> {
-            new OParam("sort", sort)
+        public Task<List<ExtendedWrappedMediaObject>> GetWatchlistExtended(string sort = null) => GetWatchlist<ExtendedWrappedMediaObject>("", sort, true);
+        private Task<List<T>> GetWatchlist<T>(string type, string sort = null, bool extended = false) => MakeRequest<List<T>>($"/sync/watchlist/{type}", parameters: new List<Param> {
+            new OParam("sort", sort),
+            new OParam("extended", extended ? "full" : null)
         });
 
         // public Task<List<PlaybackProgress>> GetPlaybackProgress(DateTime? start, DateTime? end, string type = "") => MakeRequest<List<PlaybackProgress>>($"sync/playback/{type}", parameters: new List<Param> {

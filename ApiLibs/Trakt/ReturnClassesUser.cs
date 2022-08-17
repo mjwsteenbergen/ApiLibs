@@ -119,7 +119,19 @@ namespace ApiLibs.Trakt
         public Media Show { get; set; }
     }
 
-    public partial class WrappedMediaObject
+    public partial class WrappedMediaObject : WrappedMediaObject<MovieSmall, ShowSmall, SeasonSmall, Episode>
+    {
+    }
+
+    public partial class ExtendedWrappedMediaObject : WrappedMediaObject<Movie, Show, SeasonSmall, Episode>
+    {
+    }
+
+    public partial class WrappedMediaObject<MovieType, ShowType, SeasonType, EpisodeType> 
+        where MovieType : Media
+        where ShowType : Media
+        where SeasonType : Media
+        where EpisodeType : Media
     {
         [JsonProperty("id")]
         public long Id { get; set; }
@@ -137,16 +149,16 @@ namespace ApiLibs.Trakt
         public string Type { get; set; }
 
         [JsonProperty("movie", NullValueHandling = NullValueHandling.Ignore)]
-        public MovieSmall Movie { get; set; }
+        public MovieType Movie { get; set; }
 
         [JsonProperty("episode", NullValueHandling = NullValueHandling.Ignore)]
-        public Episode Episode { get; set; }
+        public EpisodeType Episode { get; set; }
 
         [JsonProperty("show", NullValueHandling = NullValueHandling.Ignore)]
-        public ShowSmall Show { get; set; }
+        public ShowType Show { get; set; }
 
         [JsonProperty("season", NullValueHandling = NullValueHandling.Ignore)]
-        public SeasonSmall Season { get; set; }
+        public SeasonType Season { get; set; }
 
         public override string ToString()
         {
