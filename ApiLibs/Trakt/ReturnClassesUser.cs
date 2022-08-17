@@ -46,13 +46,13 @@ namespace ApiLibs.Trakt
     public partial class Show : MediaExtended
     {
         [JsonProperty("first_aired")]
-        public DateTimeOffset FirstAired { get; set; }
+        public DateTimeOffset? FirstAired { get; set; }
 
         [JsonProperty("airs")]
         public Airs Airs { get; set; }
 
         [JsonProperty("runtime")]
-        public long Runtime { get; set; }
+        public long? Runtime { get; set; }
 
         [JsonProperty("certification")]
         public string Certification { get; set; }
@@ -62,7 +62,6 @@ namespace ApiLibs.Trakt
 
         [JsonProperty("country")]
         public string Country { get; set; }
-
 
         [JsonProperty("trailer")]
         public object Trailer { get; set; }
@@ -80,7 +79,7 @@ namespace ApiLibs.Trakt
         public List<string> Genres { get; set; }
 
         [JsonProperty("aired_episodes")]
-        public long AiredEpisodes { get; set; }
+        public long? AiredEpisodes { get; set; }
     }
 
     public partial class Airs
