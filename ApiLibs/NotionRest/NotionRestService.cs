@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ApiLibs;
 using Newtonsoft.Json;
 
 namespace ApiLibs.NotionRest
@@ -40,6 +39,7 @@ namespace ApiLibs.NotionRest
         public IAsyncEnumerable<NotionBlock> GetBlockChildren(Guid blockId, string startCursor = null, int? size = null) => GetBlockChildren(blockId.ToString(), startCursor, size);
 
         public IAsyncEnumerable<Page> QueryDatabase(Guid id, QueryParams param = null) => QueryDatabase(id.ToString(), param);
+
         public async IAsyncEnumerable<Page> QueryDatabase(string id, QueryParams param = null)
         {
             param ??= new QueryParams();
@@ -54,6 +54,33 @@ namespace ApiLibs.NotionRest
             } while (param.StartCursor != null);
         }
 
+        private class Parent {
+            [JsonProperty("type")]
+            public string Type { get; set;}
+
+            [JsonProperty("database_id")]
+            public Guid? DatabaseId { get; set;}
+
+            [JsonProperty("page_id")]
+            public Guid? PageId { get; set;}
+        }
+
+        private Task<Page> CreatePage(Parent parent, Dictionary<string, NotionProperty> props) => MakeRequest<Page>("pages", Call.POST, content: new
+        {
+            parent,
+            properties = props
+        });
+
+        public Task<Page> CreatePage(NotionDatabase parent, Dictionary<string, NotionProperty> props) => CreatePage(new Parent
+        {
+            Type = "database_id",
+            DatabaseId = parent.Id
+        }, props);
+
+        internal Task UpdatePage(Guid id, Page page)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
     public class QueryParams {

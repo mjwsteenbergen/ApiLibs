@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using ApiLibs.General;
 using Martijn.Extensions.AsyncLinq;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace ApiLibs.NotionRest
 {
@@ -43,7 +44,9 @@ namespace ApiLibs.NotionRest
         // [JsonProperty("properties")]
         // public Dictionary<string, NotionProperty> Properties { get; set; }
 
-        public Task<List<Page>> GetPages() => this.Service.QueryDatabase(this.Id).ToList();
+        public Task<List<Page>> GetPages() => Service.QueryDatabase(this.Id).ToList();
+
+        public Task<Page> CreatePage(Dictionary<string, NotionProperty> props) => Service.CreatePage(this, props);
     }
 
     public partial class Icon
@@ -213,28 +216,6 @@ namespace ApiLibs.NotionRest
         public Uri Url { get; set;}
     }
 
-    // public partial class NotionDatabase
-    // {
-    //     public static NotionDatabase FromJson(string json) => JsonConvert.DeserializeObject<NotionDatabase>(json, QuickType.Converter.Settings);
-    // }
-
-    // public static class Serialize
-    // {
-    //     public static string ToJson(this NotionDatabase self) => JsonConvert.SerializeObject(self, QuickType.Converter.Settings);
-    // }
-
-    // internal static class Converter
-    // {
-    //     public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
-    //     {
-    //         MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
-    //         DateParseHandling = DateParseHandling.None,
-    //         Converters = {
-    //             new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
-    //         },
-    //     };
-    // }
-
     public class NotionList<T> {
         [JsonProperty("object")]
         public string Object { get; set;}
@@ -280,30 +261,101 @@ namespace ApiLibs.NotionRest
 
         [JsonProperty("properties")]
         public Dictionary<string, NotionProperty> Properties { get; set; }
+
+        public Page<T> WithProperties<T>() where T : PageProps, new()
+        {
+            return new Page<T>(this);
+        }
     }
 
     public class Page<T> : Page where T : PageProps, new()
     {
-        public PageProps Props { get { return new T().With(this); } }
+        public Page(Page page) {
+            CopyPropertiesTo(page, this);
+            Props = new T().With(this) as T;
+        }
+
+        [JsonIgnore]
+        public T Props { get; set; }
+
+        private static void CopyPropertiesTo<T1, TU>(T1 source, TU dest)
+        {
+            var sourceProps = typeof(T1).GetProperties().Where(x => x.CanRead).ToList();
+            var destProps = typeof(TU).GetProperties()
+                    .Where(x => x.CanWrite)
+                    .ToList();
+
+            foreach (var sourceProp in sourceProps)
+            {
+                if (destProps.Any(x => x.Name == sourceProp.Name))
+                {
+                    var p = destProps.First(x => x.Name == sourceProp.Name);
+                    if (p.CanWrite)
+                    { // check if the property can be set or no.
+                        p.SetValue(dest, sourceProp.GetValue(source, null), null);
+                    }
+                }
+
+            }
+
+        }
     }
+    
 
     public abstract class PageProps {
 
-        public Dictionary<string, NotionProperty> Properties { get; private set; }
-
-        public Page Page { get; set; }
-
-        public PageProps() {}
-        public PageProps(Page p) {
-            With(p);
+        public PageProps() {
+            Properties = new Dictionary<string, NotionProperty>();
         }
 
-        internal PageProps With(Page page)
+        [JsonIgnore]
+        public Dictionary<string, NotionProperty> Properties { get; private set; }
+
+        [JsonIgnore]
+        public Page Page { get; set; }
+
+        [JsonIgnore]
+        private readonly HashSet<NotionProperty> Updates = new();
+
+        public PageProps With(Page page)
         {
             Properties = page.Properties ?? new Dictionary<string, NotionProperty>();
             Page = page;
             return this;
         }
+
+        public T GetProp<T>(string name) where T : NotionProperty
+        {
+            return (Properties.ContainsKey(name) ? Properties[name] : null) as T;
+        }
+
+        protected Y Get<T,Y>(string name) where T : NotionProperty, INotionProperty<Y>
+        {
+            return GetProp<T>(name).Get();
+        }
+
+        protected void Set<T, Y>(T prop, Y value) where T : NotionProperty, INotionProperty<Y>
+        {
+            prop.Set(value);
+            Updates.Add(prop);
+        }
+
+        protected void Set<T, Y>(string name, Y value) where T : NotionProperty, INotionProperty<Y>, new()
+        {
+            var prop = GetProp<T>(name);
+            if(prop == null)
+            {
+                Properties.Add(name, new T());
+                prop = GetProp<T>(name);
+            }
+            prop.Set(value);
+            Updates.Add(prop);
+        }
+
+        protected Task Update(NotionRestService service) => service.UpdatePage(Page.Id, new Page()
+        {
+            Properties = Updates.ToDictionary(i => i.Name)
+        });
 
     }
 

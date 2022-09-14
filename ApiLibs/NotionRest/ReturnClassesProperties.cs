@@ -2,13 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
+using Martijn.Extensions.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
 namespace ApiLibs.NotionRest
 {
+    public interface INotionProperty<T> {
+        public void Set(T input);
+        public T Get();
+    }
+
     [JsonConverter(typeof(NotionPropertyConverter))]
     public abstract class NotionProperty
     {
@@ -20,6 +27,27 @@ namespace ApiLibs.NotionRest
 
         [JsonProperty("name")]
         public string Name { get; set;}
+    }
+
+    public class NumberProperty : NotionProperty, INotionProperty<double>
+    {
+        [JsonProperty("number")]
+        public double Number { get; set;}
+
+        public NumberProperty()
+        {
+            Type = "number";
+        }
+
+        public double Get()
+        {
+            return Number;
+        }
+
+        public void Set(double input)
+        {
+            Number = input;
+        }
     }
 
     public class NotionPropertyConverter : JsonConverter<NotionProperty>
@@ -45,6 +73,7 @@ namespace ApiLibs.NotionRest
             {
                 "title" =>  new TitleProperty(),
                 "rich_text" => new RichTextProperty(),
+                "number" => new NumberProperty(),
                 "checkbox" => new CheckboxProperty(),
                 "select" => new SelectProperty(),
                 "relation" => new RelationProperty(),
@@ -71,11 +100,30 @@ namespace ApiLibs.NotionRest
         }
     }
 
-    public class TitleProperty : NotionProperty
+    public class TitleProperty : NotionProperty, INotionProperty<string>
     {
+        public TitleProperty() {
+            Title = new List<RichText>();
+        }
 
         [JsonProperty("title")]
         public List<RichText> Title { get; set; }
+
+        public string Get() => ToPlainText();
+
+        public void Set(string input)
+        {
+            Title = new List<RichText>{
+                new RichText {
+                    PlainText = input,
+                    Text = new Text() {
+                        Content = input
+                    }
+                }
+            };
+        }
+
+        public string ToPlainText() => Title?.Select(i => i.PlainText).Combine("");
     }
 
     public class UrlProperty : NotionProperty {
@@ -141,11 +189,31 @@ namespace ApiLibs.NotionRest
         }
     }
 
-    public partial class RichTextProperty : NotionProperty
+    public partial class RichTextProperty : NotionProperty, INotionProperty<string>
     {
+        public RichTextProperty() {
+            RichText = new List<RichText>();
+            Type = "rich_text";
+        }
 
         [JsonProperty("rich_text")]
         public List<RichText> RichText { get; set; }
+
+        public string Get() => ToPlainText();
+
+        public void Set(string input)
+        {
+            RichText = new List<RichText>{
+                new RichText {
+                    PlainText = input,
+                    Text = new Text() {
+                        Content = input
+                    }
+                }
+            };
+        }
+
+        public string ToPlainText() => RichText?.Select(i => i.PlainText).Combine("");
     }
 
     public class RichText
@@ -184,15 +252,33 @@ namespace ApiLibs.NotionRest
         public string Color { get; set; }
     }
 
-    public partial class CheckboxProperty : NotionProperty
+    public partial class CheckboxProperty : NotionProperty, INotionProperty<bool>
     {
+        public CheckboxProperty() 
+        {
+            Type = "checkbox";
+        }
 
         [JsonProperty("checkbox")]
         public bool Checkbox { get; set; }
+
+        public bool Get()
+        {
+            return Checkbox;
+        }
+
+        public void Set(bool input)
+        {
+            Checkbox = input;
+        }
     }
 
     public partial class SelectProperty : NotionProperty
     {
+        public SelectProperty() 
+        {
+            Type = "select";
+        }
 
         [JsonProperty("select")]
         public Select Select { get; set; }
