@@ -317,6 +317,9 @@ namespace ApiLibs.NotionRest
         [JsonIgnore]
         private readonly HashSet<NotionProperty> Updates = new();
 
+        [JsonProperty("id")]
+        public string Id { get { return Page.Id.ToString()?.Replace("-", ""); } }
+
         public PageProps With(Page page)
         {
             Properties = page.Properties ?? new Dictionary<string, NotionProperty>();
