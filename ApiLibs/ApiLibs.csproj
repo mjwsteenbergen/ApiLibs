@@ -11,7 +11,7 @@
     <Version>2.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="RestSharp" Version="107.3.0" />
+    <PackageReference Include="RestSharp" Version="108.0.2" />
     <PackageReference Include="HttpMultipartParser" Version="5.1.0" />
     <PackageReference Include="OneOf" Version="3.0.211" />
     <PackageReference Include="Martijn.Extensions" Version="1.15.0" /> 
