@@ -75,7 +75,8 @@ namespace ApiLibs.NotionRest
                 "rich_text" => new RichTextProperty(),
                 "number" => new NumberProperty(),
                 "checkbox" => new CheckboxProperty(),
-                "select" => new SelectProperty(),
+                "select" => new SelectPropertyValue(),
+                "multi_select" => new MultiSelectProperty(),
                 "relation" => new RelationProperty(),
                 "url" => new UrlProperty(),
                 "date" => new DateProperty(),
@@ -126,8 +127,17 @@ namespace ApiLibs.NotionRest
         public string ToPlainText() => Title?.Select(i => i.PlainText).Combine("");
     }
 
-    public class UrlProperty : NotionProperty {
+    public class UrlProperty : NotionProperty, INotionProperty<string> {
 
+        [JsonProperty("url")]
+        public string Url { get; set; }
+
+        public string Get() => Url;
+
+        public void Set(string input)
+        {
+            Url = input;
+        }
     }
 
     [JsonConverter(typeof(DatePropertyConverter))]
@@ -273,6 +283,47 @@ namespace ApiLibs.NotionRest
         }
     }
 
+    public partial class SelectPropertyValue : NotionProperty, INotionProperty<Option>
+    {
+        public SelectPropertyValue()
+        {
+            Type = "select";
+        }
+
+        [JsonProperty("select")]
+        public Option Select { get; set; }
+
+        public Option Get()
+        {
+            return Select;
+        }
+
+        public void Set(Option input)
+        {
+            Select = input;
+        }
+    }
+
+    public partial class MultiSelectProperty : NotionProperty, INotionProperty<List<Option>>
+    {
+        public MultiSelectProperty() {
+            Type = "multi_select";
+        }
+
+        [JsonProperty("multi_select")]
+        public List<Option> MultiSelect { get; set;}
+
+        public List<Option> Get()
+        {
+            return MultiSelect;
+        }
+
+        public void Set(List<Option> input)
+        {
+            MultiSelect = input;
+        }
+    }
+
     public partial class SelectProperty : NotionProperty
     {
         public SelectProperty() 
@@ -293,7 +344,7 @@ namespace ApiLibs.NotionRest
     public partial class Option
     {
         [JsonProperty("id")]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
