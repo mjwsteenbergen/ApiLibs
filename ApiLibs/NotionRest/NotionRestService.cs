@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ApiLibs.General;
 using Newtonsoft.Json;
 
 namespace ApiLibs.NotionRest
@@ -13,7 +14,10 @@ namespace ApiLibs.NotionRest
         {
             AddStandardHeader("Authorization", "Bearer " + key);
             AddStandardHeader("Notion-Version", "2021-08-16");
+            Page = new NotionRestPageService(this);
         }
+
+        public NotionRestPageService Page { get; private set; }
 
         public Task<NotionDatabase> GetDatabase(Guid id) => GetDatabase(id.ToString());
         public Task<NotionDatabase> GetDatabase(string id) => MakeRequest<NotionDatabase>("databases/" + id);
@@ -63,24 +67,30 @@ namespace ApiLibs.NotionRest
 
             [JsonProperty("page_id")]
             public Guid? PageId { get; set;}
+        }   
+    }
+
+    public class NotionRestPageService : SubService<NotionRestService>
+    {
+        public NotionRestPageService(NotionRestService service) : base(service)
+        {
         }
 
-        private Task<Page> CreatePage(Parent parent, Dictionary<string, NotionProperty> props) => MakeRequest<Page>("pages", Call.POST, content: new
+        private Task<Page> Create(Parent parent, Dictionary<string, NotionProperty> props) => MakeRequest<Page>("pages", Call.POST, content: new
         {
             parent,
             properties = props
         });
 
-        public Task<Page> CreatePage(NotionDatabase parent, Dictionary<string, NotionProperty> props) => CreatePage(new Parent
+        public Task<Page> Create(NotionDatabase parent, Dictionary<string, NotionProperty> props) => Create(new Parent
         {
             Type = "database_id",
             DatabaseId = parent.Id
         }, props);
 
-        internal Task UpdatePage(Guid id, Page page)
-        {
-            throw new System.NotImplementedException();
-        }
+        public Task<Page> Update(Guid id, Page page) => MakeRequest<Page>($"pages/{id}", Call.PATCH, content: page);
+
+        public Task<Page> Get(Guid guid) => MakeRequest<Page>("pages/" + guid);
     }
 
     public class QueryParams {

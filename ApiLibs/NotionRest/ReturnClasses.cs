@@ -46,7 +46,7 @@ namespace ApiLibs.NotionRest
 
         public Task<List<Page>> GetPages() => Service.QueryDatabase(this.Id).ToList();
 
-        public Task<Page> CreatePage(Dictionary<string, NotionProperty> props) => Service.CreatePage(this, props);
+        public Task<Page> CreatePage(Dictionary<string, NotionProperty> props) => Service.Page.Create(this, props);
     }
 
     public partial class Icon
@@ -236,19 +236,19 @@ namespace ApiLibs.NotionRest
         public string Object { get; set; }
 
         [JsonProperty("id")]
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
 
         [JsonProperty("created_time")]
-        public DateTimeOffset CreatedTime { get; set; }
+        public DateTimeOffset? CreatedTime { get; set; }
 
         [JsonProperty("last_edited_time")]
-        public DateTimeOffset LastEditedTime { get; set; }
+        public DateTimeOffset? LastEditedTime { get; set; }
 
         [JsonProperty("parent")]
         public Parent Parent { get; set; }
 
         [JsonProperty("archived")]
-        public bool Archived { get; set; }
+        public bool? Archived { get; set; }
 
         [JsonProperty("url")]
         public Uri Url { get; set; }
@@ -315,7 +315,7 @@ namespace ApiLibs.NotionRest
         public Page Page { get; set; }
 
         [JsonIgnore]
-        private readonly HashSet<NotionProperty> Updates = new();
+        private readonly Dictionary<string, NotionProperty> Updates = new();
 
         [JsonProperty("id")]
         public string Id { get { return Page.Id.ToString()?.Replace("-", ""); } }
@@ -337,12 +337,6 @@ namespace ApiLibs.NotionRest
             return GetProp<T>(name).Get();
         }
 
-        protected void Set<T, Y>(T prop, Y value) where T : NotionProperty, INotionProperty<Y>
-        {
-            prop.Set(value);
-            Updates.Add(prop);
-        }
-
         protected void Set<T, Y>(string name, Y value) where T : NotionProperty, INotionProperty<Y>, new()
         {
             var prop = GetProp<T>(name);
@@ -352,14 +346,15 @@ namespace ApiLibs.NotionRest
                 prop = GetProp<T>(name);
             }
             prop.Set(value);
-            Updates.Add(prop);
+
+            Updates.Remove(name);
+            Updates.Add(name, prop);
         }
 
-        protected Task Update(NotionRestService service) => service.UpdatePage(Page.Id, new Page()
+        public Task Update(NotionRestService service) => service.Page.Update(Page.Id ?? throw new NullReferenceException(), new Page()
         {
-            Properties = Updates.ToDictionary(i => i.Name)
+            Properties = Updates
         });
-
     }
 
     public partial class Parent
