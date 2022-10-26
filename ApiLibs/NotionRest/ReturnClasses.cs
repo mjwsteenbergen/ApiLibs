@@ -64,7 +64,7 @@ namespace ApiLibs.NotionRest
         public string Type { get; set; }
 
         [JsonProperty("page_id")]
-        public Guid PageId { get; set; }
+        public Guid? PageId { get; set; }
     }
 
     public partial class Formula
@@ -318,7 +318,7 @@ namespace ApiLibs.NotionRest
         private readonly Dictionary<string, NotionProperty> Updates = new();
 
         [JsonProperty("id")]
-        public string Id { get { return Page.Id.ToString()?.Replace("-", ""); } }
+        public string Id { get { return Page?.Id?.ToString()?.Replace("-", ""); } }
 
         public PageProps With(Page page)
         {
@@ -329,12 +329,17 @@ namespace ApiLibs.NotionRest
 
         public T GetProp<T>(string name) where T : NotionProperty
         {
-            return (Properties.ContainsKey(name) ? Properties[name] : null) as T;
+            return (Properties.ContainsKey(name) ? Properties[name] : default(T)) as T;
         }
 
         protected Y Get<T,Y>(string name) where T : NotionProperty, INotionProperty<Y>
         {
-            return GetProp<T>(name).Get();
+            var res = GetProp<T>(name);
+
+            if(res == default(T)) {
+                return default;
+            }
+            return res.Get();
         }
 
         protected void Set<T, Y>(string name, Y value) where T : NotionProperty, INotionProperty<Y>, new()
@@ -361,7 +366,7 @@ namespace ApiLibs.NotionRest
     {
 
         [JsonProperty("database_id")]
-        public Guid DatabaseId { get; set; }
+        public Guid? DatabaseId { get; set; }
     }
 
     public partial class Photo
