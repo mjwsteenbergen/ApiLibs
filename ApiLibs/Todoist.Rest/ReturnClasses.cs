@@ -12,34 +12,37 @@ namespace ApiLibs.TodoistRest
     public partial class TodoistProject : ObjectSearcher<TodoistRestService>
     {
         [JsonProperty("id")]
-        public long? Id { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
 
         [JsonProperty("parent_id")]
-        public long? ParentId { get; set; }
+        public string ParentId { get; set; }
 
         [JsonProperty("comment_count")]
         public long? CommentCount { get; set; }
 
         [JsonProperty("order")]
-        public long? Order { get; set; }
+        public long Order { get; set; }
 
         [JsonProperty("color")]
-        public long? Color { get; set; }
+        public string Color { get; set; }
 
-        [JsonProperty("shared")]
-        public bool? Shared { get; set; }
+        [JsonProperty("is_shared")]
+        public bool? IsShared { get; set; }
 
-        [JsonProperty("sync_id")]
-        public long? SyncId { get; set; }
+        [JsonProperty("view_style")]
+        public string ViewStyle { get; set; }
 
-        [JsonProperty("favorite")]
-        public bool? Favorite { get; set; }
+        [JsonProperty("is_favorite")]
+        public bool? IsFavorite { get; set; }
 
-        [JsonProperty("inbox_project")]
-        public bool? InboxProject { get; set; }
+        [JsonProperty("is_inbox_project")]
+        public bool? IsInboxProject { get; set; }
+
+        [JsonProperty("is_team_inbox")]
+        public bool? IsTeamInbox { get; set; }
 
         public Task Delete() => Service.DeleteProject(this);
         public Task Update() => Service.UpdateProject(this);
@@ -48,10 +51,10 @@ namespace ApiLibs.TodoistRest
     public partial class TodoistSection : ObjectSearcher<TodoistRestService>
     {
         [JsonProperty("id")]
-        public long? Id { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("project_id")]
-        public long? ProjectId { get; set; }
+        public string ProjectId { get; set; }
 
         [JsonProperty("order")]
         public int? Order { get; set; }
@@ -65,26 +68,29 @@ namespace ApiLibs.TodoistRest
 
     public partial class TodoistTask : ObjectSearcher<TodoistRestService>
     {
-        [JsonProperty("assignee")]
-        public long? Assignee { get; set; }
+        [JsonProperty("assignee_id")]
+        public string AssigneeId { get; set; }
 
         [JsonProperty("comment_count")]
         public long? CommentCount { get; set; }
 
-        [JsonProperty("completed")]
-        public bool? Completed { get; set; }
+        [JsonProperty("is_completed")]
+        public bool? IsCompleted { get; set; }
 
         [JsonProperty("content")]
         public string Content { get; set; }
+
+        [JsonProperty("description")]
+        public string Description { get; set; }
 
         [JsonProperty("due")]
         public TodoistDueDate Due { get; set; }
 
         [JsonProperty("id")]
-        public long? Id { get; set; }
+        public string Id { get; set; }
 
-        [JsonProperty("label_ids")]
-        public List<long> LabelIds { get; set; }
+        [JsonProperty("labels")]
+        public List<string> LabelIds { get; set; }
 
         [JsonProperty("order")]
         public int? Order { get; set; }
@@ -93,13 +99,13 @@ namespace ApiLibs.TodoistRest
         public int? Priority { get; set; }
 
         [JsonProperty("project_id")]
-        public long? ProjectId { get; set; }
+        public string ProjectId { get; set; }
 
         [JsonProperty("section_id")]
-        public long? SectionId { get; set; }
+        public string SectionId { get; set; }
 
         [JsonProperty("parent_id")]
-        public long? ParentId { get; set; }
+        public string ParentId { get; set; }
 
         [JsonProperty("url")]
         public Uri Url { get; set; }
@@ -141,7 +147,7 @@ namespace ApiLibs.TodoistRest
 
         public TodoistRequestTask() {}
 
-        public TodoistRequestTask(long id) {
+        public TodoistRequestTask(string id) {
             Id = id;
         }
 
@@ -207,16 +213,16 @@ namespace ApiLibs.TodoistRest
         public string Content { get; set; }
 
         [JsonProperty("id")]
-        public long? Id { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("posted")]
         public DateTimeOffset Posted { get; set; }
 
         [JsonProperty("project_id")]
-        public long ProjectId { get; set; }
+        public string ProjectId { get; set; }
 
         [JsonProperty("task_id")]
-        public long TaskId { get; set; }
+        public string TaskId { get; set; }
     }
 
     public partial class TodoistAttachment
@@ -237,7 +243,7 @@ namespace ApiLibs.TodoistRest
     public partial class TodoistLabel
     {
         [JsonProperty("id")]
-        public long? Id { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -276,6 +282,31 @@ namespace ApiLibs.TodoistRest
             47 => "#808080",
             48 => "#b8b8b8",
             49 => "#ccac93",
+            _ => throw new KeyNotFoundException("The following color does not exist in todoist: " + color)
+        };
+
+        public static string ToHex(string color) => color switch
+        {
+            "berry_red" => "#b8256f",
+            "red" => "#db4035",
+            "orange" => "#ff9933",
+            "yellow" => "#fad000",
+            "olive_green" => "#afb83b",
+            "lime_green" => "#7ecc49",
+            "green" => "#299438",
+            "mint_green" => "#6accbc",
+            "teal" => "#158fad",
+            "sky_blue" => "#14aaf5",
+            "light_blue" => "#96c3eb",
+            "blue" => "#4073ff",
+            "grape" => "#884dff",
+            "violet" => "#af38eb",
+            "lavender" => "#eb96eb",
+            "magenta" => "#e05194",
+            "salmon" => "#ff8d85",
+            "charcoal" => "#808080",
+            "grey" => "#b8b8b8",
+            "taupe" => "#ccac93",
             _ => throw new KeyNotFoundException("The following color does not exist in todoist: " + color)
         };
     }
