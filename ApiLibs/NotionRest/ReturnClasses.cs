@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ApiLibs.General;
 using Martijn.Extensions.AsyncLinq;
+using Martijn.Extensions.Generics;
 using Newtonsoft.Json;
 using System.Linq;
 
@@ -271,34 +272,14 @@ namespace ApiLibs.NotionRest
     public class Page<T> : Page where T : PageProps, new()
     {
         public Page(Page page) {
-            CopyPropertiesTo(page, this);
+            page.CopyPropertiesTo(this);
             Props = new T().With(this) as T;
         }
 
         [JsonIgnore]
         public T Props { get; set; }
 
-        private static void CopyPropertiesTo<T1, TU>(T1 source, TU dest)
-        {
-            var sourceProps = typeof(T1).GetProperties().Where(x => x.CanRead).ToList();
-            var destProps = typeof(TU).GetProperties()
-                    .Where(x => x.CanWrite)
-                    .ToList();
-
-            foreach (var sourceProp in sourceProps)
-            {
-                if (destProps.Any(x => x.Name == sourceProp.Name))
-                {
-                    var p = destProps.First(x => x.Name == sourceProp.Name);
-                    if (p.CanWrite)
-                    { // check if the property can be set or no.
-                        p.SetValue(dest, sourceProp.GetValue(source, null), null);
-                    }
-                }
-
-            }
-
-        }
+        
     }
     
 
