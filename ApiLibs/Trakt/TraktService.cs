@@ -88,7 +88,6 @@ namespace ApiLibs.Trakt
                     redirect_uri = redirectUrl,
                     grant_type = "refresh_token"
                 });
-            accessToken = obj.AccessToken;
             refreshToken = obj.RefreshToken;
             AddStandardHeader("Authorization", $"Bearer {obj.AccessToken}");
             return obj;
