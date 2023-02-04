@@ -10,13 +10,13 @@ namespace ApiLibs
     {
         public abstract string RedirectUrl { get; }
 
-        public string ActivateOAuth(string url)
+        public void ActivateOAuth(string url)
         {
-            return ActivateOAuth(new Uri(url));
+            ActivateOAuth(new Uri(url));
         }
 
-        public abstract string ActivateOAuth(Uri url);
-        public abstract string ActivateOAuth(Uri url, string redirectUrl);
+        public abstract void ActivateOAuth(Uri url);
+        public abstract void ActivateOAuth(Uri url, string redirectUrl);
 
     }
 }
