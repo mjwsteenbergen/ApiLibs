@@ -9,7 +9,6 @@ namespace ApiLibs.Trakt
 {
     public class TraktService : RestSharpService
     {
-        private string accessToken;
         private string refreshToken;
         private readonly string clientId;
         private readonly string clientSecret;
@@ -23,8 +22,12 @@ namespace ApiLibs.Trakt
         public SearchService SearchService { get; private set; }
         public ShowService ShowService { get; }
 
-        public TraktService() : base("https://api.trakt.tv")
+        public TraktService(string clientId, string clientSecret, string redirectUrl) : base("https://api.trakt.tv")
         {
+            this.clientId = clientId;
+            this.clientSecret = clientSecret;
+            this.redirectUrl = redirectUrl;
+
             UserService = new UserService(this);
             SyncService = new SyncService(this);
             MovieService = new MovieService(this);
@@ -46,24 +49,20 @@ namespace ApiLibs.Trakt
             });
         }
 
-        public TraktService(string accessToken, string refreshToken, string clientId, string clientSecret, string redirectUrl) : this()
+        public TraktService(string accessToken, string refreshToken, string clientId, string clientSecret, string redirectUrl) : this(clientId, clientSecret, redirectUrl)
         {
-            this.accessToken = accessToken;
             this.refreshToken = refreshToken;
-            this.clientId = clientId;
-            this.clientSecret = clientSecret;
-            this.redirectUrl = redirectUrl;
             AddStandardHeader("Authorization", $"Bearer {accessToken}");
             AddStandardHeader("trakt-api-key", clientId);
             AddStandardHeader("trakt-api-version", "2");
         }
 
-        public void Connect(IOAuth auth, string clientId, string redirectUrl)
+        public void Connect(IOAuth auth)
         {
             auth.ActivateOAuth($"https://trakt.tv/oauth/authorize?response_type=code&client_id={clientId}&redirect_uri={redirectUrl}");
         }
 
-        public Task<AccessObject> ConvertToToken(string code, string clientId, string clientSecret, string redirectUrl)
+        public Task<AccessObject> ConvertToToken(string code)
         {
             return MakeRequest<AccessObject>("oauth/token", Call.POST, new List<Param>
             {
