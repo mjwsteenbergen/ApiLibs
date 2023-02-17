@@ -37,12 +37,9 @@ namespace ApiLibs.General
         {
             if (passwords.ContainsKey(key))
             {
-                passwords[key] = value;
+                passwords.Remove(key);
             }
-            else
-            {
-                passwords.Add(key, value);
-            }
+            passwords.Add(key, value);
         }
 
         public string GitHub_clientID { get => GetPasssword("GitHub_clientID"); set => AddPassword("GitHub_clientID", value); }
