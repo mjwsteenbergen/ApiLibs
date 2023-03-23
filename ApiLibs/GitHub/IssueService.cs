@@ -59,6 +59,24 @@ namespace ApiLibs.GitHub
             });
         }
 
+        public async IAsyncEnumerable<Issue> GetIssuesAndPRsAsync(Repository repo, string filter = null, string state = null, string labels = null, string sort = null, string direction = null, string since = null)
+        {
+            int page = 1;
+            int perPage = 100;
+
+            while(true) {
+                var res = await GetIssuesAndPRs(repo, filter, state, labels, sort: sort, direction, since, perPage, page);
+                if(res.Count == 0) {
+                    break;
+                }
+
+                foreach(var item in res) 
+                {
+                    yield return item;
+                }
+            }
+        }
+
         public async Task<Issue> AddIssue(OpenIssue issue, Repository repo)
         {
             return await MakeRequest<Issue>(IssueUrl(repo), Call.POST, new List<Param>(), content: issue, statusCode: System.Net.HttpStatusCode.Created);
