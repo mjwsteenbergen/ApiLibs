@@ -43,7 +43,7 @@ namespace ApiLibs.Trakt
         public string Certification { get; set; }
     }
 
-    public partial class Show : MediaExtended
+    public partial class Show : ShowSmall
     {
         [JsonProperty("first_aired")]
         public DateTimeOffset? FirstAired { get; set; }
@@ -122,7 +122,7 @@ namespace ApiLibs.Trakt
     {
     }
 
-    public partial class ExtendedWrappedMediaObject : WrappedMediaObject<Movie, Show, SeasonSmall, Episode>
+    public partial class ExtendedWrappedMediaObject : WrappedMediaObject<Movie, Show, SeasonSmall, EpisodeExtended>
     {
     }
 
@@ -263,6 +263,12 @@ namespace ApiLibs.Trakt
         public ShowSmall Show { get; internal set; }
 
         public string TorrentFormat => "S" + Number?.ToString("D2", CultureInfo.InvariantCulture);
+    }
+
+    public class SeasonEpisodes : SeasonSmall 
+    {
+        [JsonProperty("episodes")]
+        public List<Episode> Episodes { get; set; }
     }
 
     public partial class Media
