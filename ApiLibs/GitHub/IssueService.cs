@@ -74,6 +74,7 @@ namespace ApiLibs.GitHub
                 {
                     yield return item;
                 }
+                page++;
             }
         }
 
