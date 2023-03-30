@@ -42,8 +42,11 @@ namespace ApiLibs.NotionRest
         [JsonProperty("title")]
         public Title[] Title { get; set; }
 
-        // [JsonProperty("properties")]
-        // public Dictionary<string, NotionProperty> Properties { get; set; }
+        [JsonProperty("properties")]
+        public Dictionary<string, NotionDatabaseProperty> Properties { get; set; }
+
+        [JsonIgnore]
+        public List<NotionDatabaseProperty> PropertyList => this.Properties.Values.ToList();
 
         public Task<List<Page>> GetPages() => Service.QueryDatabase(this.Id).ToList();
 
@@ -126,24 +129,6 @@ namespace ApiLibs.NotionRest
 
         [JsonProperty("files")]
         public EmptyObject Files { get; set; }
-    }
-
-    public partial class Price
-    {
-        [JsonProperty("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("type")]
-        public string Type { get; set; }
-
-        [JsonProperty("number")]
-        public Number Number { get; set; }
-    }
-
-    public partial class Number
-    {
-        [JsonProperty("format")]
-        public string Format { get; set; }
     }
 
     public partial class StoreAvailability
