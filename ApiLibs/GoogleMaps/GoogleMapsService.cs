@@ -55,7 +55,6 @@ namespace ApiLibs.GoogleMaps
                 PlaceField.PlaceId => "place_id",
                 PlaceField.PlusCode => "plus_code",
                 PlaceField.Type => "type",
-                PlaceField.Url => "url",
                 PlaceField.UtcOffset => "utc_offset",
                 PlaceField.Vicinity => "vicinity",
                 _ => throw new System.Exception("Invalid Field")
