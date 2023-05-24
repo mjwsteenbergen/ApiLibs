@@ -67,6 +67,7 @@ namespace ApiLibs.NotionRest
                 "column" => new Column(),
                 "column_list" => new ColumnList(),
                 "link_preview" => new LinkPreview(),
+                "code" => new Code(),
                 "unsupported" => new Unsupported(),
                 _ => throw new ArgumentOutOfRangeException("Cannot convert type " + type + jObject.ToString())
             };
