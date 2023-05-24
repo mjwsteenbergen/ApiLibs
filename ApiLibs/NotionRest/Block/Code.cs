@@ -5,7 +5,7 @@ namespace ApiLibs.NotionRest
 {
     public class Code : NotionBlock
     {
-        [JsonProperty("rich_text")]
+        [JsonProperty("text")]
         public List<RichText> RichText { get; set; }
 
         [JsonProperty("caption")]
