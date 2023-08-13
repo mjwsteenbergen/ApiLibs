@@ -8,7 +8,8 @@ using Newtonsoft.Json.Linq;
 
 namespace ApiLibs.NotionRest
 {
-    public interface INotionProperty<T> {
+    public interface INotionProperty<T>
+    {
         public void Set(T input);
         public T Get();
     }
@@ -20,28 +21,28 @@ namespace ApiLibs.NotionRest
         public string Type { get; set; }
 
         [JsonProperty("id")]
-        public string Id { get; set;}
+        public string Id { get; set; }
 
         [JsonProperty("name")]
-        public string Name { get; set;}
+        public string Name { get; set; }
     }
 
-    public class NumberProperty : NotionProperty, INotionProperty<double>
+    public class NumberProperty : NotionProperty, INotionProperty<double?>
     {
         [JsonProperty("number")]
-        public double Number { get; set;}
+        public double? Number { get; set; }
 
         public NumberProperty()
         {
             Type = "number";
         }
 
-        public double Get()
+        public double? Get()
         {
             return Number;
         }
 
-        public void Set(double input)
+        public void Set(double? input)
         {
             Number = input;
         }
@@ -68,7 +69,7 @@ namespace ApiLibs.NotionRest
 
             NotionProperty result = type switch
             {
-                "title" =>  new TitleProperty(),
+                "title" => new TitleProperty(),
                 "rich_text" => new RichTextProperty(),
                 "number" => new NumberProperty(),
                 "checkbox" => new CheckboxProperty(),
@@ -82,7 +83,8 @@ namespace ApiLibs.NotionRest
 
             serializer.Populate(jObject.CreateReader(), result);
 
-            if(result is DateProperty dprop) {
+            if (result is DateProperty dprop)
+            {
                 result = new DatePropertyConverter().ReadJson(jObject["date"].CreateReader(), typeof(DateProperty), dprop, false, serializer);
             }
 
@@ -100,7 +102,8 @@ namespace ApiLibs.NotionRest
 
     public class TitleProperty : NotionProperty, INotionProperty<string>
     {
-        public TitleProperty() {
+        public TitleProperty()
+        {
             Title = new List<RichText>();
         }
 
@@ -124,7 +127,8 @@ namespace ApiLibs.NotionRest
         public string ToPlainText() => Title?.Select(i => i.PlainText).Combine("");
     }
 
-    public class UrlProperty : NotionProperty, INotionProperty<string> {
+    public class UrlProperty : NotionProperty, INotionProperty<string>
+    {
 
         [JsonProperty("url")]
         public string Url { get; set; }
@@ -142,10 +146,10 @@ namespace ApiLibs.NotionRest
     {
         [JsonProperty("start")]
         [JsonConverter(typeof(DateTimeConverter))]
-        public DateTime? Start { get; set;}
+        public DateTime? Start { get; set; }
 
         [JsonProperty("end")]
-        public DateTime? End { get; set;}
+        public DateTime? End { get; set; }
     }
 
     public class DateTimeConverter : JsonConverter<DateTime?>
@@ -176,7 +180,8 @@ namespace ApiLibs.NotionRest
             return existingValue;
         }
 
-        public static DateTime? GetDateTime(string date) {
+        public static DateTime? GetDateTime(string date)
+        {
             if (date == null)
             {
                 return null;
@@ -198,7 +203,8 @@ namespace ApiLibs.NotionRest
 
     public partial class RichTextProperty : NotionProperty, INotionProperty<string>
     {
-        public RichTextProperty() {
+        public RichTextProperty()
+        {
             RichText = new List<RichText>();
             Type = "rich_text";
         }
@@ -226,16 +232,16 @@ namespace ApiLibs.NotionRest
     public class RichText
     {
         [JsonProperty("plain_text")]
-        public string PlainText { get; set;}
+        public string PlainText { get; set; }
 
         [JsonProperty("href")]
-        public string Href { get; set;}
+        public string Href { get; set; }
 
         [JsonProperty("text")]
-        public Text Text { get; set;}
+        public Text Text { get; set; }
 
         [JsonProperty("annotations")]
-        public Annotations Annotations { get; set;}
+        public Annotations Annotations { get; set; }
     }
 
     public partial class Annotations
@@ -261,7 +267,7 @@ namespace ApiLibs.NotionRest
 
     public partial class CheckboxProperty : NotionProperty, INotionProperty<bool>
     {
-        public CheckboxProperty() 
+        public CheckboxProperty()
         {
             Type = "checkbox";
         }
@@ -303,12 +309,13 @@ namespace ApiLibs.NotionRest
 
     public partial class MultiSelectProperty : NotionProperty, INotionProperty<List<Option>>
     {
-        public MultiSelectProperty() {
+        public MultiSelectProperty()
+        {
             Type = "multi_select";
         }
 
         [JsonProperty("multi_select")]
-        public List<Option> MultiSelect { get; set;}
+        public List<Option> MultiSelect { get; set; }
 
         public List<Option> Get()
         {
@@ -323,7 +330,7 @@ namespace ApiLibs.NotionRest
 
     public partial class SelectProperty : NotionProperty
     {
-        public SelectProperty() 
+        public SelectProperty()
         {
             Type = "select";
         }
