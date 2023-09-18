@@ -17,6 +17,7 @@ namespace ApiLibs.GitHub
         public IssueService IssueService { get; private set; }
         public ActivityService ActivityService { get; private set; }
         public RepositoryService RepositoryService { get; private set; }
+        public ActionService ActionService { get; private set; }
 
         /// <summary>
         /// Use this constructor if you do not have an access token yet
@@ -44,6 +45,7 @@ namespace ApiLibs.GitHub
             IssueService = new IssueService(this);
             RepositoryService = new RepositoryService(this);
             ActivityService = new ActivityService(this);
+            ActionService = new ActionService(this);
         }
 
         public void Connect(IOAuth _authenticator)
