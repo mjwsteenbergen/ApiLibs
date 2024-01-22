@@ -165,7 +165,7 @@ namespace ApiLibs.Spotify
         public string Name { get; set; }
 
         [JsonProperty("popularity")]
-        public long Popularity { get; set; }
+        public float Popularity { get; set; }
 
         [JsonProperty("preview_url")]
         public string PreviewUrl { get; set; }
@@ -210,7 +210,7 @@ namespace ApiLibs.Spotify
 
         public string label { get; set; }
 
-        public int popularity { get; set; }
+        public float popularity { get; set; }
 
         [JsonProperty("release_date")]
         public string ReleaseDate { get; set; }
@@ -251,7 +251,7 @@ namespace ApiLibs.Spotify
         public string Name { get; set; }
 
         [JsonProperty("popularity")]
-        public int Popularity { get; set; }
+        public float Popularity { get; set; }
 
         [JsonProperty("type")]
         public string Type { get; set; }
@@ -388,7 +388,7 @@ namespace ApiLibs.Spotify
     public class Followers
     {
         public string href { get; set; }
-        public int total { get; set; }
+        public double total { get; set; }
     }
 
     public class AudioAnalysis
