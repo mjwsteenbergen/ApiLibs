@@ -20,6 +20,14 @@ namespace ApiLibs.NotionRest
     public class TitleDatabaseProperty : NotionDatabaseProperty {
 
     }
+    
+    public class EmailDatabaseProperty : NotionDatabaseProperty {
+
+    }
+
+    public class PhoneDatabaseProperty : NotionDatabaseProperty {
+
+    }
 
     public class RichTextDatabaseProperty : NotionDatabaseProperty
     {
@@ -118,6 +126,8 @@ namespace ApiLibs.NotionRest
                 "rich_text" => new RichTextDatabaseProperty(),
                 "select" => new SelectDatabaseProperty(),
                 "url" => new UrlDatabaseProperty(),
+                "phone_number" => new PhoneDatabaseProperty(),
+                "email" => new EmailDatabaseProperty(),
                 _ => throw new ArgumentOutOfRangeException("Cannot convert type " + type + jObject.ToString())
             };
 

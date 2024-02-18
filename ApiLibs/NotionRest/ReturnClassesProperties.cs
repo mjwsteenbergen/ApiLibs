@@ -78,6 +78,8 @@ namespace ApiLibs.NotionRest
                 "relation" => new RelationProperty(),
                 "url" => new UrlProperty(),
                 "date" => new DateProperty(),
+                "email" => new EmailProperty(),
+                "phone_number" => new PhoneProperty(),
                 _ => throw new ArgumentOutOfRangeException("Cannot convert type " + type + jObject.ToString())
             };
 
@@ -141,7 +143,7 @@ namespace ApiLibs.NotionRest
         }
     }
 
-     public class EmailProperty : NotionProperty, INotionProperty<string>
+    public class EmailProperty : NotionProperty, INotionProperty<string>
     {
 
         [JsonProperty("email")]
@@ -152,6 +154,20 @@ namespace ApiLibs.NotionRest
         public void Set(string input)
         {
             Email = input;
+        }
+    }
+
+    public class PhoneProperty : NotionProperty, INotionProperty<string>
+    {
+
+        [JsonProperty("phone_number")]
+        public string PhoneNumber { get; set; }
+
+        public string Get() => PhoneNumber;
+
+        public void Set(string input)
+        {
+            PhoneNumber = input;
         }
     }
 
