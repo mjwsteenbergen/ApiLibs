@@ -141,6 +141,20 @@ namespace ApiLibs.NotionRest
         }
     }
 
+     public class EmailProperty : NotionProperty, INotionProperty<string>
+    {
+
+        [JsonProperty("email")]
+        public string Email { get; set; }
+
+        public string Get() => Email;
+
+        public void Set(string input)
+        {
+            Email = input;
+        }
+    }
+
     [JsonConverter(typeof(DatePropertyConverter))]
     public class DateProperty : NotionProperty
     {
