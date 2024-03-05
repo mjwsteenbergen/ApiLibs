@@ -44,7 +44,7 @@ namespace ApiLibs.Spotify
                 new OParam("include_groups", includeGroups),
                 new OParam("limit", limit),
                 new OParam("offset", offset)
-            })).items;
+            })).Items;
         }
 
         public async Task<List<Track>> GetTopTracks(string artistId, RegionInfo info = null)

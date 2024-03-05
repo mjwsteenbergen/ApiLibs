@@ -80,12 +80,12 @@ namespace ApiLibs.Spotify
             ArtistResultsResponse artistsResponse = null;
             do {
                 artistsResponse = await GetFollowingArtists(50, last?.Id);
-                foreach (var item in artistsResponse.items)
+                foreach (var item in artistsResponse.Items)
                 {
                     last = item;
                     yield return item;
                 }
-            } while(artistsResponse.items.Count > 0);
+            } while(artistsResponse.Items.Count > 0);
             // var first = await GetFollowingArtists();
 
 
@@ -103,19 +103,19 @@ namespace ApiLibs.Spotify
 
         public async Task<List<Artist>> GetTopArtists()
         {
-            return (await MakeRequest<ArtistResultsResponse>("me/top/tracks")).items;
+            return (await MakeRequest<ArtistResultsResponse>("me/top/tracks")).Items;
         }
 
         //Tracks
 
         public async Task<List<Track>> GetTopTracks()
         {
-            return (await MakeRequest<TrackResultsResponse>("me/top/tracks")).items;
+            return (await MakeRequest<TrackResultsResponse>("me/top/tracks")).Items;
         }
 
         public async Task<List<Track>> GetRecentlyPlayed()
         {
-            return (await MakeRequest<TrackResultsResponse>("me/player/recently-played")).items;
+            return (await MakeRequest<TrackResultsResponse>("me/player/recently-played")).Items;
         }
     }
 }

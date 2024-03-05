@@ -23,9 +23,9 @@ namespace ApiLibs.Spotify
         /// <param name="limit">The maximum number of objects to return. Default: 20. Minimum: 1. Maximum: 50.</param>
         /// <param name="market">An ISO 3166-1 alpha-2 country code or the string from_token. Provide this parameter if you want to apply Track Relinking.</param>
         /// <returns></returns>
-        public Task<MyTrackResponse> GetMySavedTracks(int? offset = null, int? limit = null, string market = null)
+        public Task<SavedTrackResponse> GetMySavedTracks(int? offset = null, int? limit = null, string market = null)
         {
-            return MakeRequest<MyTrackResponse>("me/tracks", parameters: new List<Param>
+            return MakeRequest<SavedTrackResponse>("me/tracks", parameters: new List<Param>
             {
                 new OParam("offset", offset),
                 new OParam("limit", limit),
@@ -36,7 +36,7 @@ namespace ApiLibs.Spotify
         public async IAsyncEnumerable<SavedTrack> GetMySavedTracksAsync()
         {
             int offset = 0;
-            MyTrackResponse res = null;
+            SavedTrackResponse res = null;
             do {
                 res = await GetMySavedTracks(offset, 50);
                 offset += 50;

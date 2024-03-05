@@ -82,37 +82,12 @@ namespace ApiLibs.Spotify
         public string Href { get; set; }
 
         [JsonProperty("total")]
-        public long Total { get; set; }
+        public float Total { get; set; }
     }
     public class AudioFeatureList
     {
         [JsonProperty("audio_features")]
         public List<AudioFeatures> AudioFeatures { get; set; }
-    }
-
-
-    public partial class MyTrackResponse
-    {
-        [JsonProperty("href")]
-        public string Href { get; set; }
-
-        [JsonProperty("items")]
-        public List<SavedTrack> Items { get; set; }
-
-        [JsonProperty("limit")]
-        public long Limit { get; set; }
-
-        [JsonProperty("next")]
-        public string Next { get; set; }
-
-        [JsonProperty("offset")]
-        public long Offset { get; set; }
-
-        [JsonProperty("previous")]
-        public object Previous { get; set; }
-
-        [JsonProperty("total")]
-        public long Total { get; set; }
     }
 
     public partial class SavedTrack
@@ -302,13 +277,13 @@ namespace ApiLibs.Spotify
 
     }
 
-    public class PagingObject
+    public class PagingObject<T>
     {
         [JsonProperty("href")]
         public string Href { get; set; }
 
         [JsonProperty("limit")]
-        public int Limit { get; set; }
+        public float Limit { get; set; }
 
         [JsonProperty("next")]
         public string Next { get; set; }
@@ -320,19 +295,23 @@ namespace ApiLibs.Spotify
         public object Previous { get; set; }
 
         [JsonProperty("total")]
-        public int Total { get; set; }
+        public float Total { get; set; }
+
+        [JsonProperty("items")]
+        public List<T> Items { get; set; }
     }
 
-    public partial class PlaylistResultsResponse : PagingObject
+    public partial class PlaylistResultsResponse : PagingObject<Playlist>
     {
-        [JsonProperty("items")]
-        public List<Playlist> Items { get; set; }
+
     }
 
-    public partial class PlaylistTrackResponse : PagingObject
+    public partial class PlaylistTrackResponse : PagingObject<PlayListTrack>
     {
-        [JsonProperty("items")]
-        public List<PlayListTrack> Items { get; set; }
+    }
+
+    public partial class SavedTrackResponse : PagingObject<SavedTrack>
+    {
     }
 
     public partial class PlayListTrack
@@ -360,19 +339,16 @@ namespace ApiLibs.Spotify
     }
 
 
-    public class TrackResultsResponse : PagingObject
+    public class TrackResultsResponse : PagingObject<Track>
     {
-        public List<Track> items { get; set; }
     }
 
-    public class ArtistResultsResponse : PagingObject
+    public class ArtistResultsResponse : PagingObject<Artist>
     {
-        public List<Artist> items { get; set; }
     }
 
-    public class AlbumResultsResponse : PagingObject
+    public class AlbumResultsResponse : PagingObject<Album>
     {
-        public List<Album> items { get; set; }
     }
 
     public class External_Urls
