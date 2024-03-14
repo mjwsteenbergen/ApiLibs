@@ -1,10 +1,12 @@
 
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ApiLibs.General;
 using Newtonsoft.Json;
+using RestSharp;
 
 namespace ApiLibs.NotionRest
 {
@@ -39,6 +41,10 @@ namespace ApiLibs.NotionRest
                 startCursor = list.NextCursor;
             } while (startCursor != null);
         }
+
+        public Task<IEnumerable<NotionBlock>> AddBlockChild(string blockId, List<NotionBlock> blocks) => MakeRequest<IEnumerable<NotionBlock>>($"blocks/{blockId}/children", method: Call.PATCH, content: blocks);
+        public Task<IEnumerable<NotionBlock>> AddBlockChild(NotionBlock block, List<NotionBlock> blocks) => MakeRequest<IEnumerable<NotionBlock>>(block.Id.ToString(), method: Call.PATCH, content: blocks);
+        public Task<IEnumerable<NotionBlock>> AddBlockChild(Page page, List<NotionBlock> blocks) => MakeRequest<IEnumerable<NotionBlock>>(page.Id.ToString(), method: Call.PATCH, content: blocks);
 
         public IAsyncEnumerable<NotionBlock> GetBlockChildren(Guid blockId, string startCursor = null, int? size = null) => GetBlockChildren(blockId.ToString(), startCursor, size);
 
