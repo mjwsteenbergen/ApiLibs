@@ -71,7 +71,7 @@ namespace ApiLibs.Spotify
 
         public async Task AddTracksSingleCall(IEnumerable<string> tracks, string playlistId, string owner)
         {
-            await MakeRequest<string>($"users/{owner}/playlists/{playlistId}/tracks", Call.POST, content: tracks, statusCode: System.Net.HttpStatusCode.Created);
+            await MakeRequest<string>($"users/{owner}/playlists/{playlistId}/tracks", Call.POST, content: tracks);
         }
 
         public async Task<List<Track>> GetAllTracks(Playlist playlist)
