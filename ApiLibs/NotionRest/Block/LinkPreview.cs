@@ -4,6 +4,7 @@ namespace ApiLibs.NotionRest
     {
         public LinkPreview()
         {
+            Type = "link_preview";
         }
     }
 }

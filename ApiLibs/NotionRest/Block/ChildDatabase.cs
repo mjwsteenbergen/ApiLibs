@@ -4,6 +4,7 @@ namespace ApiLibs.NotionRest
     {
         public ChildDatabase()
         {
+            Type = "child_database";
         }
     }
 }

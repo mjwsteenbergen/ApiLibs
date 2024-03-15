@@ -1,7 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace ApiLibs.NotionRest
 {
@@ -13,16 +18,38 @@ namespace ApiLibs.NotionRest
         public string Type { get; set; }
 
         [JsonProperty("has_children")]
-        public bool HasChildren { get; set;}
+        public bool? HasChildren { get; set;}
 
         [JsonProperty("object")]
         public string Object { get; set;}
 
         [JsonProperty("id")]
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
+    }
+
+    public class ForceDefaultConverter : JsonConverter
+    {
+        public override bool CanRead => false;
+        public override bool CanWrite => false;
+
+        public override bool CanConvert(Type objectType)
+        {
+            throw new InvalidOperationException();
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            throw new InvalidOperationException();
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new InvalidOperationException();
+        }
     }
 
     public class NotionBlockConverter : JsonConverter<NotionBlock>
+    
     {
         class NotionPropertyImp : NotionBlock { }
 
@@ -80,42 +107,79 @@ namespace ApiLibs.NotionRest
 
         public override bool CanWrite => true;
 
-        public T Seria<T>(JsonWriter writer, JsonSerializer serializer, T value) {
-            serializer.Serialize(writer, value);
-            return value;
+        public void Serialize(PropertyInfo info, NotionBlock value, JsonWriter writer)
+        {
+            var val = info.GetValue(value);
+
+            if(val != null) 
+            {
+                var customAttributes = (JsonPropertyAttribute[])info.GetCustomAttributes(typeof(JsonPropertyAttribute), true);
+                if (customAttributes.Length > 0)
+                {
+                    var myAttribute = customAttributes[0];
+                    string propName = myAttribute.PropertyName;
+
+                    if(!string.IsNullOrEmpty(propName)) {
+                        writer.WritePropertyName(propName);
+                    } else {
+                        writer.WritePropertyName(info.Name);
+                    }
+                    // TODO: Do something with the value
+                } else {
+                    writer.WritePropertyName(info.Name);
+                }
+
+                writer.WriteRawValue(JsonConvert.SerializeObject(val, Formatting.None, new JsonSerializerSettings {
+                    NullValueHandling = NullValueHandling.Ignore
+                }));
+            }
         }
 
         public override void WriteJson(JsonWriter writer, NotionBlock value, JsonSerializer serializer)
         {
-            NotionBlock _ = value switch {
-                Paragraph paragraph => Seria(writer, serializer, paragraph),
-                Heading3 heading_3 => Seria(writer, serializer, heading_3),
-                Heading2 heading_2 => Seria(writer, serializer, heading_2),
-                Heading1 heading_1 => Seria(writer, serializer, heading_1),
-                BulletedListItem bulleted_list_item => Seria(writer, serializer, bulleted_list_item),
-                NumberedListItem numbered_list_item => Seria(writer, serializer, numbered_list_item),
-                ToDo to_do => Seria(writer, serializer, to_do),
-                Toggle toggle => Seria(writer, serializer, toggle),
-                ChildPage child_page => Seria(writer, serializer, child_page),
-                ChildDatabase child_database => Seria(writer, serializer, child_database),
-                Embed embed => Seria(writer, serializer, embed),
-                Image image => Seria(writer, serializer, image),
-                Video video => Seria(writer, serializer, video),
-                FileBlock file => Seria(writer, serializer, file),
-                Pdf pdf => Seria(writer, serializer, pdf),
-                Bookmark bookmark => Seria(writer, serializer, bookmark),
-                Callout callout => Seria(writer, serializer, callout),
-                Quote quote => Seria(writer, serializer, quote),
-                Equation equation => Seria(writer, serializer, equation),
-                Divider divider => Seria(writer, serializer, divider),
-                TableOfContents table_of_contents => Seria(writer, serializer, table_of_contents),
-                Column column => Seria(writer, serializer, column),
-                ColumnList column_list => Seria(writer, serializer, column_list),
-                LinkPreview link_preview => Seria(writer, serializer, link_preview),
-                Code code => Seria(writer, serializer, code),
-                Unsupported unsupported => Seria(writer, serializer, unsupported),
-                _ => throw new Exception("Invalid option")
-            };
+            // var serializeObject = new {
+            //     type = value.Type
+            // };
+
+            // var serializeObject = new Dictionary<string, dynamic> {
+            //     { "type" , value.Type + "" },
+            //     { value.Type, value }
+            // };
+
+           
+            writer.WriteStartObject();
+
+            var props = value.GetType().GetProperties();
+            foreach(PropertyInfo info in props.Where(i => i.DeclaringType.FullName == "ApiLibs.NotionRest.NotionBlock"))
+            {
+                Serialize(info, value, writer);
+            }
+
+            writer.WritePropertyName(value.Type);
+            writer.WriteStartObject();
+
+            foreach(PropertyInfo info in props.Where(i => i.DeclaringType.FullName != "ApiLibs.NotionRest.NotionBlock"))
+            {
+                Serialize(info, value, writer);
+            }
+
+            writer.WriteEndObject();
+            writer.WriteEndObject();
+
+            // writer.WritePropertyName("type");
+            // writer.WriteValue(value.Type);
+            // writer.WritePropertyName(value.Type);
+            // value.Type = null;
+
+
+
+            // var s = JsonConvert.SerializeObject(value, new ForceDefaultConverter());
+            // writer.WriteValue(new JRaw(s));
+            // JsonSerializer.CreateDefault().Serialize()
+            // JsonSerializer.Create().Serialize(writer, value);
+            // serializeObject[value.Type] = value;
+
+            // serializer.Serialize(writer, value);
         }
     }
 }

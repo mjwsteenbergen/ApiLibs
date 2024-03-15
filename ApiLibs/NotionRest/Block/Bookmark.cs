@@ -7,6 +7,7 @@ namespace ApiLibs.NotionRest
     {
         public Bookmark()
         {
+            Type = "bookmark";
         }
 
         [JsonProperty("url")]

@@ -7,9 +7,10 @@ namespace ApiLibs.NotionRest
     {
         public Paragraph()
         {
+            Type = "paragraph";
         }
 
-        [JsonProperty("text")]
+        [JsonProperty("rich_text")]
         public List<RichText> Text { get; set;}
 
         [JsonProperty("children")]

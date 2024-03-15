@@ -4,6 +4,7 @@ namespace ApiLibs.NotionRest
     {
         public Heading2()
         {
+            Type = "heading_2";
         }
     }
 }

@@ -4,6 +4,7 @@ namespace ApiLibs.NotionRest
     {
         public ChildPage()
         {
+            Type = "child_page";
         }
     }
 }

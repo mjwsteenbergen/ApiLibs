@@ -7,9 +7,10 @@ namespace ApiLibs.NotionRest
     {
         public Heading1()
         {
+            Type = "heading_1";
         }
 
-        [JsonProperty("text")]
+        [JsonProperty("rich_text")]
         public List<RichText> Text { get; set;}
     }
 }

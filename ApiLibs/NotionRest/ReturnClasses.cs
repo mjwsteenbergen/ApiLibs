@@ -185,7 +185,7 @@ namespace ApiLibs.NotionRest
         public object Link { get; set; }
     }
 
-    public class File
+    public class File : ImageSource
     {
         [JsonProperty("external")]
         public External External { get; set;}
@@ -197,7 +197,8 @@ namespace ApiLibs.NotionRest
         public DateTime? ExpiryTime { get; set;}
     }
 
-    public class External {
+    public class External : ImageSource 
+    {
         [JsonProperty("url")]
         public Uri Url { get; set;}
     }

@@ -4,6 +4,7 @@ namespace ApiLibs.NotionRest
     {
         public Divider()
         {
+            Type = "divider";
         }
     }
 }

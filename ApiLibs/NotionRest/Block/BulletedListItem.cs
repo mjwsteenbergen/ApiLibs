@@ -7,6 +7,7 @@ namespace ApiLibs.NotionRest
     {
         public BulletedListItem()
         {
+            Type = "bulleted_list_item";
         }
 
         [JsonProperty("text")]

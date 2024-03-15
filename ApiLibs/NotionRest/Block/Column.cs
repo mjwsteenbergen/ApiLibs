@@ -4,6 +4,7 @@ namespace ApiLibs.NotionRest
     {
         public Column()
         {
+            Type = "column";
         }
     }
 }

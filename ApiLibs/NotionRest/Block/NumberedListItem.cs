@@ -4,6 +4,7 @@ namespace ApiLibs.NotionRest
     {
         public NumberedListItem()
         {
+            Type = "numbered_list_item";
         }
     }
 }

@@ -4,6 +4,7 @@ namespace ApiLibs.NotionRest
     {
         public ColumnList()
         {
+            Type = "column_list";
         }
     }
 }

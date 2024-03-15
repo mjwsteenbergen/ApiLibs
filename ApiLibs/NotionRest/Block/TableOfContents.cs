@@ -4,6 +4,7 @@ namespace ApiLibs.NotionRest
     {
         public TableOfContents()
         {
+            Type = "table_of_contents";
         }
     }
 }

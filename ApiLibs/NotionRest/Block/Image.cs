@@ -5,6 +5,11 @@ namespace ApiLibs.NotionRest
 {
     public class Image : NotionBlock
     {
+        public Image() 
+        {
+            Type = "image";
+        }
+
         private File _imageFile;
 
         [JsonProperty("image")]
@@ -24,10 +29,20 @@ namespace ApiLibs.NotionRest
             }
         }
 
+        [JsonProperty("type")]
+        public string ImageSourceType { get; set; }
+
         [JsonProperty("caption")]
         public List<RichText> Caption { get; set; }
 
         [JsonProperty("file")]
         public File File { get; set; }
+
+        [JsonProperty("external")]
+        public External External { get; set; }
+    }
+
+    public interface ImageSource {
+        
     }
 }

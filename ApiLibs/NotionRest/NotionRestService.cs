@@ -42,9 +42,11 @@ namespace ApiLibs.NotionRest
             } while (startCursor != null);
         }
 
-        public Task<IEnumerable<NotionBlock>> AddBlockChild(string blockId, List<NotionBlock> blocks) => MakeRequest<IEnumerable<NotionBlock>>($"blocks/{blockId}/children", method: Call.PATCH, content: blocks);
-        public Task<IEnumerable<NotionBlock>> AddBlockChild(NotionBlock block, List<NotionBlock> blocks) => MakeRequest<IEnumerable<NotionBlock>>(block.Id.ToString(), method: Call.PATCH, content: blocks);
-        public Task<IEnumerable<NotionBlock>> AddBlockChild(Page page, List<NotionBlock> blocks) => MakeRequest<IEnumerable<NotionBlock>>(page.Id.ToString(), method: Call.PATCH, content: blocks);
+        public Task<NotionList<NotionBlock>> AddBlockChild(string blockId, List<NotionBlock> blocks) => MakeRequest<NotionList<NotionBlock>>($"blocks/{blockId}/children", method: Call.PATCH, content: new {
+            children = blocks
+        });
+        public Task<NotionList<NotionBlock>> AddBlockChild(NotionBlock block, List<NotionBlock> blocks) => AddBlockChild(block.Id.ToString(), blocks);
+        public Task<NotionList<NotionBlock>> AddBlockChild(Page page, List<NotionBlock> blocks) => AddBlockChild(page.Id.ToString(), blocks);
 
         public IAsyncEnumerable<NotionBlock> GetBlockChildren(Guid blockId, string startCursor = null, int? size = null) => GetBlockChildren(blockId.ToString(), startCursor, size);
 

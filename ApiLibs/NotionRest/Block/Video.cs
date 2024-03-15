@@ -4,6 +4,7 @@ namespace ApiLibs.NotionRest
     {
         public Video()
         {
+            Type = "video";
         }
     }
 }

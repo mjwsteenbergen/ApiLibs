@@ -6,6 +6,7 @@ namespace ApiLibs.NotionRest
     {
         public FileBlock()
         {
+            Type = "file";
         }
 
         [JsonProperty("file")]

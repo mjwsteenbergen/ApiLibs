@@ -7,6 +7,7 @@ namespace ApiLibs.NotionRest
     {
         public Quote()
         {
+            Type = "quote";
         }
 
         [JsonProperty("text")]

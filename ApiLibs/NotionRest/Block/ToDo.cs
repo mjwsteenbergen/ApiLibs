@@ -4,6 +4,7 @@ namespace ApiLibs.NotionRest
     {
         public ToDo()
         {
+            Type = "to_do";
         }
     }
 }
