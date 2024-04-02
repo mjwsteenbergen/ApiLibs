@@ -57,9 +57,16 @@ namespace ApiLibs.Spotify
         {
             return ids
                 .Split(50)
-                .Select(i => MakeRequest<string>("me/tracks", Call.PUT, new List<Param> {
-                    new Param("ids", i.Combine(","))
-                })).ToIAsyncEnumberable().ToList();
+                .Reverse()
+                .Select(async i => 
+                {
+                    var res = await MakeRequest<string>("me/tracks", Call.PUT, new List<Param> {
+                        new Param("ids", i.Combine(","))
+                    });  
+                    await Task.Delay(2000);
+                    return res;
+                }
+                ).ToIAsyncEnumberable().ToList();
         }
 
         public async Task SaveTrack(string id)
