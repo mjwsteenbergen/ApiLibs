@@ -47,7 +47,7 @@ namespace ApiLibs.Spotify
 
             RequestResponseMiddleware.Add(async (resp) =>
             {
-                if (resp.StatusCode == HttpStatusCode.BadRequest)
+                if (resp.StatusCode == HttpStatusCode.BadRequest || resp.StatusCode == HttpStatusCode.Forbidden)
                 {
                     var request = resp.Request;
                     if (request.EndPoint == "api/token")
