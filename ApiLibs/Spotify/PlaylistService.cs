@@ -111,25 +111,25 @@ namespace ApiLibs.Spotify
             while(tracks.Count() > 0)
             {
                 var remove = tracks.Take(100);
-                await RemoveTracks(playlist.Id, playlist.Owner.Id, remove.Select(i => i.Uri));
+                await RemoveTracks(playlist.Id, remove.Select(i => i.Uri), playlist.Owner.Id);
                 tracks = tracks.Skip(100).ToList();
             }
         }
 
-        public async Task RemoveTracks(Playlist playlist, IEnumerable<Track> tracks)
+        public Task RemoveTracks(Playlist playlist, IEnumerable<Track> tracks)
         {
-            await RemoveTracks(playlist.Id, playlist.Owner.Id, tracks.Select(i => i.Uri));
+            return RemoveTracks(playlist.Id, tracks.Select(i => i.Uri), playlist.Owner.Id);
         }
 
-        private async Task RemoveTracks(string playlistId, string ownerId, IEnumerable<string> tracks)
+        private Task RemoveTracks(string playlistId, IEnumerable<string> tracks, string ownerId = null)
         {
-            await MakeRequest<string>($"users/{ownerId}/playlists/{playlistId}/tracks", Call.DELETE, content: new
+            return MakeRequest<string>($"playlists/{playlistId}/tracks", Call.DELETE, content: new
             {
                 tracks = tracks.Select(i => new
                 {
                     uri = i
                 })
-            });
+            }); 
         }
     }
 }

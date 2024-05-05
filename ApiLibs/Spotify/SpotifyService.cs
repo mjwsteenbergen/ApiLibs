@@ -47,7 +47,7 @@ namespace ApiLibs.Spotify
 
             RequestResponseMiddleware.Add(async (resp) =>
             {
-                if (resp.StatusCode == HttpStatusCode.BadRequest || resp.StatusCode == HttpStatusCode.Forbidden)
+                if (resp.StatusCode == HttpStatusCode.BadRequest)
                 {
                     var request = resp.Request;
                     if (request.EndPoint == "api/token")
@@ -169,5 +169,6 @@ namespace ApiLibs.Spotify
         public static Scope UserTopRead => new Scope("user-top-read");
         public static Scope UserModifyPlaybackState => new Scope("user-modify-playback-state");
         public static Scope UserReadPlaybackState => new Scope("user-read-playback-state");
+        public static Scope UserReadRecentlyPlayed => new Scope("user-read-recently-played");
     }
 }
