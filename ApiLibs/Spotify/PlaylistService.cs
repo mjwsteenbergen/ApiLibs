@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using ApiLibs.General;
 
@@ -71,7 +72,7 @@ namespace ApiLibs.Spotify
 
         public async Task AddTracksSingleCall(IEnumerable<string> tracks, string playlistId, string owner)
         {
-            await MakeRequest<string>($"users/{owner}/playlists/{playlistId}/tracks", Call.POST, content: tracks);
+            await MakeRequest<string>($"users/{owner}/playlists/{playlistId}/tracks", Call.POST, content: tracks, statusCode: HttpStatusCode.Created);
         }
 
         public async Task<List<Track>> GetAllTracks(Playlist playlist)
