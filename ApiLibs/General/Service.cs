@@ -18,7 +18,11 @@ namespace ApiLibs
         protected RestSharpService(string hostUrl) : base(new RestSharpImplementation())
         {
             (Implementation as RestSharpImplementation).Client = new RestClient(hostUrl);
-            // (Implementation as RestSharpImplementation).Client = Client;
+        }
+
+        protected RestSharpService(RestClientOptions options) : base(new RestSharpImplementation())
+        {
+            (Implementation as RestSharpImplementation).Client = new RestClient(options);
         }
 
         protected void ConnectBasic(string username, string secret)
@@ -165,7 +169,7 @@ namespace ApiLibs
         }
     }
 
-    public class TooManyRetriesException : Exception {}
+    public class TooManyRetriesException : Exception { }
 
     public class Request
     {
@@ -186,8 +190,8 @@ namespace ApiLibs
                 return Task.FromResult(resp);
             };
 
-            Parameters = new ();
-            Headers = new ();
+            Parameters = new();
+            Headers = new();
             ExpectedStatusCode = HttpStatusCode.OK;
         }
 
