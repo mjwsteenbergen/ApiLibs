@@ -80,6 +80,7 @@ namespace ApiLibs.NotionRest
                 "date" => new DateProperty(),
                 "email" => new EmailProperty(),
                 "phone_number" => new PhoneProperty(),
+                "last_edited_time" => new LastEditedTimeProperty(),
                 _ => throw new ArgumentOutOfRangeException("Cannot convert type " + type + jObject.ToString())
             };
 
@@ -143,6 +144,13 @@ namespace ApiLibs.NotionRest
         }
     }
 
+    public class LastEditedTimeProperty : NotionProperty
+    {
+
+        [JsonProperty("last_edited_time")]
+        public DateTime LastEdited { get; set; }
+    }
+
     public class EmailProperty : NotionProperty, INotionProperty<string>
     {
 
@@ -172,7 +180,7 @@ namespace ApiLibs.NotionRest
     }
 
     [JsonConverter(typeof(DatePropertyConverter))]
-    public class DateProperty : NotionProperty
+    public class DateProperty : NotionProperty, INotionProperty<DateTime?>
     {
         [JsonProperty("start")]
         [JsonConverter(typeof(DateTimeConverter))]
@@ -180,6 +188,13 @@ namespace ApiLibs.NotionRest
 
         [JsonProperty("end")]
         public DateTime? End { get; set; }
+
+        public DateTime? Get() => Start;
+
+        public void Set(DateTime? input)
+        {
+            Start = input;
+        }
     }
 
     public class DateTimeConverter : JsonConverter<DateTime?>

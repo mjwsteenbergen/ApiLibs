@@ -69,6 +69,10 @@ namespace ApiLibs.NotionRest
         public MultiSelectDatabasePropertyValue MultiSelect { get; set;}
     }
 
+    public class LastEditedTimeDatabaseProperty : NotionDatabaseProperty
+    {
+    }
+
     public class MultiSelectDatabasePropertyValue {
         [JsonProperty("options")]
         public Option[] Options { get; set; }
@@ -120,8 +124,9 @@ namespace ApiLibs.NotionRest
                 "checkbox" => new CheckboxDatabaseProperty(),
                 "date" => new DateDatabaseProperty(),
                 "title" => new TitleDatabaseProperty(),
-                "number" => new NumberDatabaseProperty(),
+                "last_edited_time" => new LastEditedTimeDatabaseProperty(),
                 "multi_select" => new MultiSelectDatabaseProperty(),
+                "number" => new NumberDatabaseProperty(),
                 "relation" => new RelationDatabaseProperty(),
                 "rich_text" => new RichTextDatabaseProperty(),
                 "select" => new SelectDatabaseProperty(),

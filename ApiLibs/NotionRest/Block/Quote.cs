@@ -11,6 +11,6 @@ namespace ApiLibs.NotionRest
         }
 
         [JsonProperty("text")]
-        public List<RichText> Text { get; internal set; }
+        public List<RichText> Text { get; set; }
     }
 }

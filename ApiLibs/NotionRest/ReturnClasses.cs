@@ -182,7 +182,13 @@ namespace ApiLibs.NotionRest
         public string Content { get; set; }
 
         [JsonProperty("link")]
-        public object Link { get; set; }
+        public TextLink Link { get; set; }
+    }
+
+    public class TextLink {
+
+        [JsonProperty("url")]
+        public string Url { get; set; }
     }
 
     public class File : ImageSource
