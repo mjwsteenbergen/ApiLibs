@@ -16,7 +16,7 @@ namespace ApiLibs
 
     public class RestSharpImplementation : ICallImplementation
     {
-        public RestClient Client { get; internal set; }
+        public RestClient Client { get; set; }
 
         public override async Task<RequestResponse> ExecuteRequest(Service service, Request aRequest)
         {

@@ -24,11 +24,6 @@ namespace ApiLibs
         {
             (Implementation as RestSharpImplementation).Client = new RestClient(options);
         }
-
-        protected void ConnectBasic(string username, string secret)
-        {
-            (Implementation as RestSharpImplementation).Client.Authenticator = new HttpBasicAuthenticator(username, secret);
-        }
     }
 
     public abstract class Service
@@ -199,7 +194,7 @@ namespace ApiLibs
         public Call Method { get; set; } = Call.GET;
         public List<Param> Parameters { get; set; }
         public List<Param> Headers { get; set; }
-        public int? Timeout { get; set; }
+        public TimeSpan? Timeout { get; set; }
         public object Content { get; set; }
         public OneOf<HttpStatusCode, IEnumerable<HttpStatusCode>> ExpectedStatusCode { get; set; }
 
