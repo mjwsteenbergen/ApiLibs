@@ -172,6 +172,15 @@ namespace ApiLibs.Todoist
             return res.TempIdMapping.Values.FirstOrDefault();
         }
 
+        public async Task<long> AddReminder(Reminder reminder)
+        {
+            var res = await MakeRequest<SyncResult>("sync", parameters: new List<Param>
+            {
+                new TodoistCommand("reminder_add", reminder).ToParam()
+            });
+            return res.TempIdMapping.Values.FirstOrDefault();
+        }
+
 
         public async Task<List<long>> AddTodo(IEnumerable<Item> items)
         {
@@ -303,6 +312,11 @@ namespace ApiLibs.Todoist
         }
 
         public TodoistCommand(string type, Project args) : this(type)
+        {
+            Arguments = args;
+        }
+
+        public TodoistCommand(string type, Reminder args) : this(type)
         {
             Arguments = args;
         }
