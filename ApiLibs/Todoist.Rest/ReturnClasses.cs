@@ -3,9 +3,7 @@ using ApiLibs.General;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
-using Newtonsoft.Json.Linq;
 using System.Globalization;
-using Newtonsoft.Json.Converters;
 
 namespace ApiLibs.TodoistRest
 {

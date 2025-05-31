@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using ApiLibs.General;
 using Martijn.Extensions.AsyncLinq;
 using Martijn.Extensions.Linq;
-using RestSharp;
 
 namespace ApiLibs.Spotify
 {

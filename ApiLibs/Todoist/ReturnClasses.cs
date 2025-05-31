@@ -1,12 +1,6 @@
-﻿using ApiLibs.General;
-using System;
+﻿using System;
 using System.Collections.Generic;
-
-using System.Globalization;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using RestSharp;
-using Newtonsoft.Json.Linq;
 
 namespace ApiLibs.Todoist
 {

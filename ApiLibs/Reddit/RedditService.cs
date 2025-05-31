@@ -4,10 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using ApiLibs.General;
-using ApiLibs.Reddit;
-using RestSharp;
-using RestSharp.Authenticators;
 
 namespace ApiLibs.Reddit
 {

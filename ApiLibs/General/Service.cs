@@ -7,7 +7,6 @@ using ApiLibs.General;
 using Newtonsoft.Json;
 using OneOf;
 using RestSharp;
-using RestSharp.Authenticators;
 
 namespace ApiLibs
 {

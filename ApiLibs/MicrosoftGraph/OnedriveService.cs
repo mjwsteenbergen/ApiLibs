@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using ApiLibs.General;
 
 namespace ApiLibs.MicrosoftGraph
 {
