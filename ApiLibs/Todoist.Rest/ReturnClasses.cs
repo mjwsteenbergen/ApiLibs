@@ -247,7 +247,7 @@ namespace ApiLibs.TodoistRest
         public string Name { get; set; }
 
         [JsonProperty("color")]
-        public int? Color { get; set; }
+        public string Color { get; set; }
 
         [JsonProperty("order")]
         public int? Order { get; set; }
