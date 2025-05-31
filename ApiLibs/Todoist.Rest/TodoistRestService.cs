@@ -58,7 +58,7 @@ namespace ApiLibs.TodoistRest
 
         public Task<TodoistTask> GetTask(string id) => MakeRequest<TodoistTask>("tasks/"+id);
         public Task<TodoistTask> CreateTask(TodoistRequestTask task) => MakeRequest<TodoistTask>("tasks", Call.POST, content: task);
-        public Task UpdateTasks(string id, TodoistTask task) => MakeRequest<string>("tasks/" + id, Call.POST, content: task, statusCode: System.Net.HttpStatusCode.NoContent);
+        public Task UpdateTasks(string id, TodoistTask task) => MakeRequest<string>("tasks/" + id, Call.POST, content: task);
 
 
         public Task UpdateTasks(TodoistTask task) => UpdateTasks(task.Id ?? throw new ArgumentNullException(nameof(task.Id)), task);
