@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApiLibs.General;
+using Martijn.Extensions.AsyncLinq;
 using Newtonsoft.Json;
 
 namespace ApiLibs.Todoist.Future
@@ -110,6 +111,12 @@ namespace ApiLibs.Todoist.Future
         public Task<TodoistProject> CreateProject(TodoistFutureProjectEdit request) => MakeRequest<TodoistProject>("", Call.POST, content: request);
         public Task<TodoistProject> EditProject(string projectId, TodoistFutureProjectEdit request) => MakeRequest<TodoistProject>(projectId, Call.POST, content: request);
         public Task DeleteProject(string projectId) => MakeRequest(projectId, Call.DELETE);
+
+        public async Task<TodoistProject> GetProjectByName(string name)
+        {
+            var project = await GetProjects().First(i => i.Name == name);
+            return await GetProject(project.Id);
+        } 
     }
 
     public class TodoistFutureProjectEdit
@@ -191,6 +198,7 @@ namespace ApiLibs.Todoist.Future
         public Task<TodoistTask> EditTask(string taskId, TodoistFutureTaskEdit request) => MakeRequest<TodoistTask>(taskId, Call.POST, content: request);
         public Task<TodoistTask> ReopenTask(string taskId) => MakeRequest<TodoistTask>($"{taskId}/reopen", Call.POST);
         public Task<TodoistTask> CloseTask(string taskId) => MakeRequest<TodoistTask>($"{taskId}/close", Call.POST);
+        public Task<TodoistTask> CloseTask(TodoistTask task) => CloseTask(task.Id);
         public Task<TodoistTask> MoveTask(string taskId, TodoistFutureTaskMove move) => MakeRequest<TodoistTask>($"{taskId}/move", Call.POST, content: move);
         public Task DeleteTask(string taskId) => MakeRequest(taskId, Call.DELETE);
     }
@@ -267,10 +275,12 @@ namespace ApiLibs.Todoist.Future
         public string DueString { get; set; }
 
         [JsonProperty("due_date")]
-        public string DueDate { get; set; }
+        [JsonConverter(typeof(DateConverter))]
+        public DateTimeOffset? DueDate { get; set; }
 
         [JsonProperty("due_datetime")]
-        public string DueDatetime { get; set; }
+        [JsonConverter(typeof(DateTimeConverter))]
+        public DateTimeOffset? DueDatetime { get; set; }
 
         [JsonProperty("due_lang")]
         public string DueLang { get; set; }
