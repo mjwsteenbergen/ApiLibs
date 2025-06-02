@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using ApiLibs.General;
 using Martijn.Extensions.AsyncLinq;
@@ -197,7 +198,7 @@ namespace ApiLibs.Todoist.Future
         public Task<TodoistTask> QuickCreateTask(TodoistFutureTaskQuickCreate request) => MakeRequest<TodoistTask>("quick", Call.POST, content: request);
         public Task<TodoistTask> EditTask(string taskId, TodoistFutureTaskEdit request) => MakeRequest<TodoistTask>(taskId, Call.POST, content: request);
         public Task<TodoistTask> ReopenTask(string taskId) => MakeRequest<TodoistTask>($"{taskId}/reopen", Call.POST);
-        public Task<TodoistTask> CloseTask(string taskId) => MakeRequest<TodoistTask>($"{taskId}/close", Call.POST);
+        public Task<TodoistTask> CloseTask(string taskId) => MakeRequest<TodoistTask>($"{taskId}/close", Call.POST, statusCode: HttpStatusCode.NoContent);
         public Task<TodoistTask> CloseTask(TodoistTask task) => CloseTask(task.Id);
         public Task<TodoistTask> MoveTask(string taskId, TodoistFutureTaskMove move) => MakeRequest<TodoistTask>($"{taskId}/move", Call.POST, content: move);
         public Task DeleteTask(string taskId) => MakeRequest(taskId, Call.DELETE);
