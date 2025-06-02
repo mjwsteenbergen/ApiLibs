@@ -24,8 +24,8 @@ namespace ApiLibsTest.Trakt
             Passwords pass = await Passwords.ReadPasswords();
             var id = pass.TraktId;
             var secret = pass.TraktSecret;
-            TraktService trakt = new TraktService();
-            trakt.Connect(new StupidOAuth(), id, "https://nntn.nl");
+            TraktService trakt = new TraktService(id, "", "https://nntn.nl");
+            trakt.Connect(new StupidOAuth());
         }
 
         [Test]
@@ -35,8 +35,8 @@ namespace ApiLibsTest.Trakt
             Passwords pass = await Passwords.ReadPasswords();
             var id = pass.TraktId;
             var secret = pass.TraktSecret;
-            TraktService trakt = new TraktService();
-            var token = await trakt.ConvertToToken("YOUR TOKEN", id, secret, pass.GeneralRedirectUrl);
+            TraktService trakt = new TraktService(id, secret, pass.GeneralRedirectUrl);
+            var token = await trakt.ConvertToToken("YOUR TOKEN");
         }
 
 

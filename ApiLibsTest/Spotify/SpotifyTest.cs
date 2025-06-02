@@ -56,21 +56,21 @@ namespace ApiLibsTest.Spotify
         public async Task SearchTrackTest()
         {
             var result = await spotify.Search("Never gonna give you up", SpotifyService.SearchType.Track);
-            Assert.IsNotEmpty(result.tracks.items);
+            Assert.IsNotEmpty(result.tracks.Items);
         }
 
         [Test]
         public async Task SearchArtistTest()
         {
             var result = await spotify.Search("Rick Astley", SpotifyService.SearchType.Artist);
-            Assert.IsNotEmpty(result.artists.items);
+            Assert.IsNotEmpty(result.artists.Items);
         }
 
         [Test]
         public async Task SearchAlbumTest()
         {
             var result = await spotify.Search("Whenever you need somebody", SpotifyService.SearchType.Album);
-            Assert.IsNotEmpty(result.albums.items);
+            Assert.IsNotEmpty(result.albums.Items);
         }
 
         [Test]
