@@ -19,7 +19,7 @@ namespace ApiLibs.MicrosoftGraph
             {
                 Top = 20
             };
-            return (await MakeRequest<Events>("/me/events", parameters: data.ConvertToParams())).Value;
+            return (await MakeRequest<Events>("me/events", parameters: data.ConvertToParams())).Value;
         }
         
         public Task<List<Event>> GetEvents(Calendar calendar, OData data = null)
@@ -30,7 +30,7 @@ namespace ApiLibs.MicrosoftGraph
         public Task<Event> GetEvent(string id)
         {
             if (string.IsNullOrEmpty(id)) { throw new ArgumentNullException(nameof(id)); }
-            return MakeRequest<Event>($"/me/events/{id}");
+            return MakeRequest<Event>($"me/events/{id}");
         }
 
         public async Task<List<Event>> GetEvents(string calendarId, OData data = null)
@@ -39,7 +39,7 @@ namespace ApiLibs.MicrosoftGraph
             {
                 Top = 20
             };
-            return (await MakeRequest<Events>($"/me/calendars/{calendarId}/events", parameters: data.ConvertToParams())).Value;
+            return (await MakeRequest<Events>($"me/calendars/{calendarId}/events", parameters: data.ConvertToParams())).Value;
         }
 
 
@@ -51,7 +51,7 @@ namespace ApiLibs.MicrosoftGraph
         public async Task<List<Event>> GetCalendarView(string calendarId, DateTime startTime, DateTime endTime, OData data = null)
         {
             data = data ?? new OData();
-            Events events = await MakeRequest<Events>($"/me/calendars/{calendarId}/calendarView", parameters: new List<ApiLibs.Param>
+            Events events = await MakeRequest<Events>($"me/calendars/{calendarId}/calendarView", parameters: new List<ApiLibs.Param>
             {
                 new Param("endDateTime", endTime.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffff", System.Globalization.CultureInfo.InvariantCulture)),
                 new Param("startDateTime", startTime.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffff", System.Globalization.CultureInfo.InvariantCulture))
@@ -85,12 +85,12 @@ namespace ApiLibs.MicrosoftGraph
 
         public async Task<Event> EditEvent(string id, EventChanges ev)
         {
-            return await MakeRequest<Event>($"/me/events/{id}", Call.PATCH, content: ev);
+            return await MakeRequest<Event>($"me/events/{id}", Call.PATCH, content: ev);
         }
 
         public Task<Event> CreateEvent(EventChanges ev)
         {
-            return MakeRequest<Event>("/me/events", Call.POST, content: ev);
+            return MakeRequest<Event>("me/events", Call.POST, content: ev);
         }
 
         public Task<Event> CreateEvent(EventChanges ev, Calendar cal)
@@ -110,7 +110,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public Task<Event> UpdateEvent(string id, EventChanges ev)
         {
-            return MakeRequest<Event>($"/me/events/{id}", Call.PATCH, content: ev);
+            return MakeRequest<Event>($"me/events/{id}", Call.PATCH, content: ev);
         }
 
         public Task DeleteEvent(Event e)
@@ -128,16 +128,16 @@ namespace ApiLibs.MicrosoftGraph
         {
             if(id == null)
             {
-                return MakeRequest<Calendar>("/me/calendar");
+                return MakeRequest<Calendar>("me/calendar");
             } else
             {
-                return MakeRequest<Calendar>($"/me/calendars/{id}");
+                return MakeRequest<Calendar>($"me/calendars/{id}");
             }
         }
 
         public async Task<List<Calendar>> GetMyCalendars()
         {
-            return (await MakeRequest<Calendars>("/me/calendars?$top=100")).Value;
+            return (await MakeRequest<Calendars>("me/calendars?$top=100")).Value;
         }
         #endregion Caledars
 
