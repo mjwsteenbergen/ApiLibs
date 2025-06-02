@@ -13,7 +13,7 @@ namespace ApiLibsTest
     {
         public override string RedirectUrl => "";
 
-        public override string ActivateOAuth(Uri url)
+        public override void ActivateOAuth(Uri url)
         {
             try
             {
@@ -40,11 +40,9 @@ namespace ApiLibsTest
                     throw;
                 }
             }
-
-            return "fail";
         }
 
-        public override string ActivateOAuth(Uri url, string redirectUrl)
+        public override void ActivateOAuth(Uri url, string redirectUrl)
         {
             throw new System.NotImplementedException();
         }
