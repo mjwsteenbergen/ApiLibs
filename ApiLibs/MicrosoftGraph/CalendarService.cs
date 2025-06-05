@@ -141,7 +141,7 @@ namespace ApiLibs.MicrosoftGraph
 
         public async Task<List<Calendar>> GetMyCalendars()
         {
-            return (await MakeRequest<Calendars>("me/calendars?$top=100$select=id,name,color,changeKey,canShare,canViewPrivateItems,hexColor,canEdit,isTallyingResponses,isRemovable,owner")).Value;
+            return (await MakeRequest<Calendars>("me/calendars?$top=100&$select=id,name,color,changeKey,canShare,canViewPrivateItems,hexColor,canEdit,isTallyingResponses,isRemovable,owner")).Value;
         }
         #endregion Caledars
 
