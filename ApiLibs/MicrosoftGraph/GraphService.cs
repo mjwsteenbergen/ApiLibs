@@ -41,8 +41,8 @@ namespace ApiLibs.MicrosoftGraph
             OneNoteService = new OneNoteService(this);
             CloudCommunicationsService = new CloudCommunicationsService(this);
             ChangeNotificationService = new ChangeNotificationService(this);
-            //Don't forget the other constructor
 
+            //Don't forget the other constructor
             SetupBase();
         }
 
@@ -70,8 +70,8 @@ namespace ApiLibs.MicrosoftGraph
             OneNoteService = new OneNoteService(this);
             CloudCommunicationsService = new CloudCommunicationsService(this);
             ChangeNotificationService = new ChangeNotificationService(this);
-            //Don't forget the other constructor
 
+            //Don't forget the other constructor
             SetupBase();
         }
 

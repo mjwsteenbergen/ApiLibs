@@ -123,21 +123,25 @@ namespace ApiLibs.MicrosoftGraph
         #endregion Events
 
         #region Calendars
+        // We have to add fucking $select statements
+        // Otherwise it breaks
+        // https://feedbackportal.microsoft.com/feedback/idea/11e19b98-5f40-f011-a2d9-7c1e5299279a
 
         public Task<Calendar> GetCalendar(string id = null)
         {
-            if(id == null)
+            if (id == null)
             {
-                return MakeRequest<Calendar>("me/calendar");
-            } else
+                return MakeRequest<Calendar>("me/calendar?$select=id,name,color,changeKey,canShare,canViewPrivateItems,hexColor,canEdit,isTallyingResponses,isRemovable,owner");
+            }
+            else
             {
-                return MakeRequest<Calendar>($"me/calendars/{id}");
+                return MakeRequest<Calendar>($"me/calendars/{id}?$select=id,name,color,changeKey,canShare,canViewPrivateItems,hexColor,canEdit,isTallyingResponses,isRemovable,owner");
             }
         }
 
         public async Task<List<Calendar>> GetMyCalendars()
         {
-            return (await MakeRequest<Calendars>("me/calendars?$top=100")).Value;
+            return (await MakeRequest<Calendars>("me/calendars?$top=100$select=id,name,color,changeKey,canShare,canViewPrivateItems,hexColor,canEdit,isTallyingResponses,isRemovable,owner")).Value;
         }
         #endregion Caledars
 
