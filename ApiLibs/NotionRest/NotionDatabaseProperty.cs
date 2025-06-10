@@ -72,8 +72,13 @@ namespace ApiLibs.NotionRest
     public class LastEditedTimeDatabaseProperty : NotionDatabaseProperty
     {
     }
+    
+    public class FilesDatabaseProperty : NotionDatabaseProperty
+    {
+    }
 
-    public class MultiSelectDatabasePropertyValue {
+    public class MultiSelectDatabasePropertyValue
+    {
         [JsonProperty("options")]
         public Option[] Options { get; set; }
     }
@@ -123,16 +128,17 @@ namespace ApiLibs.NotionRest
             {
                 "checkbox" => new CheckboxDatabaseProperty(),
                 "date" => new DateDatabaseProperty(),
-                "title" => new TitleDatabaseProperty(),
+                "email" => new EmailDatabaseProperty(),
+                "files" => new FilesDatabaseProperty(),
                 "last_edited_time" => new LastEditedTimeDatabaseProperty(),
                 "multi_select" => new MultiSelectDatabaseProperty(),
                 "number" => new NumberDatabaseProperty(),
+                "phone_number" => new PhoneDatabaseProperty(),
                 "relation" => new RelationDatabaseProperty(),
                 "rich_text" => new RichTextDatabaseProperty(),
                 "select" => new SelectDatabaseProperty(),
+                "title" => new TitleDatabaseProperty(),
                 "url" => new UrlDatabaseProperty(),
-                "phone_number" => new PhoneDatabaseProperty(),
-                "email" => new EmailDatabaseProperty(),
                 _ => throw new ArgumentOutOfRangeException("Cannot convert type " + type + jObject.ToString())
             };
 
