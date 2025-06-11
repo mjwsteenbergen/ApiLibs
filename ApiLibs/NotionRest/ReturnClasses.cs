@@ -34,7 +34,7 @@ namespace ApiLibs.NotionRest
         public Icon Icon { get; set; }
 
         [JsonProperty("cover")]
-        public File Cover { get; set; }
+        public HostedNotionFile Cover { get; set; }
 
         [JsonProperty("url")]
         public Uri Url { get; set; }
@@ -190,24 +190,9 @@ namespace ApiLibs.NotionRest
         [JsonProperty("url")]
         public string Url { get; set; }
     }
-
-    public class File : ImageSource
-    {
-        [JsonProperty("external")]
-        public External External { get; set;}
-
-        [JsonProperty("url")]
-        public Uri Url { get; set;}
-
-        [JsonProperty("expiry_time")]
-        public DateTime? ExpiryTime { get; set;}
-    }
-
-    public class External : ImageSource 
-    {
-        [JsonProperty("url")]
-        public Uri Url { get; set;}
-    }
+    
+    
+    
 
     public class NotionList<T> {
         [JsonProperty("object")]
@@ -250,7 +235,7 @@ namespace ApiLibs.NotionRest
         public Icon Icon { get; set; }
 
         [JsonProperty("cover")]
-        public File Cover { get; set; }
+        public NotionFileWrapper Cover { get; set; }
 
         [JsonProperty("properties")]
         public Dictionary<string, NotionProperty> Properties { get; set; }

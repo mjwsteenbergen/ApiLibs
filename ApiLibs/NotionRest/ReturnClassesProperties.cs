@@ -75,6 +75,7 @@ namespace ApiLibs.NotionRest
                 "checkbox" => new CheckboxProperty(),
                 "select" => new SelectPropertyValue(),
                 "multi_select" => new MultiSelectProperty(),
+                "files" => new FilesProperty(),
                 "relation" => new RelationProperty(),
                 "url" => new UrlProperty(),
                 "date" => new DateProperty(),
@@ -349,6 +350,27 @@ namespace ApiLibs.NotionRest
         public void Set(Option input)
         {
             Select = input;
+        }
+    }
+
+    public partial class FilesProperty : NotionProperty, INotionProperty<List<NotionFileWrapper>>
+    {
+        public FilesProperty()
+        {
+            Type = "files";
+        }
+
+        [JsonProperty("files")]
+        public List<NotionFileWrapper> Files { get; set; }
+
+        public List<NotionFileWrapper> Get()
+        {
+            return Files;
+        }
+
+        public void Set(List<NotionFileWrapper> input)
+        {
+            Files = input;
         }
     }
 

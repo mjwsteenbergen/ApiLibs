@@ -22,29 +22,29 @@ namespace ApiLibs.NotionRest
         public Task<NotionDatabase> GetDatabase(Guid id) => GetDatabase(id.ToString());
         public Task<NotionDatabase> GetDatabase(string id) => MakeRequest<NotionDatabase>("databases/" + id);
 
-        public Task<NotionBlock> GetBlock(Guid blockId) => GetBlock(blockId.ToString());
-        public Task<NotionBlock> GetBlock(string blockId) => MakeRequest<NotionBlock>($"blocks/{blockId}");
+        public Task<NotionUnionTypeWrapper<NotionBlock>> GetBlock(Guid blockId) => GetBlock(blockId.ToString());
+        public Task<NotionUnionTypeWrapper<NotionBlock>> GetBlock(string blockId) => MakeRequest<NotionUnionTypeWrapper<NotionBlock>>($"blocks/{blockId}");
 
         public async IAsyncEnumerable<NotionBlock> GetBlockChildren(string blockId, string startCursor = null, int? size = null) {
             do
             {
-                var list = await MakeRequest<NotionList<NotionBlock>>($"blocks/{blockId}/children", parameters: new List<Param> {
+                var list = await MakeRequest<NotionList<NotionUnionTypeWrapper<NotionBlock>>>($"blocks/{blockId}/children", parameters: new List<Param> {
                     new OParam("start_cursor", startCursor),
                     new OParam("page_size", size)
                 });
                 foreach (var item in list.Results)
                 {
-                    yield return item;
+                    yield return item.Value;
                 }
                 startCursor = list.NextCursor;
             } while (startCursor != null);
         }
 
-        public Task<NotionList<NotionBlock>> AddBlockChild(string blockId, List<NotionBlock> blocks) => MakeRequest<NotionList<NotionBlock>>($"blocks/{blockId}/children", method: Call.PATCH, content: new {
+        public Task<NotionList<NotionUnionTypeWrapper<NotionBlock>>> AddBlockChild(string blockId, List<INotionBlock> blocks) => MakeRequest<NotionList<NotionUnionTypeWrapper<NotionBlock>>>($"blocks/{blockId}/children", method: Call.PATCH, content: new {
             children = blocks
         });
-        public Task<NotionList<NotionBlock>> AddBlockChild(NotionBlock block, List<NotionBlock> blocks) => AddBlockChild(block.Id.ToString(), blocks);
-        public Task<NotionList<NotionBlock>> AddBlockChild(Page page, List<NotionBlock> blocks) => AddBlockChild(page.Id.ToString(), blocks);
+        public Task<NotionList<NotionUnionTypeWrapper<NotionBlock>>> AddBlockChild(NotionBlock block, List<INotionBlock> blocks) => AddBlockChild(block.Id.ToString(), blocks);
+        public Task<NotionList<NotionUnionTypeWrapper<NotionBlock>>> AddBlockChild(Page page, List<INotionBlock> blocks) => AddBlockChild(page.Id.ToString(), blocks);
 
         public IAsyncEnumerable<NotionBlock> GetBlockChildren(Guid blockId, string startCursor = null, int? size = null) => GetBlockChildren(blockId.ToString(), startCursor, size);
 

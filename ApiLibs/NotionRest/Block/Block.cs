@@ -7,13 +7,13 @@ using Newtonsoft.Json.Serialization;
 
 namespace ApiLibs.NotionRest
 {
-
-    [JsonConverter(typeof(NotionBlockConverter))]
-    public abstract class NotionBlock
+    public interface INotionBlock : WithType
     {
-        [JsonProperty("type")]
-        public string Type { get; set; }
 
+    }
+
+    public abstract class NotionBlock : INotionBlock
+    {
         [JsonProperty("has_children")]
         public bool? HasChildren { get; set;}
 
@@ -22,6 +22,7 @@ namespace ApiLibs.NotionRest
 
         [JsonProperty("id")]
         public Guid? Id { get; set; }
+        public string Type { get; set; }
     }
 
     public class ForceDefaultConverter : JsonConverter
@@ -45,27 +46,14 @@ namespace ApiLibs.NotionRest
         }
     }
 
-    public class NotionBlockConverter : JsonConverter<NotionBlock>
-    
+    [JsonConverter(typeof(NotionBlockConverter))]
+    public class NotionBlockWrapper : NotionUnionTypeWrapper<INotionBlock> { }
+
+    public class NotionBlockConverter : NotionObjectWithTypeConverter<INotionBlock, NotionBlockWrapper>
     {
-        class NotionPropertyImp : NotionBlock { }
-
-        public override NotionBlock ReadJson(JsonReader reader, Type objectType, NotionBlock existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override INotionBlock Read(string type, JToken token)
         {
-            JToken jObject = JToken.ReadFrom(reader);
-
-            string type = null;
-
-            try
-            {
-                if (jObject.Type is not JTokenType.None and not JTokenType.Null)
-                {
-                    type = jObject["type"].ToObject<string>();
-                }
-            }
-            catch { }
-
-            NotionBlock result = type switch
+            return type switch
             {
                 "paragraph" => new Paragraph(),
                 "heading_1" => new Heading1(),
@@ -93,90 +81,8 @@ namespace ApiLibs.NotionRest
                 "link_preview" => new LinkPreview(),
                 "code" => new Code(),
                 "unsupported" => new Unsupported(),
-                _ => throw new ArgumentOutOfRangeException("Cannot convert type " + type + jObject.ToString())
+                _ => throw new ArgumentOutOfRangeException("Cannot convert type " + type + token.ToString())
             };
-
-
-            serializer.Populate(jObject.CreateReader(), result);
-            serializer.Populate(jObject[type].CreateReader(), result);
-            return result;
-        }
-
-        public override bool CanWrite => true;
-
-        public void Serialize(PropertyInfo info, NotionBlock value, JsonWriter writer)
-        {
-            var val = info.GetValue(value);
-
-            if(val != null) 
-            {
-                var customAttributes = (JsonPropertyAttribute[])info.GetCustomAttributes(typeof(JsonPropertyAttribute), true);
-                if (customAttributes.Length > 0)
-                {
-                    var myAttribute = customAttributes[0];
-                    string propName = myAttribute.PropertyName;
-
-                    if(!string.IsNullOrEmpty(propName)) {
-                        writer.WritePropertyName(propName);
-                    } else {
-                        writer.WritePropertyName(info.Name);
-                    }
-                    // TODO: Do something with the value
-                } else {
-                    writer.WritePropertyName(info.Name);
-                }
-
-                writer.WriteRawValue(JsonConvert.SerializeObject(val, Formatting.None, new JsonSerializerSettings {
-                    NullValueHandling = NullValueHandling.Ignore
-                }));
-            }
-        }
-
-        public override void WriteJson(JsonWriter writer, NotionBlock value, JsonSerializer serializer)
-        {
-            // var serializeObject = new {
-            //     type = value.Type
-            // };
-
-            // var serializeObject = new Dictionary<string, dynamic> {
-            //     { "type" , value.Type + "" },
-            //     { value.Type, value }
-            // };
-
-           
-            writer.WriteStartObject();
-
-            var props = value.GetType().GetProperties();
-            foreach(PropertyInfo info in props.Where(i => i.DeclaringType.FullName == "ApiLibs.NotionRest.NotionBlock"))
-            {
-                Serialize(info, value, writer);
-            }
-
-            writer.WritePropertyName(value.Type);
-            writer.WriteStartObject();
-
-            foreach(PropertyInfo info in props.Where(i => i.DeclaringType.FullName != "ApiLibs.NotionRest.NotionBlock"))
-            {
-                Serialize(info, value, writer);
-            }
-
-            writer.WriteEndObject();
-            writer.WriteEndObject();
-
-            // writer.WritePropertyName("type");
-            // writer.WriteValue(value.Type);
-            // writer.WritePropertyName(value.Type);
-            // value.Type = null;
-
-
-
-            // var s = JsonConvert.SerializeObject(value, new ForceDefaultConverter());
-            // writer.WriteValue(new JRaw(s));
-            // JsonSerializer.CreateDefault().Serialize()
-            // JsonSerializer.Create().Serialize(writer, value);
-            // serializeObject[value.Type] = value;
-
-            // serializer.Serialize(writer, value);
         }
     }
 }
