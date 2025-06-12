@@ -22,8 +22,10 @@ namespace ApiLibs.Instapaper
         /// </summary>
         public InstapaperService() : base("https://www.instapaper.com/api/1.1/") { }
 
-        public InstapaperService(string clientId, string clientSecret, string token, string tokenSecret) : base(new RestClientOptions {
-          Authenticator = OAuth1Authenticator.ForAccessToken(clientId, clientSecret, token, tokenSecret)
+        public InstapaperService(string clientId, string clientSecret, string token, string tokenSecret) : base(new RestClientOptions
+        {
+            BaseUrl = new Uri("https://www.instapaper.com/api/1.1/"),
+            Authenticator = OAuth1Authenticator.ForAccessToken(clientId, clientSecret, token, tokenSecret),
         })
         {
             var auth = (Implementation as RestSharpImplementation).Client.Options.Authenticator as OAuth1Authenticator;
