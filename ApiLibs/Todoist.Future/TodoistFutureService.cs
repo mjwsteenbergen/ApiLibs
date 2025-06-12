@@ -14,10 +14,11 @@ namespace ApiLibs.Todoist.Future
         private readonly string clientId;
         private readonly string clientSecret;
 
-        public TodoistFutureLabelService Labels { get; private set;}
-        public TodoistFutureSectionService Sections { get; private set;}
-        public TodoistFutureProjectService Projects { get; private set;}
-        public TodoistFutureTaskService Tasks { get; private set;}
+        public TodoistFutureLabelService Labels { get; private set; }
+        public TodoistFutureSectionService Sections { get; private set; }
+        public TodoistFutureProjectService Projects { get; private set; }
+        public TodoistFutureTaskService Tasks { get; private set; }
+        public TodoistFutureSyncService Sync { get; private set; }
 
         public TodoistFutureService(string clientId, string clientSecret) : base("https://api.todoist.com/api/v1/")
         {
@@ -32,6 +33,7 @@ namespace ApiLibs.Todoist.Future
             Sections = new TodoistFutureSectionService(this);
             Projects = new TodoistFutureProjectService(this);
             Tasks = new TodoistFutureTaskService(this);
+            Sync = new TodoistFutureSyncService(this);
         }
 
         /// <summary>
@@ -42,24 +44,18 @@ namespace ApiLibs.Todoist.Future
         /// <param name="secret">A random string of text</param>
         public void Connect(IOAuth _authenticator, List<TodoistScope> scopes, string secret)
         {
-            string MapToString(TodoistScope token) {
-                switch (token)
+            static string MapToString(TodoistScope token)
+            {
+                return token switch
                 {
-                    case TodoistScope.TaskAdd:
-                        return "task:add";
-                    case TodoistScope.DataRead:
-                        return "data:read";
-                    case TodoistScope.DataReadWrite:
-                        return "data:read_write";
-                    case TodoistScope.DataDelete:
-                        return "data:delete";
-                    case TodoistScope.ProjectDelete:
-                        return "project:delete";
-                    case TodoistScope.BackupsRead:
-                        return "backups:read";
-                    default:
-                        throw new KeyNotFoundException(token.ToString());
-                }
+                    TodoistScope.TaskAdd => "task:add",
+                    TodoistScope.DataRead => "data:read",
+                    TodoistScope.DataReadWrite => "data:read_write",
+                    TodoistScope.DataDelete => "data:delete",
+                    TodoistScope.ProjectDelete => "project:delete",
+                    TodoistScope.BackupsRead => "backups:read",
+                    _ => throw new KeyNotFoundException(token.ToString()),
+                };
             }
 
 
@@ -117,7 +113,7 @@ namespace ApiLibs.Todoist.Future
         {
             var project = await GetProjects().First(i => i.Name == name);
             return await GetProject(project.Id);
-        } 
+        }
     }
 
     public class TodoistFutureProjectEdit
@@ -326,5 +322,98 @@ namespace ApiLibs.Todoist.Future
         [JsonProperty("is_favorite")]
         public bool IsFavorite { get; set; }
     }
-    
+
+    public class TodoistFutureSyncService : SubService<TodoistFutureService>
+    {
+        private string syncToken = "*";
+        public TodoistFutureSyncService(TodoistFutureService service) : base(service)
+        {
+        }
+
+        public async Task<SyncResponse> Sync(List<TodoistFutureCommand> commands)
+        {
+            var response = await MakeRequest<SyncResponse>("sync", Call.POST, parameters: new List<Param>
+            {
+                new Param("commands", JsonConvert.SerializeObject(commands))
+            });
+
+            return response;
+        }
+    }
+
+    public class TodoistFutureCommand
+    {
+        public TodoistFutureCommand()
+        {
+            UUID = $"{RandomString(8)}-{RandomString(4)}-{RandomString(4)}-{RandomString(4)}-{RandomString(12)}";
+            TempId = $"{RandomString(8)}-{RandomString(4)}-{RandomString(4)}-{RandomString(4)}-{RandomString(12)}";
+        }
+
+        private static Random random = new Random((int)DateTime.Now.Ticks);
+        private static string RandomString(int length)
+        {
+            const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
+        [JsonProperty("temp_id")]
+        public string TempId { get; set; }
+
+        [JsonProperty("uuid")]
+        public string UUID { get; set; }
+
+        [JsonProperty("args")]
+        public TodoistFutureCommandArgs Argument { get; set; }
+    }
+
+    public abstract class TodoistFutureCommandArgs
+    {
+        [JsonIgnore]
+        public string TodoistCommandType { get; set; }
+
+        public TodoistFutureCommand ToCommand()
+        {
+            return new TodoistFutureCommand
+            {
+                Argument = this,
+                Type = TodoistCommandType
+            };
+        }
+
+    }
+
+    public class LocationReminderFutureCommand : TodoistFutureCommandArgs
+    {
+        public LocationReminderFutureCommand()
+        {
+            TodoistCommandType = "reminder_add";
+            Type = "location";
+        }
+
+        [JsonProperty("item_id")]
+        public string ItemId { get; set; }
+
+        [JsonProperty("type")]
+        public string Type { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("loc_lat")]
+        public string LocLat { get; set; }
+
+        [JsonProperty("loc_long")]
+        public string LocLong { get; set; }
+
+        [JsonProperty("loc_trigger")]
+        public string LocTrigger { get; set; }
+
+        [JsonProperty("radius")]
+        public long Radius { get; set; }
+    }
+
 }

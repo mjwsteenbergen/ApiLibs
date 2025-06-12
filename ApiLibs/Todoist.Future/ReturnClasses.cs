@@ -290,8 +290,8 @@ namespace ApiLibs.Todoist.Future
             {
                 if (value.Contains("Z"))
                 {
-                return DateTimeOffset.ParseExact(value, "yyyy-MM-ddTHH:mm:ss.FFFFFFZ", CultureInfo.InvariantCulture);
-                    
+                    return DateTimeOffset.ParseExact(value, "yyyy-MM-ddTHH:mm:ss.FFFFFFZ", CultureInfo.InvariantCulture);
+
                 }
                 return DateTimeOffset.ParseExact(value, "yyyy-MM-ddTHH:mm:ss.FFFFFF", CultureInfo.InvariantCulture);
             }
@@ -317,5 +317,17 @@ namespace ApiLibs.Todoist.Future
         {
             writer.WriteValue(value.ToString("yyyy-MM-ddTHH:mm:ssZ"));
         }
+    }
+
+    public class SyncResponse
+    {
+        [JsonProperty("sync_token")]
+        public string SyncToken { get; set; }
+
+        [JsonProperty("sync_status")]
+        public Dictionary<string, string> SyncStatus { get; set; }
+
+        [JsonProperty("temp_id_mapping")]
+        public Dictionary<string, string> TempIdMapping { get; set; }
     }
 }
