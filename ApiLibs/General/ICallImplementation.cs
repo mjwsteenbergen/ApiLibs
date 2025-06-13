@@ -88,9 +88,12 @@ namespace ApiLibs
                     request.AddParameter("application/json", text, ParameterType.RequestBody);
                     request.AddHeader("Content-Type", "application/json");
                     break;
-                case RequestContent rcontent:
+                case TextRequestContent rcontent:
                     request.AddParameter(rcontent.ContentType, rcontent.Content, ParameterType.RequestBody);
                     request.AddHeader("Content-Type", rcontent.ContentType);
+                    break;
+                case FileRequestContent fContent:
+                    request.AddFile(fContent.Name, fContent.Bytes, fContent.ContentType);
                     break;
                 default:
                     JsonSerializerSettings settings = new()

@@ -353,7 +353,7 @@ namespace ApiLibs.NotionRest
         }
     }
 
-    public partial class FilesProperty : NotionProperty, INotionProperty<List<NotionFileWrapper>>
+    public partial class FilesProperty : NotionProperty, INotionProperty<List<NotionFile>>
     {
         public FilesProperty()
         {
@@ -363,14 +363,17 @@ namespace ApiLibs.NotionRest
         [JsonProperty("files")]
         public List<NotionFileWrapper> Files { get; set; }
 
-        public List<NotionFileWrapper> Get()
+        public List<NotionFile> Get()
         {
-            return Files;
+            return Files.Select(i => i.Value).ToList();
         }
 
-        public void Set(List<NotionFileWrapper> input)
+        public void Set(List<NotionFile> input)
         {
-            Files = input;
+            Files = input.Select(i => new NotionFileWrapper
+            {
+                Value = i
+            }).ToList();
         }
     }
 

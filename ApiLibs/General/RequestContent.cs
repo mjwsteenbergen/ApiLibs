@@ -5,16 +5,27 @@ namespace ApiLibs
     public abstract class RequestContent
     {
         public abstract string ContentType { get; }
-        public RequestContent(string content)
+    }
+
+    public class FileRequestContent : RequestContent
+    {
+        public override string ContentType => throw new System.NotImplementedException();
+
+        public string Name { get; internal set; }
+        public byte[] Bytes { get; internal set; }
+    }
+
+    public abstract class TextRequestContent : RequestContent
+    {
+        public TextRequestContent(string content)
         {
             Content = content;
         }
 
         public string Content { get; }
-
     }
 
-    public class HtmlContent : RequestContent
+    public class HtmlContent : TextRequestContent
     {
         public HtmlContent(string content) : base(content)
         {
@@ -33,7 +44,7 @@ namespace ApiLibs
         }
     }
 
-    public class PlainTextContent : RequestContent
+    public class PlainTextContent : TextRequestContent
     {
         public PlainTextContent(string content) : base(content)
         {

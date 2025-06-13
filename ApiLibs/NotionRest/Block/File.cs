@@ -27,6 +27,7 @@ namespace ApiLibs.NotionRest
             return type switch
             {
                 "file" => new HostedNotionFile(),
+                "file_upload" => new UploadedNotionFile(),
                 "external" => new ExternalNotionFile(),
                 _ => throw new ArgumentOutOfRangeException("Cannot convert type " + type + jToken.ToString())
             };
@@ -38,19 +39,30 @@ namespace ApiLibs.NotionRest
         public string Type { get; set; }
     }
 
-    public class HostedNotionFile : NotionFile
+    public class UploadedNotionFile : NotionFile
+    {
+        public UploadedNotionFile()
         {
-            public HostedNotionFile()
-            {
-                Type = "file";
-            }
-
-            [JsonProperty("url")]
-            public Uri Url { get; set; }
-
-            [JsonProperty("expiry_time")]
-            public DateTime? ExpiryTime { get; set; }
+            Type = "file_upload";
         }
+
+        [JsonProperty("id")]
+        public string Id { get; set; }
+    }
+
+    public class HostedNotionFile : NotionFile
+    {
+        public HostedNotionFile()
+        {
+            Type = "file";
+        }
+
+        [JsonProperty("url")]
+        public Uri Url { get; set; }
+
+        [JsonProperty("expiry_time")]
+        public DateTime? ExpiryTime { get; set; }
+    }
 
     public class ExternalNotionFile : NotionFile
     {
