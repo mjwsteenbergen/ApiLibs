@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 
 namespace ApiLibs
 {
@@ -7,12 +9,49 @@ namespace ApiLibs
         public abstract string ContentType { get; }
     }
 
-    public class FileRequestContent : RequestContent
+    public class FileByteRequestContent : RequestContent
     {
-        public override string ContentType => throw new System.NotImplementedException();
+        private readonly string _contentType;
+
+        public FileByteRequestContent(string contentType, string name, byte[] bytes)
+        {
+            _contentType = contentType;
+            Name = name;
+            Bytes = bytes;
+        }
+
+        public override string ContentType => _contentType;
 
         public string Name { get; internal set; }
         public byte[] Bytes { get; internal set; }
+    }
+
+    public class FileStreamRequestContent : RequestContent
+    {
+        private readonly string _contentType;
+
+        public FileStreamRequestContent(string name, Stream stream, string filename)
+        {
+            Name = name;
+            Stream = stream;
+            Filename = filename;
+            _contentType = filename.Split('.').Last() switch
+            {
+                "gif" => "image/gif",
+                "jpeg" => "image/jpeg",
+                "jpg" => "image/jpeg",
+                "png" => "image/png",
+                "tiff" => "image/tiff",
+                "webp" => "image/webp",
+                "heic" => "image/heic",
+                _ => throw new Exception("Unsupported file extension: " + filename.Split('.').Last())
+            };
+        }
+
+        public override string ContentType => _contentType;
+        public string Name { get; internal set; }
+        public Stream Stream { get; internal set; }
+        public string Filename { get; }
     }
 
     public abstract class TextRequestContent : RequestContent

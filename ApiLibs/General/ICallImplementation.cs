@@ -22,7 +22,7 @@ namespace ApiLibs
         {
             RestRequest request = new(aRequest.EndPoint, Convert(aRequest.Method));
 
-            if(aRequest.Timeout.HasValue) 
+            if (aRequest.Timeout.HasValue)
             {
                 request.Timeout = aRequest.Timeout.Value;
             }
@@ -48,7 +48,7 @@ namespace ApiLibs
                 {
                     request.AddParameter(para.Name, para.Value);
                 }
-                else
+            else
                 {
                     request.AddParameter(para.Name, para.Value, ParameterType.QueryString);
                 }
@@ -65,7 +65,8 @@ namespace ApiLibs
 
             if (resp.ErrorException != null && resp.ErrorException is not HttpRequestException)
             {
-                if(resp.ErrorException is TaskCanceledException) {
+                if (resp.ErrorException is TaskCanceledException)
+                {
                     return new RequestResponse(HttpStatusCode.RequestTimeout, resp.StatusDescription, resp.ResponseUri?.ToString(), resp.ErrorMessage, resp.Content, resp, aRequest, service);
                 }
 
@@ -92,8 +93,11 @@ namespace ApiLibs
                     request.AddParameter(rcontent.ContentType, rcontent.Content, ParameterType.RequestBody);
                     request.AddHeader("Content-Type", rcontent.ContentType);
                     break;
-                case FileRequestContent fContent:
+                case FileByteRequestContent fContent:
                     request.AddFile(fContent.Name, fContent.Bytes, fContent.ContentType);
+                    break;
+                case FileStreamRequestContent sContent:
+                    request.AddFile(sContent.Name, () => sContent.Stream, sContent.Filename, sContent.ContentType);
                     break;
                 default:
                     JsonSerializerSettings settings = new()
@@ -106,24 +110,6 @@ namespace ApiLibs
                     break;
             }
         }
-
-                    //     var client = new RestClient("https://api.pushcut.io/rGUKVq1jlGY0JIf5p_Odj/widgets/Widget?content=Status");
-            //     var request = new RestRequest();
-            //     request.AddHeader("Content-Type", "application/json");
-            //     // request.AddJsonBody(new
-            //     // {
-            //     //     content = "Status",
-            //     //     inputs = new { 
-            //     //         input0 = "108",
-            //     //         input1 = "20", 
-            //     //         input2 = "8", 
-            //     //         input3 = "82.70 %",
-            //     //         input4 = "work" 
-            //     //     }
-            //     // });
-            //     // request.AddJsonBody("{\"content\":\"Status\",\"inputs\":{\"input0\":\"108\",\"input1\":\"20\",\"input2\":\"8\",\"input3\":\"82.70%\",\"input4\":\"work\"}}");
-            //     RestResponse response = await client.PostAsync(request);
-            //     Console.WriteLine(response.Content);
 
         private Method Convert(Call m)
         {
