@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using ApiLibs.General;
 using Newtonsoft.Json;
@@ -124,13 +125,19 @@ namespace ApiLibs.NotionRest
             public string Status { get; set; }
         }
 
+        public class SmallFileUpload : FileUpload
+        {
+            [JsonProperty("upload_url")]
+            public string UploadUrl { get; set; }
+        }
+
         public NotionRestFileService(NotionRestService service) : base(service)
         {
         }
 
         public async Task<FileUpload> UploadExternalFile(string url, string fileName)
         {
-            var resp = await MakeRequest<FileUpload>("file_uploads", content: new
+            var resp = await MakeRequest<FileUpload>("file_uploads", Call.POST, content: new
             {
                 mode = "external_url",
                 external_url = url,
@@ -145,6 +152,16 @@ namespace ApiLibs.NotionRest
             } while (fileUpload.Status != "uploaded");
 
             return fileUpload;
+        }
+
+        public async Task<FileUpload> UploadSmallFile(Stream stream, string filename)
+        {
+            var uploadObject = await MakeRequest<SmallFileUpload>("file_uploads", Call.POST, content: new { });
+
+            return await MakeRequest<FileUpload>(uploadObject.UploadUrl.Replace("https://api.notion.com/v1/", ""),
+                Call.POST,
+                content: new FileStreamRequestContent("file", stream, filename)
+            );
         }
     }
 }
