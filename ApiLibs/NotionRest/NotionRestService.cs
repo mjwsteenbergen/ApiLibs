@@ -154,13 +154,13 @@ namespace ApiLibs.NotionRest
             return fileUpload;
         }
 
-        public async Task<FileUpload> UploadSmallFile(Stream stream, string filename)
+        public async Task<FileUpload> UploadSmallFile(Stream stream, string filename, string contentType = null)
         {
             var uploadObject = await MakeRequest<SmallFileUpload>("file_uploads", Call.POST, content: new { });
 
             return await MakeRequest<FileUpload>(uploadObject.UploadUrl.Replace("https://api.notion.com/v1/", ""),
                 Call.POST,
-                content: new FileStreamRequestContent("file", stream, filename)
+                content: new FileStreamRequestContent("file", stream, filename, contentType)
             );
         }
     }

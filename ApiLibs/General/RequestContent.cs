@@ -30,12 +30,13 @@ namespace ApiLibs
     {
         private readonly string _contentType;
 
-        public FileStreamRequestContent(string name, Stream stream, string filename)
+        public FileStreamRequestContent(string name, Stream stream, string filename, string contentType = null)
         {
             Name = name;
             Stream = stream;
             Filename = filename;
-            _contentType = filename.Split('.').Last() switch
+            _contentType = contentType;
+            _contentType ??= filename.Split('.').Last() switch
             {
                 "gif" => "image/gif",
                 "jpeg" => "image/jpeg",
