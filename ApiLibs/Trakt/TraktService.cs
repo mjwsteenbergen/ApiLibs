@@ -35,7 +35,7 @@ namespace ApiLibs.Trakt
             RequestResponseMiddleware.Add(async (resp) =>
             {
                 var request = resp.Request;
-                if (resp.StatusCode == HttpStatusCode.BadRequest && request.EndPoint != "oauth/token" && StoreRefreshToken != null)
+                if ((resp.StatusCode == HttpStatusCode.BadRequest || resp.StatusCode == HttpStatusCode.Unauthorized) && request.EndPoint != "oauth/token" && StoreRefreshToken != null)
                 {
                     var res = await RefreshAccessToken();
                     await StoreRefreshToken(res);
@@ -75,7 +75,7 @@ namespace ApiLibs.Trakt
         public async Task<AccessObject> RefreshAccessToken()
         {
 
-           RemoveStandardHeader("Authorization");
+            RemoveStandardHeader("Authorization");
 
             var obj = await MakeRequest<AccessObject>("oauth/token", Call.POST,
                 content: new
