@@ -14,7 +14,7 @@ namespace ApiLibs.NotionRest
         public NotionRestService(string key) : base("https://api.notion.com/v1/")
         {
             AddStandardHeader("Authorization", "Bearer " + key);
-            AddStandardHeader("Notion-Version", "2021-08-16");
+            AddStandardHeader("Notion-Version", "2022-06-28");
             Page = new NotionRestPageService(this);
             Files = new NotionRestFileService(this);
         }
