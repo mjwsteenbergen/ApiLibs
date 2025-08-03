@@ -15,10 +15,10 @@ namespace ApiLibs.NotionRest
     public abstract class NotionBlock : INotionBlock
     {
         [JsonProperty("has_children")]
-        public bool? HasChildren { get; set;}
+        public bool? HasChildren { get; set; }
 
         [JsonProperty("object")]
-        public string Object { get; set;}
+        public string Object { get; set; }
 
         [JsonProperty("id")]
         public Guid? Id { get; set; }
@@ -66,7 +66,7 @@ namespace ApiLibs.NotionRest
                 "child_page" => new ChildPage(),
                 "child_database" => new ChildDatabase(),
                 "embed" => new Embed(),
-                "image" => new Image(),
+                "image" => new NotionImage(),
                 "video" => new Video(),
                 "file" => new FileBlock(),
                 "pdf" => new Pdf(),

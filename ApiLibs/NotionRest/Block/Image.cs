@@ -4,9 +4,9 @@ using Newtonsoft.Json;
 
 namespace ApiLibs.NotionRest
 {
-    public class Image : NotionFileWrapper, INotionBlock
+    public class NotionImage : NotionFileWrapper, INotionBlock
     {
-        public Image()
+        public NotionImage()
         {
             Type = "image";
         }

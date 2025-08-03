@@ -111,7 +111,7 @@ namespace ApiLibs.NotionRest
             Title = new List<RichText>();
         }
 
-        [JsonProperty("title")]
+        [JsonProperty("title", NullValueHandling = NullValueHandling.Include)]
         public List<RichText> Title { get; set; }
 
         public string Get() => ToPlainText();
@@ -318,7 +318,7 @@ namespace ApiLibs.NotionRest
             Type = "checkbox";
         }
 
-        [JsonProperty("checkbox")]
+        [JsonProperty("checkbox", NullValueHandling = NullValueHandling.Include)]
         public bool Checkbox { get; set; }
 
         public bool Get()
@@ -339,7 +339,7 @@ namespace ApiLibs.NotionRest
             Type = "select";
         }
 
-        [JsonProperty("select")]
+        [JsonProperty("select", NullValueHandling = NullValueHandling.Include)]
         public Option Select { get; set; }
 
         public Option Get()
@@ -405,7 +405,7 @@ namespace ApiLibs.NotionRest
             Type = "select";
         }
 
-        [JsonProperty("select")]
+        [JsonProperty("select", NullValueHandling = NullValueHandling.Include)]
         public Select Select { get; set; }
     }
 
