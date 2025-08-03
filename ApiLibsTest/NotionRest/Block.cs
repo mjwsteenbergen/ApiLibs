@@ -14,7 +14,7 @@ class NotionRestTest
     [Test]
     public void SerializeHeading()
     {
-        Console.WriteLine(new Image().Type);
+        Console.WriteLine(new NotionImage().Type);
 
         Assert.AreEqual("""{"type":"heading_1","heading_1":{}}""", JsonConvert.SerializeObject(new NotionBlockWrapper
         {
@@ -40,7 +40,7 @@ class NotionRestTest
     {
         var serializable = new NotionBlockWrapper
         {
-            Value = new Image
+            Value = new NotionImage
             {
                 Value = new ExternalNotionFile()
                 {
