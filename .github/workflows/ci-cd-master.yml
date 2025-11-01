@@ -37,7 +37,7 @@ jobs:
       - name: Pack
         run: dotnet pack -v normal -c Release --no-restore --include-symbols --include-source --version-suffix $GITHUB_RUN_ID $PROJECT_NAME/$PROJECT_NAME.*proj
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: nupkg
           retention-days: 1
