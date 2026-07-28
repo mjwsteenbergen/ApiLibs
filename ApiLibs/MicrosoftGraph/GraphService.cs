@@ -93,8 +93,8 @@ namespace ApiLibs.MicrosoftGraph
 
         public async Task ConvertToToken(string clientId, string clientSecret, string username, string password, string TenantID)
         {
-            var res = await new  BlandService().MakeRequest<AccessTokenObject>($"https://login.microsoftonline.com/{TenantID}/oauth2/v2.0/token", Call.POST, parameters: new List<Param> {
-                new Param("grant_type", "password"),
+            var res = await new BlandService().MakeRequest<AccessTokenObject>($"https://login.microsoftonline.com/{TenantID}/oauth2/v2.0/token", Call.POST, parameters: new List<Param> {
+                new Param("grant_type", "client_credentials"),
                 new Param("client_id", clientId),
                 new Param("client_secret", clientSecret),
                 new Param("scope", "https://graph.microsoft.com/.default"),
@@ -139,6 +139,23 @@ namespace ApiLibs.MicrosoftGraph
             auth.ActivateOAuth(uri);
         }
 
+        /// <summary>
+        /// Execute a call to the website to get an access token
+        /// </summary>
+        /// <param name="outlookId"></param>
+        /// <param name="redirectUrl"></param>
+        /// <param name="auth"></param>
+        /// <returns>Uri of the url to call</returns>
+        public Uri ConnectFromString(string redirectUrl, List<string> scopes)
+        {
+            return new Uri("https://login.microsoftonline.com/common/oauth2/v2.0/authorize?" +
+                        "client_id=" + _clientId +
+                        "&response_type=code" +
+                        "&redirect_uri=" + HttpUtility.UrlEncode(redirectUrl) +
+                        "&response_mode=query" +
+                        "&scope=" + string.Join("%20", scopes.Concat(new List<string> { "offline_access" })));
+        }
+
         public enum Scopes
         {
             Calendars_ReadWrite, Calendars_ReadWrite_Shared, Contacts_ReadWrite, Device_ReadWrite_All, Directory_ReadWrite_All, Files_ReadWrite_All, Mail_ReadWrite, Mail_Send, Notes_ReadWrite_All, People_Read, People_Read_All, User_ReadWrite_All,
@@ -154,18 +171,19 @@ namespace ApiLibs.MicrosoftGraph
         /// <param name="loginCode">The login recieved from <seealso cref="Connect"/> method</param>
         /// <param name="redirect_url"></param>
         /// <returns></returns>
-        public async Task<string> ConvertToToken(string outlookClientId, string outlookClientSecret, string loginCode, string redirect_url)
+        public async Task<string> ConvertToToken(string loginCode, string redirect_url, List<string> scopes)
         {
             List<Param> parameters = new List<Param>
             {
-                new Param("client_id", outlookClientId),
-                new Param("client_secret", outlookClientSecret),
+                new Param("client_id", _clientId),
+                new Param("client_secret", _clientSecret),
                 new Param("code", loginCode),
                 new Param("redirect_uri", redirect_url),
+                new Param("scope", string.Join(" ", scopes.Concat(new List<string> { "offline_access" }))),
                 new Param("grant_type", "authorization_code")
             };
 
-            string token = (await new BlandService().MakeRequest<AccessTokenObject>("https://login.microsoftonline.com/common/oauth2/v2.0/token", Call.POST, parameters)).refresh_token;
+            string token = (await new BlandService().MakeRequest<AccessTokenObject>("https://login.microsoftonline.com/consumers/oauth2/v2.0/token", Call.POST, parameters)).refresh_token;
 
             return token;
         }
