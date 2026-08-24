@@ -51,8 +51,10 @@ namespace ApiLibsTest.MicrosoftGraph
         [Ignore("Startup")]
         public async Task ChangeToToken()
         {
-            Passwords passwords = await Passwords.ReadPasswords();
-            var res = await _graph.ConvertToToken(passwords.OutlookClientID, passwords.OutlookClientSecret, "YOUR CODE HERE", "https://nntn.nl");
+            var res = await _graph.ConvertToToken("YOUR CODE HERE", "https://nntn.nl", new List<string>
+            {
+                "Mail.ReadWrite",
+            });
         }
 
         [Test]
