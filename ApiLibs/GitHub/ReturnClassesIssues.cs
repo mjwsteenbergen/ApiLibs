@@ -270,10 +270,10 @@ namespace ApiLibs.GitHub
         public DateTimeOffset UpdatedAt { get; set; }
 
         [JsonProperty("closed_at")]
-        public DateTimeOffset ClosedAt { get; set; }
+        public DateTimeOffset? ClosedAt { get; set; }
 
         [JsonProperty("due_on")]
-        public DateTimeOffset DueOn { get; set; }
+        public DateTimeOffset? DueOn { get; set; }
     }
 
     public partial class PullRequest
