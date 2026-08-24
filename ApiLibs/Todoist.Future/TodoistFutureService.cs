@@ -24,6 +24,7 @@ namespace ApiLibs.Todoist.Future
         {
             this.clientId = clientId;
             this.clientSecret = clientSecret;
+            AddRetryMiddleware();
         }
 
         public TodoistFutureService(string accessToken) : base("https://api.todoist.com/api/v1/")
@@ -34,7 +35,71 @@ namespace ApiLibs.Todoist.Future
             Projects = new TodoistFutureProjectService(this);
             Tasks = new TodoistFutureTaskService(this);
             Sync = new TodoistFutureSyncService(this);
+            AddRetryMiddleware();
         }
+
+        /// <summary>
+        /// The delays used in between retries of a transient failure. Its length also
+        /// determines the amount of retries; it has to stay at or below <see cref="Service.MaxRetries"/>,
+        /// as exceeding that makes <c>HandleRequest</c> throw a
+        /// <see cref="TooManyRetriesException"/> instead of surfacing the real error.
+        /// </summary>
+        private static readonly TimeSpan[] RetryDelays = new[]
+        {
+            TimeSpan.FromSeconds(2),
+            TimeSpan.FromSeconds(5),
+            TimeSpan.FromSeconds(10),
+        };
+
+        /// <summary>
+        /// Todoist regularly answers with a timeout or a 5xx, especially on the bigger paginated
+        /// calls like <c>projects?limit=200</c>. Retry those transparently, so a single hiccup does
+        /// not fail the entire call.
+        /// </summary>
+        /// <remarks>
+        /// Only GETs are retried. A POST/PUT/DELETE that did reach Todoist but timed out while
+        /// returning its response would be duplicated by a replay. Retrying those would require
+        /// the <c>X-Request-Id</c> idempotency header.
+        /// </remarks>
+        private void AddRetryMiddleware()
+        {
+            RequestResponseMiddleware.Add(async (resp) =>
+            {
+                var request = resp.Request;
+
+                if (request == null || request.Method != Call.GET || !IsTransient(resp.StatusCode))
+                {
+                    return resp;
+                }
+
+                if (request.Retried >= RetryDelays.Length)
+                {
+                    // Out of retries. Return the response rather than retrying into a
+                    // TooManyRetriesException, so the caller gets the actual status code.
+                    return resp;
+                }
+
+                await Task.Delay(RetryDelays[request.Retried]);
+                request.Retried++;
+
+                // Re-runs this middleware as well, so a next failure delays again.
+                return await base.HandleRequest(request);
+            });
+        }
+
+        /// <summary>
+        /// Statuses worth retrying. Note that <see cref="ICallImplementation"/> turns a
+        /// <see cref="TaskCanceledException"/> into a 408 and an <c>HttpRequestException</c> into a
+        /// response without a status code at all, which is why 0 and 408 are in here.
+        /// </summary>
+        private static bool IsTransient(HttpStatusCode status) => (int)status switch
+        {
+            0 => true,
+            408 => true,
+            429 => true,
+            >= 500 and <= 599 => true,
+            _ => false,
+        };
 
         /// <summary>
         /// 
