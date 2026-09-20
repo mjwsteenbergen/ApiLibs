@@ -1,0 +1,17 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  reviewers: ['mjwsteenbergen'],
+  extends: [
+    'config:best-practices',
+    'group:allNonMajor',
+  ],
+
+  timezone: 'Europe/Amsterdam',
+
+  // No schedule yet — let it run whenever so the initial batch lands.
+  // Add something like ["* 0-3 1-7,15-21 * 5"] once things settle.
+
+  // Reduce the amount of MR's open at all time
+  prConcurrentLimit: 30,
+  prHourlyLimit: 0,
+}
