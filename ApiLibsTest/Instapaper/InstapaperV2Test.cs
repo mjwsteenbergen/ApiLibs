@@ -29,46 +29,46 @@ namespace ApiLibsTest.Instapaper
         [Test]
         public async Task TestGetBookmarks()
         {
-            var res = await instapaper.Bookmarks.GetBookmarks();
+            var res = await instapaper.BookmarkService.GetBookmarks();
             Assert.That(res.Bookmarks, Is.Not.Null);
         }
 
         [Test]
         public async Task TestGetBookmarksArchive()
         {
-            var res = await instapaper.Bookmarks.GetBookmarks(InstapaperBookmarkSection.Archive, limit: 200);
+            var res = await instapaper.BookmarkService.GetBookmarks(InstapaperBookmarkSection.Archive, limit: 200);
             Assert.That(res.Bookmarks, Is.Not.Null);
         }
 
         [Test]
         public async Task TestSync()
         {
-            var res = await instapaper.Bookmarks.Sync(DateTimeOffset.UtcNow.AddDays(-7));
+            var res = await instapaper.BookmarkService.Sync(DateTimeOffset.UtcNow.AddDays(-7));
             Assert.That(res.DeletedIds, Is.Not.Null);
         }
 
         [Test]
         public async Task TestAddAndDeleteBookmark()
         {
-            var bookmark = await instapaper.Bookmarks.AddBookmark("https://example.com/", "Example", tags: new[] { "ApiLibsTest" });
-            await instapaper.Bookmarks.LikeBookmark(bookmark);
-            await instapaper.Bookmarks.UpdateReadProgress(bookmark, 0.5);
-            await instapaper.Bookmarks.ArchiveBookmark(bookmark);
-            await instapaper.Bookmarks.DeleteBookmark(bookmark);
+            var bookmark = await instapaper.BookmarkService.AddBookmark("https://example.com/", "Example", tags: new[] { "ApiLibsTest" });
+            await instapaper.BookmarkService.LikeBookmark(bookmark);
+            await instapaper.BookmarkService.UpdateReadProgress(bookmark, 0.5);
+            await instapaper.BookmarkService.ArchiveBookmark(bookmark);
+            await instapaper.BookmarkService.DeleteBookmark(bookmark);
         }
 
         [Test]
         public async Task TestGetFoldersAndTags()
         {
-            await instapaper.Folders.GetFolders();
-            await instapaper.Tags.GetTags();
+            await instapaper.FolderService.GetFolders();
+            await instapaper.TagService.GetTags();
         }
 
         [Test]
         public async Task TestGetParsedArticle()
         {
-            var bookmark = (await instapaper.Bookmarks.GetBookmarks(limit: 1)).Bookmarks.First();
-            var article = await instapaper.Bookmarks.GetParsedArticle(bookmark);
+            var bookmark = (await instapaper.BookmarkService.GetBookmarks(limit: 1)).Bookmarks.First();
+            var article = await instapaper.BookmarkService.GetParsedArticle(bookmark);
             Assert.That(article.Content, Is.Not.Null);
         }
     }
