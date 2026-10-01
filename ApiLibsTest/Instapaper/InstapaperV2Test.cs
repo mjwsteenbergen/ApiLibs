@@ -16,7 +16,7 @@ namespace ApiLibsTest.Instapaper
         public async Task Setup()
         {
             Passwords passwords = await Passwords.ReadPasswords();
-            instapaper = new InstapaperV2Service(passwords.InstapaperAccessToken);
+            instapaper = new InstapaperV2Service(passwords.Instaper_access_token);
         }
 
         [Test]
