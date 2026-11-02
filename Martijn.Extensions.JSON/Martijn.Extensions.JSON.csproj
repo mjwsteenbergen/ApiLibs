@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    System.Text.Json version of Martijn.Extensions. Same public API as the copy in
+    ../Martijn.Extensions (enforced by Martijn.Extensions.JSONTest), with every
+    namespace moved under Martijn.Extensions.JSON.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>12.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsPackable>false</IsPackable>
+    <Description>Extension methods for functionality C# does not have</Description>
+    <Authors>Martijn Steenbergen</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="10.0.14" />
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\BannedSymbols.txt" />
+    <InternalsVisibleTo Include="ApiLibs.JSON" />
+    <InternalsVisibleTo Include="ApiLibs.JSONTest" />
+    <InternalsVisibleTo Include="Martijn.Extensions.JSONTest" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Using anything from Newtonsoft.Json in this project is a build error. -->
+    <WarningsAsErrors>$(WarningsAsErrors);RS0030</WarningsAsErrors>
+  </PropertyGroup>
+
+</Project>
