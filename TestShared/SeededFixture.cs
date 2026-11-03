@@ -53,6 +53,28 @@ namespace ParityTesting
             " padded ",
         };
 
+        /// <summary>String properties that APIs fill with dates, and that computed getters parse.</summary>
+        private static bool LooksLikeDate(string name)
+        {
+            var lower = name.ToLowerInvariant();
+            return lower.EndsWith("_at") || lower.EndsWith("at") && name.EndsWith("At") || lower.Contains("date") || lower.Contains("time");
+        }
+
+        private static readonly string[] DateFormats =
+        {
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            "yyyy-MM-dd'T'HH:mm:ss.fffK",
+            "yyyy-MM-dd'T'HH:mm:sszzz",
+            "yyyy-MM-dd",
+            "yyyy-MM-dd'T'HH:mm:ss",
+        };
+
+        private string DateText()
+        {
+            var date = new DateTime(2015, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(random.Next(0, 400_000_000));
+            return date.ToString(DateFormats[random.Next(DateFormats.Length)], System.Globalization.CultureInfo.InvariantCulture);
+        }
+
         public SeededPrimitives(Random random)
         {
             this.random = random;
@@ -85,6 +107,10 @@ namespace ParityTesting
             counter++;
             if (type == typeof(string))
             {
+                if (LooksLikeDate(name))
+                {
+                    return DateText();
+                }
                 return random.Next(6) == 0 ? Samples[random.Next(Samples.Length)] : $"{name}-{counter}";
             }
             if (type == typeof(int))
