@@ -20,7 +20,12 @@ namespace Martijn.Extensions.JSON.Compat
     /// </summary>
     internal static class CompatConverters
     {
-        public static IEnumerable<JsonConverter> All()
+        /// <param name="tokenReaderMode">
+        /// Read values the way Newtonsoft's JTokenReader presents them: the JSON was first parsed into
+        /// a JToken (ISO date strings became DateTime, fractions became double), which custom
+        /// converters then populated objects from.
+        /// </param>
+        public static IEnumerable<JsonConverter> All(bool tokenReaderMode = false)
         {
             var list = new List<JsonConverter>
             {
@@ -31,16 +36,23 @@ namespace Martijn.Extensions.JSON.Compat
                 new CompatCollectionConverterFactory(),
             };
 
-            Struct<int>(list, Tokens.ReadAsInt32, (w, v) => w.WriteNumberValue(v));
+            if (tokenReaderMode)
+            {
+                list[0] = new CompatStringConverter(tokenReaderMode: true);
+            }
+
+            TokenRead readAsInt32 = tokenReaderMode ? Tokens.ReadAsInt32FromToken : Tokens.ReadAsInt32;
+            Struct<int>(list, readAsInt32, (w, v) => w.WriteNumberValue(v));
             Struct<long>(list, Tokens.ViaRead<long>(), (w, v) => w.WriteNumberValue(v));
-            Struct<short>(list, Tokens.ViaInt32<short>(), (w, v) => w.WriteNumberValue(v));
-            Struct<byte>(list, Tokens.ViaInt32<byte>(), (w, v) => w.WriteNumberValue(v));
-            Struct<double>(list, Tokens.ReadAsDouble, Tokens.WriteDouble);
-            Struct<float>(list, Tokens.ViaDouble<float>(), Tokens.WriteFloat);
-            Struct<decimal>(list, Tokens.ReadAsDecimal, Tokens.WriteDecimal);
+            Struct<short>(list, Tokens.ViaInt32<short>(readAsInt32), (w, v) => w.WriteNumberValue(v));
+            Struct<byte>(list, Tokens.ViaInt32<byte>(readAsInt32), (w, v) => w.WriteNumberValue(v));
+            TokenRead readAsDouble = tokenReaderMode ? Tokens.ReadAsDoubleFromToken : Tokens.ReadAsDouble;
+            Struct<double>(list, readAsDouble, Tokens.WriteDouble);
+            Struct<float>(list, Tokens.ViaDouble<float>(readAsDouble), Tokens.WriteFloat);
+            Struct<decimal>(list, tokenReaderMode ? Tokens.ReadAsDecimalFromToken : Tokens.ReadAsDecimal, Tokens.WriteDecimal);
             Struct<bool>(list, Tokens.ReadAsBoolean, (w, v) => w.WriteBooleanValue(v));
             Struct<DateTime>(list, Tokens.ReadAsDateTime, (w, v) => w.WriteStringValue(NewtonsoftDates.Format(v)));
-            Struct<DateTimeOffset>(list, Tokens.ReadAsDateTimeOffset, (w, v) => w.WriteStringValue(NewtonsoftDates.Format(v)));
+            Struct<DateTimeOffset>(list, tokenReaderMode ? Tokens.ReadAsDateTimeOffsetFromToken : Tokens.ReadAsDateTimeOffset, (w, v) => w.WriteStringValue(NewtonsoftDates.Format(v)));
             Struct<uint>(list, Tokens.ViaRead<uint>(), (w, v) => w.WriteNumberValue(v));
             Struct<ulong>(list, Tokens.ViaRead<ulong>(), (w, v) => w.WriteNumberValue(v));
             Struct<ushort>(list, Tokens.ViaRead<ushort>(), (w, v) => w.WriteNumberValue(v));
@@ -132,10 +144,17 @@ namespace Martijn.Extensions.JSON.Compat
 
     internal sealed class CompatStringConverter : JsonConverter<string>
     {
+        private readonly bool tokenReaderMode;
+
+        public CompatStringConverter(bool tokenReaderMode = false)
+        {
+            this.tokenReaderMode = tokenReaderMode;
+        }
+
         public override bool HandleNull => true;
 
         public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => (string?)Tokens.ReadAsString(ref reader, true);
+            => (string?)(tokenReaderMode ? Tokens.ReadAsStringFromToken(ref reader, true) : Tokens.ReadAsString(ref reader, true));
 
         public override void Write(Utf8JsonWriter writer, string? value, JsonSerializerOptions options)
         {
@@ -513,17 +532,102 @@ namespace Martijn.Extensions.JSON.Compat
             }
         }
 
-        /// <summary>ReadAsInt32 followed by the serializer's conversion (byte, short).</summary>
-        public static TokenRead ViaInt32<T>() => (ref Utf8JsonReader reader, bool nullable) =>
+        /// <summary>JsonReader.ReadAsString on a JTokenReader: values are formatted from their parsed form.</summary>
+        public static object? ReadAsStringFromToken(ref Utf8JsonReader reader, bool nullable)
         {
-            var v = ReadAsInt32(ref reader, nullable);
+            switch (reader.TokenType)
+            {
+                case JsonTokenType.String:
+                    var s = reader.GetString()!;
+                    return NewtonsoftDates.TryParseDateTime(s, out var date) ? date.ToString(null, Culture) : s;
+                case JsonTokenType.Number:
+                    var value = ReadValue(ref reader);
+                    return value is IFormattable formattable ? formattable.ToString(null, Culture) : value?.ToString();
+                case JsonTokenType.True:
+                    return "True";
+                case JsonTokenType.False:
+                    return "False";
+                case JsonTokenType.Null:
+                    return null;
+                default:
+                    throw Unexpected(ref reader, "a string");
+            }
+        }
+
+        /// <summary>JsonReader.ReadAsInt32 on a JTokenReader: fractions are rounded with Convert.ToInt32.</summary>
+        public static object? ReadAsInt32FromToken(ref Utf8JsonReader reader, bool nullable)
+        {
+            if (reader.TokenType != JsonTokenType.Number)
+            {
+                return ReadAsInt32(ref reader, nullable);
+            }
+
+            var value = ReadValue(ref reader);
+            try
+            {
+                return value is BigInteger big ? (int)big : Convert.ToInt32(value, Culture);
+            }
+            catch (Exception e)
+            {
+                throw new JsonException($"Could not convert to integer: {value}.", e);
+            }
+        }
+
+        /// <summary>JsonReader.ReadAsDecimal on a JTokenReader: fractions went through double first.</summary>
+        public static object? ReadAsDecimalFromToken(ref Utf8JsonReader reader, bool nullable)
+        {
+            if (reader.TokenType != JsonTokenType.Number)
+            {
+                return ReadAsDecimal(ref reader, nullable);
+            }
+
+            var value = ReadValue(ref reader);
+            try
+            {
+                return value is BigInteger big ? (decimal)big : Convert.ToDecimal(value, Culture);
+            }
+            catch (Exception e)
+            {
+                throw new JsonException($"Could not convert to decimal: {value}.", e);
+            }
+        }
+
+        /// <summary>JsonReader.ReadAsDateTimeOffset on a JTokenReader: ISO dates were parsed to DateTime first.</summary>
+        public static object? ReadAsDateTimeOffsetFromToken(ref Utf8JsonReader reader, bool nullable)
+        {
+            if (reader.TokenType == JsonTokenType.String)
+            {
+                var s = reader.GetString()!;
+                if (s.Length > 0 && NewtonsoftDates.TryParseDateTime(s, out var date))
+                {
+                    return new DateTimeOffset(date);
+                }
+            }
+            return ReadAsDateTimeOffset(ref reader, nullable);
+        }
+
+        /// <summary>ReadAsInt32 followed by the serializer's conversion (byte, short).</summary>
+        public static TokenRead ViaInt32<T>(TokenRead? readAsInt32 = null) => (ref Utf8JsonReader reader, bool nullable) =>
+        {
+            var v = (readAsInt32 ?? ReadAsInt32)(ref reader, nullable);
             return v == null ? null : ChangeType(v, typeof(T));
         };
 
-        /// <summary>ReadAsDouble followed by the serializer's conversion (float).</summary>
-        public static TokenRead ViaDouble<T>() => (ref Utf8JsonReader reader, bool nullable) =>
+        /// <summary>JsonReader.ReadAsDouble on a JTokenReader: integers too big for long went through BigInteger.</summary>
+        public static object? ReadAsDoubleFromToken(ref Utf8JsonReader reader, bool nullable)
         {
-            var v = ReadAsDouble(ref reader, nullable);
+            if (reader.TokenType != JsonTokenType.Number)
+            {
+                return ReadAsDouble(ref reader, nullable);
+            }
+            var value = ReadValue(ref reader);
+            return value is BigInteger big ? (double)big : Convert.ToDouble(value, Culture);
+        }
+
+        /// <summary>ReadAsDouble followed by the serializer's conversion (float).</summary>
+        public static TokenRead ViaDouble<T>(TokenRead? readAsDouble = null) => (ref Utf8JsonReader reader, bool nullable) =>
+        {
+            var v = (readAsDouble ?? ReadAsDouble)(ref reader, nullable);
             return v == null ? null : ChangeType(v, typeof(T));
         };
 

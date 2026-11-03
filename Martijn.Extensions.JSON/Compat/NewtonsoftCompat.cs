@@ -22,7 +22,13 @@ namespace Martijn.Extensions.JSON.Compat
         /// <summary>Equivalent of <c>Formatting.Indented</c>.</summary>
         public static JsonSerializerOptions OptionsIndented { get; } = Create(ignoreNullValues: false, indented: true);
 
-        private static JsonSerializerOptions Create(bool ignoreNullValues, bool indented)
+        /// <summary>
+        /// Reading as Newtonsoft does through a JTokenReader, which is what custom converters that
+        /// called <c>serializer.Populate(jToken.CreateReader(), target)</c> got.
+        /// </summary>
+        public static JsonSerializerOptions TokenReaderOptions { get; } = Create(ignoreNullValues: false, indented: false, tokenReaderMode: true);
+
+        private static JsonSerializerOptions Create(bool ignoreNullValues, bool indented, bool tokenReaderMode = false)
         {
             var options = new JsonSerializerOptions
             {
@@ -43,7 +49,7 @@ namespace Martijn.Extensions.JSON.Compat
                 }
             };
 
-            foreach (var converter in CompatConverters.All())
+            foreach (var converter in CompatConverters.All(tokenReaderMode))
             {
                 options.Converters.Add(converter);
             }
@@ -91,6 +97,25 @@ namespace Martijn.Extensions.JSON.Compat
             }
 
             return JsonSerializer.Deserialize(text, type, Options);
+        }
+
+        /// <summary>Deserializes a JSON value with the same root rules as <see cref="Deserialize(string, Type)"/>.</summary>
+        public static object? DeserializeElement(JsonElement element, Type type, JsonSerializerOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.String && element.ValueEquals("") && type != typeof(string) && type != typeof(object)
+                && (!type.IsValueType || Nullable.GetUnderlyingType(type) != null))
+            {
+                return null;
+            }
+
+            if (CastOperators.Has(type) && element.ValueKind is JsonValueKind.String or JsonValueKind.Number or JsonValueKind.True or JsonValueKind.False)
+            {
+                var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(element.GetRawText()));
+                reader.Read();
+                return CastOperators.Read(ref reader, type);
+            }
+
+            return JsonSerializer.Deserialize(element, type, options);
         }
 
         private static bool IsEmptyStringDocument(string text)

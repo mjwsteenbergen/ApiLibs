@@ -28,6 +28,7 @@ namespace Martijn.Extensions.JSON.Compat
             }
 
             AddNonPublicMembers(typeInfo);
+            ApplyInterfaceAttributes(typeInfo);
             RemoveIgnoredNameClashes(typeInfo);
 
             foreach (var property in typeInfo.Properties)
@@ -164,6 +165,33 @@ namespace Martijn.Extensions.JSON.Compat
                         typeInfo.Properties.Add(added);
                         existing.Add(name);
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Newtonsoft also honours [JsonIgnore] and [JsonProperty] placed on the interface property a
+        /// class property implements; System.Text.Json only looks at the class property.
+        /// </summary>
+        private static void ApplyInterfaceAttributes(JsonTypeInfo typeInfo)
+        {
+            foreach (var property in typeInfo.Properties.ToList())
+            {
+                if (property.AttributeProvider is not PropertyInfo pi)
+                {
+                    continue;
+                }
+
+                if (NewtonsoftPopulate.InterfaceAttribute<JsonIgnoreAttribute>(pi) != null)
+                {
+                    typeInfo.Properties.Remove(property);
+                    continue;
+                }
+
+                var name = NewtonsoftPopulate.InterfaceAttribute<JsonPropertyNameAttribute>(pi);
+                if (name != null && !pi.IsDefined(typeof(JsonPropertyNameAttribute), true))
+                {
+                    property.Name = name.Name;
                 }
             }
         }
