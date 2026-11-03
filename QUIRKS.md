@@ -33,3 +33,15 @@ Each one is pinned by a test named `KnownNewtonsoftQuirk_*` in
 | A class with two serialized members whose names differ only in case (for example a private `secret` field marked `[JsonProperty]` next to a public `Secret` property) works in Newtonsoft but makes System.Text.Json throw. | System.Text.Json rejects case-insensitive name clashes when case-insensitive matching is on. | Needs a decision if an ApiLibs class has this shape. The generated parity tests fail for any class that does. |
 | A settable property that already holds an object (set in the constructor) is filled in place by Newtonsoft, keeping members the JSON does not mention. The new version replaces the object. Lists, dictionaries and read-only properties are filled in place like Newtonsoft does. | Settable object properties go through a property converter (for empty-string and runtime-type handling), and System.Text.Json cannot fill an existing object through a custom converter. | Needs a decision. Differs only when a constructor puts non-default values in a nested object; the generated tests found no ApiLibs class where it changes the result. |
 | An empty string for a read-only property that holds an object is skipped by Newtonsoft and is an error in the new version. | Same limitation: read-only objects are filled by System.Text.Json's own converter, which rejects a string. | Needs a decision. No API is known to send this. |
+
+## Bugs in ApiLibs itself, kept on purpose
+
+Found while writing the hand-written Notion fixtures (`ApiLibs.JSONTest/HandWrittenParityTests.cs`).
+They behave the same in `ApiLibs` and `ApiLibs.JSON`.
+
+| Bug | Fixture |
+|---|---|
+| A Notion date property whose `start` includes a time (`2023-03-05T09:30:00.000+01:00`) makes the whole page fail with `FormatException`. Newtonsoft has already turned the string into a `DateTime`, `DateTimeConverter` gets it back as `"03/05/2023 09:30:00"`, and its `yyyy-MM-dd` regex does not match. Date-only values work. | `NotionRest.Page (date property with a time ...)` |
+| A Notion relation property on a page (an array of ids) cannot be read: `Relation` expects the database-schema shape (an object), so the whole page fails. | `NotionRest.Page (relation values as an array)` |
+| A page or database property of a type the converter does not know (`people`, `formula`, `rollup`, `created_by`, ...) makes the whole page fail with `ArgumentOutOfRangeException`. The same goes for unknown block types (`synced_block`, `table`, ...). | `NotionRest.Page (unknown property type)`, `NotionRest.NotionList<NotionBlockWrapper> (unknown block type)` |
+| Image, video and pdf blocks (`NotionImage`, which derives from `NotionFileWrapper`) never get their `Value` filled when read, so writing them back throws `NullReferenceException`. | `NotionRest.NotionList<NotionBlockWrapper> (block children with every block type)` |

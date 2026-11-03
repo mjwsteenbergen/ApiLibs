@@ -15,6 +15,17 @@ namespace ApiLibs.JSONTest
     /// ApiLibs and ApiLibs.JSON. The parsed objects must also serialize to the same JSON when
     /// sent as a request body or parameter.
     /// </summary>
+    /// <summary>Leaves Notion's Type properties at the value their constructor set.</summary>
+    internal sealed class KeepConstructorType : AutoFixture.Kernel.ISpecimenBuilder
+    {
+        public object Create(object request, AutoFixture.Kernel.ISpecimenContext context)
+        {
+            return request is System.Reflection.PropertyInfo { Name: "Type" } p && p.DeclaringType?.Namespace == "ApiLibs.NotionRest"
+                ? new AutoFixture.Kernel.OmitSpecimen()
+                : new AutoFixture.Kernel.NoSpecimen();
+        }
+    }
+
     [Category("NoInternet")]
     public class GeneratedParityTests
     {
@@ -33,6 +44,13 @@ namespace ApiLibs.JSONTest
             fixture.Register<bool, double, ApiLibs.Reddit.Edited>((flag, stamp) => flag ? stamp : false);
             // Abstract argument types: build their only implementation (written polymorphically).
             fixture.Map<ApiLibs.Todoist.Future.TodoistFutureCommandArgs, ApiLibs.Todoist.Future.LocationReminderFutureCommand>();
+            fixture.Map<ApiLibs.NotionRest.NotionFile, ApiLibs.NotionRest.ExternalNotionFile>();
+            fixture.Map<ApiLibs.NotionRest.NotionProperty, ApiLibs.NotionRest.NumberProperty>();
+            fixture.Map<ApiLibs.NotionRest.NotionDatabaseProperty, ApiLibs.NotionRest.UrlDatabaseProperty>();
+            fixture.Map<ApiLibs.NotionRest.INotionBlock, ApiLibs.NotionRest.Paragraph>();
+            fixture.Map<ApiLibs.NotionRest.NotionBlock, ApiLibs.NotionRest.Paragraph>();
+            // Notion classes set their "type" in the constructor and the converters dispatch on it.
+            fixture.Customizations.Insert(0, new KeepConstructorType());
             // PocketList.ReadingStatus throws unless status is "0", "1" or "2".
             fixture.Customize<ApiLibs.Pocket.PocketList>(c => c.With(p => p.status, (seed % 3).ToString()));
             return fixture;
