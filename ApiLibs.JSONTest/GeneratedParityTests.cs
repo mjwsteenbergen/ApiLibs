@@ -21,7 +21,7 @@ namespace ApiLibs.JSONTest
         private const int Seeds = 3;
 
         public static IEnumerable<TestCaseData> DataTypes() =>
-            Apis.DataTypes().Select(t => new TestCaseData(t).SetName($"{TypeNames.Of(t).Replace("ApiLibs.", "")}"));
+            Apis.DataTypes().Select(t => new TestCaseData(t).SetName("{m} " + TypeNames.Of(t).Replace("ApiLibs.", "")));
 
         public static Fixture CreateFixture(int seed)
         {
