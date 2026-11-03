@@ -45,6 +45,8 @@ namespace ApiLibs.JSONTest
             // Abstract argument types: build their only implementation (written polymorphically).
             fixture.Map<ApiLibs.Todoist.Future.TodoistFutureCommandArgs, ApiLibs.Todoist.Future.LocationReminderFutureCommand>();
             fixture.Map<ApiLibs.NotionRest.NotionFile, ApiLibs.NotionRest.ExternalNotionFile>();
+            fixture.Map<ApiLibs.OpenAI.OpenAIMessage, ApiLibs.OpenAI.UserOpenAIMessage>();
+            fixture.Map<ApiLibs.OpenAI.OpenAIContent, ApiLibs.OpenAI.OpenAITextContent>();
             fixture.Map<ApiLibs.NotionRest.NotionProperty, ApiLibs.NotionRest.NumberProperty>();
             fixture.Map<ApiLibs.NotionRest.NotionDatabaseProperty, ApiLibs.NotionRest.UrlDatabaseProperty>();
             fixture.Map<ApiLibs.NotionRest.INotionBlock, ApiLibs.NotionRest.Paragraph>();

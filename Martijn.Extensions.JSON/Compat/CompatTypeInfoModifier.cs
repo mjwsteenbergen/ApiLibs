@@ -27,6 +27,7 @@ namespace Martijn.Extensions.JSON.Compat
                 return;
             }
 
+            UseUnbindableConstructor(typeInfo);
             AddNonPublicMembers(typeInfo);
             ApplyInterfaceAttributes(typeInfo);
             RemoveIgnoredNameClashes(typeInfo);
@@ -167,6 +168,43 @@ namespace Martijn.Extensions.JSON.Compat
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Without a parameterless constructor, Newtonsoft calls the type's only public constructor and
+        /// passes null/default for parameters the JSON does not supply, then sets the properties.
+        /// System.Text.Json refuses the type when a parameter does not match a property. In that case
+        /// call the constructor with default arguments and let the properties be set afterwards.
+        /// (A parameter that matches no property but does match a JSON key is not filled; see QUIRKS.md.)
+        /// </summary>
+        private static void UseUnbindableConstructor(JsonTypeInfo typeInfo)
+        {
+            var type = typeInfo.Type;
+            if (typeInfo.CreateObject != null || type.IsAbstract || type.IsInterface || type.IsValueType
+                || type.GetConstructor(BindingFlags.Instance | BindingFlags.Public, null, Type.EmptyTypes, null) != null)
+            {
+                return;
+            }
+
+            var constructors = type.GetConstructors(BindingFlags.Instance | BindingFlags.Public);
+            if (constructors.Length != 1 || constructors[0].IsDefined(typeof(JsonConstructorAttribute), false))
+            {
+                return;
+            }
+
+            var constructor = constructors[0];
+            var parameters = constructor.GetParameters();
+            bool allBind = parameters.All(p => typeInfo.Properties.Any(property =>
+                property.AttributeProvider is MemberInfo member
+                && string.Equals(member.Name, p.Name, StringComparison.OrdinalIgnoreCase)
+                && property.PropertyType == p.ParameterType));
+            if (allBind)
+            {
+                return;
+            }
+
+            var arguments = parameters.Select(p => p.ParameterType.IsValueType ? Activator.CreateInstance(p.ParameterType) : null).ToArray();
+            typeInfo.CreateObject = () => constructor.Invoke(arguments);
         }
 
         /// <summary>

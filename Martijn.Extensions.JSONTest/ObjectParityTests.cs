@@ -176,6 +176,18 @@ namespace Martijn.Extensions.JSONTest
         public Style Computed => new Style();
     }
 
+    public class UnbindableConstructor
+    {
+        public UnbindableConstructor(string url)
+        {
+            Kind = "image";
+            Image = new Nested { Name = url };
+        }
+
+        public string? Kind { get; set; }
+        public Nested? Image { get; set; }
+    }
+
     [Category("NoInternet")]
     public class ObjectParityTests
     {
@@ -216,6 +228,8 @@ namespace Martijn.Extensions.JSONTest
             (typeof(Prefilled), "{\"Main\":{\"Size\":14},\"Missing\":{\"Font\":\"x\"},\"Fixed\":[\"json\"],\"Settable\":[\"json\"],\"Computed\":{\"Size\":1}}"),
             (typeof(Prefilled), "{\"Main\":null,\"Missing\":null,\"Fixed\":null,\"Settable\":null}"),
             (typeof(Prefilled), "{\"Fixed\":\"\",\"Settable\":\"\"}"),
+            (typeof(UnbindableConstructor), "{\"Image\":{\"Id\":3},\"Kind\":\"k\"}"),
+            (typeof(UnbindableConstructor), "{\"Kind\":null}"),
             (typeof(WithConstructor), "{\"id\":1,\"name\":\"n\",\"extra\":\"e\"}"),
             (typeof(WithConstructor), "{\"Id\":\"2\",\"Extra\":\"e\"}"),
             (typeof(WithConstructor), "{}"),
