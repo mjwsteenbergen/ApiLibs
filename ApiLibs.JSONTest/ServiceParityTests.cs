@@ -326,6 +326,7 @@ namespace ApiLibs.JSONTest
                 try
                 {
                     oldArg = SeededFixture.CreateInstance(fixture, type);
+                    oldArg = Materialize(oldArg, type);
                 }
                 catch (Exception e)
                 {
@@ -355,6 +356,50 @@ namespace ApiLibs.JSONTest
             return (oldArgs.ToArray(), newArgs.ToArray(), null);
         }
 
+        /// <summary>AutoFixture builds IEnumerable&lt;T&gt; lazily, with new items on every enumeration.</summary>
+        private static object? Materialize(object? value, Type parameterType)
+        {
+            if (value is IEnumerable enumerable && value is not string && parameterType.IsInterface && parameterType.IsGenericType)
+            {
+                var element = parameterType.GetGenericArguments()[0];
+                var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(element))!;
+                foreach (var item in enumerable)
+                {
+                    list.Add(item);
+                }
+                return list;
+            }
+            return value;
+        }
+
+        /// <summary>Reads an IAsyncEnumerable&lt;T&gt; into a list (at most 50 items).</summary>
+        private static async Task<object?> Drain(object value)
+        {
+            var asyncEnumerable = value.GetType().GetInterfaces()
+                .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAsyncEnumerable<>));
+            if (asyncEnumerable == null)
+            {
+                return value;
+            }
+
+            var element = asyncEnumerable.GetGenericArguments()[0];
+            var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(element))!;
+            var enumerator = asyncEnumerable.GetMethod("GetAsyncEnumerator")!.Invoke(value, new object[] { CancellationToken.None })!;
+            var enumeratorType = typeof(IAsyncEnumerator<>).MakeGenericType(element);
+            var moveNext = enumeratorType.GetMethod("MoveNextAsync")!;
+            var current = enumeratorType.GetProperty("Current")!;
+            while (list.Count < 50)
+            {
+                var step = (ValueTask<bool>)moveNext.Invoke(enumerator, null)!;
+                if (!await step)
+                {
+                    break;
+                }
+                list.Add(current.GetValue(enumerator));
+            }
+            return list;
+        }
+
         private static async Task<(object? result, Exception? error)> Call(MethodInfo method, object service, object?[] args)
         {
             try
@@ -372,7 +417,7 @@ namespace ApiLibs.JSONTest
                     var result = resultProperty?.GetValue(task);
                     return (result?.GetType().FullName == "System.Threading.Tasks.VoidTaskResult" ? null : result, null);
                 }
-                return (value, null);
+                return (value == null ? null : await Drain(value), null);
             }
             catch (TargetInvocationException e)
             {

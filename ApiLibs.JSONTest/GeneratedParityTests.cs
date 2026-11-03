@@ -28,6 +28,7 @@ namespace ApiLibs.JSONTest
             var fixture = SeededFixture.Create(seed);
             fixture.Register<JToken>(() => new JValue("token"));
             fixture.Register<JObject>(() => new JObject { ["key"] = "value" });
+            fixture.Register(() => new System.Globalization.RegionInfo("NL"));
             return fixture;
         }
 
