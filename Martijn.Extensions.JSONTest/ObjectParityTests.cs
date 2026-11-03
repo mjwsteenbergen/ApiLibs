@@ -108,6 +108,29 @@ namespace Martijn.Extensions.JSONTest
         public (int, string) Tuple { get; set; }
     }
 
+    public class PrivateMembers
+    {
+        [N.JsonIgnore]
+        [S.JsonIgnore]
+        public List<string>? Tags { get; set; }
+
+        [N.JsonProperty("tags")]
+        [S.JsonPropertyName("tags")]
+        private List<string>? TagReferences { get => Tags; set => Tags = value; }
+
+        [N.JsonProperty("computed")]
+        [S.JsonPropertyName("computed")]
+        private int Computed => Tags?.Count ?? -1;
+
+        [N.JsonProperty("secret")]
+        [S.JsonPropertyName("secret")]
+        private string? secret;
+
+        public string? GetSecret() => secret;
+
+        public void SetSecret(string value) => secret = value;
+    }
+
     [Category("NoInternet")]
     public class ObjectParityTests
     {
@@ -135,6 +158,8 @@ namespace Martijn.Extensions.JSONTest
             (typeof(Zoo), "{\"Anything\":12345678901234567890123}"),
             (typeof(Zoo), "{\"Shape\":{\"Sides\":3}}"),
             (typeof(Zoo), "{\"Shape\":null}"),
+            (typeof(PrivateMembers), "{\"tags\":[\"a\"],\"computed\":5,\"secret\":\"s\"}"),
+            (typeof(PrivateMembers), "{\"TAGS\":null,\"Secret\":\"public name\"}"),
             (typeof(WithConstructor), "{\"id\":1,\"name\":\"n\",\"extra\":\"e\"}"),
             (typeof(WithConstructor), "{\"Id\":\"2\",\"Extra\":\"e\"}"),
             (typeof(WithConstructor), "{}"),
@@ -177,6 +202,10 @@ namespace Martijn.Extensions.JSONTest
                 Tuple = (1, "one"),
             }).SetName("Write SyncState");
             yield return new TestCaseData(new WithConstructor(1, "c") { Extra = null }).SetName("Write WithConstructor");
+            var privateMembers = new PrivateMembers { Tags = new List<string> { "x" } };
+            privateMembers.SetSecret("s");
+            yield return new TestCaseData(privateMembers).SetName("Write PrivateMembers");
+            yield return new TestCaseData(new PrivateMembers()).SetName("Write PrivateMembers empty");
         }
 
         [TestCaseSource(nameof(Writes))]

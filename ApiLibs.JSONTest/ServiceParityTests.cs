@@ -163,7 +163,7 @@ namespace ApiLibs.JSONTest
             .OrderBy(t => t.FullName)
             .Select(t => new TestCaseData(t).SetName(TypeNames.Of(t).Replace("ApiLibs.", "")));
 
-        private static bool IsSubService(Type t)
+        public static bool IsSubService(Type t)
         {
             for (var b = t.BaseType; b != null; b = b.BaseType)
             {
@@ -183,16 +183,27 @@ namespace ApiLibs.JSONTest
             int methodsRun = 0;
             var skipped = new List<string>();
 
-            foreach (var oldMethod in PublicMethods(oldServiceType))
+            // Methods of the service itself and of its sub-services (exposed as properties).
+            var targets = PublicMethods(oldServiceType).Select(m => ((PropertyInfo?)null, m)).ToList();
+            foreach (var property in oldServiceType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                var key = $"{oldServiceType.FullName}.{oldMethod.Name}";
+                if (typeof(ApiLibs.Service).IsAssignableFrom(property.PropertyType) && property.GetIndexParameters().Length == 0 && IsSubService(property.PropertyType))
+                {
+                    targets.AddRange(PublicMethods(property.PropertyType).Select(m => ((PropertyInfo?)property, m)));
+                }
+            }
+
+            foreach (var (subServiceProperty, oldMethod) in targets)
+            {
+                var key = $"{oldMethod.DeclaringType!.FullName}.{oldMethod.Name}";
                 if (TalksToTheInternetDirectly.Contains(key))
                 {
                     skipped.Add(oldMethod.Name + " (talks to the internet)");
                     continue;
                 }
 
-                var newMethod = Counterpart(newServiceType, oldMethod);
+                var newTargetType = subServiceProperty == null ? newServiceType : newServiceType.GetProperty(subServiceProperty.Name)!.PropertyType;
+                var newMethod = Counterpart(newTargetType, oldMethod);
                 if (newMethod == null)
                 {
                     failures.Add($"{oldMethod}: no counterpart");
@@ -213,11 +224,13 @@ namespace ApiLibs.JSONTest
                     var oldService = CreateService(oldServiceType, seed, s => Inject(s, typeof(ApiLibs.Service), new OldFakeImplementation(oldHttp)));
                     var newService = CreateService(newServiceType, seed, s => Inject(s, typeof(ApiLibs.JSON.Service), new NewFakeImplementation(newHttp)));
 
-                    var (oldResult, oldError) = await Call(oldMethod, oldService, oldArgs!);
-                    var (newResult, newError) = await Call(newMethod, newService, newArgs!);
+                    object oldTarget = subServiceProperty == null ? oldService : subServiceProperty.GetValue(oldService)!;
+                    object newTarget = subServiceProperty == null ? newService : newService.GetType().GetProperty(subServiceProperty.Name)!.GetValue(newService)!;
+                    var (oldResult, oldError) = await Call(oldMethod, oldTarget, oldArgs!);
+                    var (newResult, newError) = await Call(newMethod, newTarget, newArgs!);
                     methodsRun++;
 
-                    var label = $"{oldMethod.Name}({string.Join(", ", oldMethod.GetParameters().Select(p => p.ParameterType.Name))}) seed {seed}";
+                    var label = $"{subServiceProperty?.Name}{(subServiceProperty == null ? "" : ".")}{oldMethod.Name}({string.Join(", ", oldMethod.GetParameters().Select(p => p.ParameterType.Name))}) seed {seed}";
                     if (oldHttp.Sent.Count != newHttp.Sent.Count)
                     {
                         failures.Add($"{label}: {oldHttp.Sent.Count} requests vs {newHttp.Sent.Count}");
@@ -328,10 +341,7 @@ namespace ApiLibs.JSONTest
                 object? newArg = oldArg;
                 if (newType != type)
                 {
-                    var json = Newtonsoft.Json.JsonConvert.SerializeObject(oldArg);
-                    newArg = newType.IsEnum
-                        ? Enum.ToObject(newType, System.Convert.ChangeType(oldArg!, Enum.GetUnderlyingType(type)))
-                        : Parsing.New(json, newType);
+                    newArg = ObjectMapper.ToNew(oldArg, newType);
                     var difference = DeepComparer.Compare(oldArg, newArg);
                     if (difference != null)
                     {

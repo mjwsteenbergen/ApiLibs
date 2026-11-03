@@ -27,6 +27,9 @@ namespace Martijn.Extensions.JSON.Compat
                 return;
             }
 
+            AddNonPublicMembers(typeInfo);
+            RemoveIgnoredNameClashes(typeInfo);
+
             foreach (var property in typeInfo.Properties)
             {
                 var member = property.AttributeProvider as MemberInfo;
@@ -74,6 +77,77 @@ namespace Martijn.Extensions.JSON.Compat
                         }
                         set(obj, value);
                     };
+                }
+            }
+        }
+
+        /// <summary>
+        /// Newtonsoft serializes non-public properties and fields that carry [JsonProperty];
+        /// System.Text.Json only sees public ones, so add those marked [JsonPropertyName].
+        /// </summary>
+        private static void AddNonPublicMembers(JsonTypeInfo typeInfo)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            var existing = new HashSet<string>(typeInfo.Properties.Select(p => p.Name));
+
+            for (var type = typeInfo.Type; type != null && type != typeof(object); type = type.BaseType)
+            {
+                foreach (var member in type.GetMembers(flags | BindingFlags.DeclaredOnly))
+                {
+                    var name = member.GetCustomAttribute<JsonPropertyNameAttribute>(true)?.Name;
+                    if (name == null || existing.Contains(name) || member.IsDefined(typeof(JsonIgnoreAttribute), true))
+                    {
+                        continue;
+                    }
+
+                    JsonPropertyInfo? added = null;
+                    if (member is PropertyInfo pi && pi.GetIndexParameters().Length == 0 && !(pi.GetMethod?.IsPublic ?? false))
+                    {
+                        added = typeInfo.CreateJsonPropertyInfo(pi.PropertyType, name);
+                        var getter = pi.GetGetMethod(true);
+                        var setter = pi.GetSetMethod(true);
+                        if (getter != null)
+                        {
+                            added.Get = obj => getter.Invoke(obj, null);
+                        }
+                        if (setter != null)
+                        {
+                            added.Set = (obj, value) => setter.Invoke(obj, new[] { value });
+                        }
+                    }
+                    else if (member is FieldInfo fi && !fi.IsPublic)
+                    {
+                        added = typeInfo.CreateJsonPropertyInfo(fi.FieldType, name);
+                        added.Get = obj => fi.GetValue(obj);
+                        if (!fi.IsInitOnly)
+                        {
+                            added.Set = (obj, value) => fi.SetValue(obj, value);
+                        }
+                    }
+
+                    if (added != null)
+                    {
+                        added.AttributeProvider = member;
+                        typeInfo.Properties.Add(added);
+                        existing.Add(name);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// [JsonIgnore] properties stay in the contract (without accessors) and still take part in
+        /// the case-insensitive name clash check. Newtonsoft ignores them completely, so drop them
+        /// when another property uses the same name.
+        /// </summary>
+        private static void RemoveIgnoredNameClashes(JsonTypeInfo typeInfo)
+        {
+            var ignored = typeInfo.Properties.Where(p => p.Get == null && p.Set == null).ToList();
+            foreach (var property in ignored)
+            {
+                if (typeInfo.Properties.Any(other => other != property && string.Equals(other.Name, property.Name, StringComparison.OrdinalIgnoreCase)))
+                {
+                    typeInfo.Properties.Remove(property);
                 }
             }
         }
