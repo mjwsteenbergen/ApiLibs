@@ -430,10 +430,15 @@ namespace ApiLibs.JSONTest
         }
 
         /// <summary>
-        /// Some services send the current time (Pocket sends DateTime.Now.ToFileTime()), which
-        /// differs between the two runs. Runs of 15 or more digits are treated as equal.
+        /// Some services send the current time (Pocket sends DateTime.Now.ToFileTime()) or random
+        /// ids (Todoist command uuids), which differ between the two runs. Runs of 15 or more
+        /// digits and uuid-shaped tokens are treated as equal.
         /// </summary>
-        private static string WithoutClockTicks(string text) => System.Text.RegularExpressions.Regex.Replace(text, @"\d{15,}", "#");
+        private static string WithoutClockTicks(string text)
+        {
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"\b[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\b", "#uuid");
+            return System.Text.RegularExpressions.Regex.Replace(text, @"\d{15,}", "#");
+        }
 
         private static string? CompareRequests(SentRequest oldRequest, SentRequest newRequest)
         {
