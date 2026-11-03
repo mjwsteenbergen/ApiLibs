@@ -25,10 +25,10 @@ namespace ParityTesting
             ["System.Text.Json.Serialization.JsonConverter`1"] = "<json-converter`1>",
         };
 
-        public static SortedSet<string> Describe(Assembly assembly)
+        public static SortedSet<string> Describe(Assembly assembly, Func<Type, bool>? include = null)
         {
             var result = new SortedSet<string>(StringComparer.Ordinal);
-            foreach (var type in assembly.GetTypes().Where(t => t.IsVisible))
+            foreach (var type in assembly.GetTypes().Where(t => t.IsVisible && (include == null || include(t))))
             {
                 foreach (var line in DescribeType(type))
                 {
@@ -154,10 +154,10 @@ namespace ParityTesting
         }
 
         /// <summary>Lines present in only one of the two descriptions.</summary>
-        public static List<string> Diff(Assembly expected, Assembly actual)
+        public static List<string> Diff(Assembly expected, Assembly actual, Func<Type, bool>? includeExpected = null, Func<Type, bool>? includeActual = null)
         {
-            var a = Describe(expected);
-            var b = Describe(actual);
+            var a = Describe(expected, includeExpected);
+            var b = Describe(actual, includeActual);
             var result = new List<string>();
             result.AddRange(a.Except(b).Select(l => "- " + l));
             result.AddRange(b.Except(a).Select(l => "+ " + l));
