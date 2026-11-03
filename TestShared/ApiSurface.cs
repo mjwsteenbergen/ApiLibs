@@ -23,6 +23,8 @@ namespace ParityTesting
             ["System.Text.Json.Serialization.JsonConverter"] = "<json-converter>",
             ["Newtonsoft.Json.JsonConverter`1"] = "<json-converter`1>",
             ["System.Text.Json.Serialization.JsonConverter`1"] = "<json-converter`1>",
+            // Newtonsoft's non-generic JsonConverter: System.Text.Json's cannot be subclassed directly.
+            ["System.Text.Json.Serialization.JsonConverterFactory"] = "<json-converter>",
         };
 
         public static SortedSet<string> Describe(Assembly assembly, Func<Type, bool>? include = null)

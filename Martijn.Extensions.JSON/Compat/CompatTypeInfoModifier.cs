@@ -245,7 +245,8 @@ namespace Martijn.Extensions.JSON.Compat
 
         private static JsonConverter? TypeLevelConverter(Type type)
         {
-            var attribute = type.GetCustomAttribute<JsonConverterAttribute>(false);
+            // Inherited too: Newtonsoft applies a base class's converter to subclasses.
+            var attribute = type.GetCustomAttribute<JsonConverterAttribute>(true);
             if (attribute?.ConverterType == null)
             {
                 return null;
