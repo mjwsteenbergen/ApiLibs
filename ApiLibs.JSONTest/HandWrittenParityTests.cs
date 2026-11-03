@@ -27,6 +27,9 @@ namespace ApiLibs.JSONTest
             (typeof(ApiLibs.Reddit.CommentsResult), "comment edited true", """
                 {"kind":"Listing","data":{"children":[{"kind":"t1","data":{"id":"c1","body":"text","edited":true,"replies":""}}]}}
                 """),
+            (typeof(ApiLibs.Pocket.ReadingList), "get.php after PocketService's regex rewrite", """
+                {"status":1,"complete":1,"list":[{"item_id":"229279689","resolved_id":"229279689","given_url":"http://www.example.com/article","given_title":"The Title","favorite":"0","status":"0","time_added":"1700000000","time_updated":"1700000100","time_read":"0","time_favorited":"0","sort_id":0,"resolved_title":"The Resolved Title","resolved_url":"http://www.example.com/article","excerpt":"Text","is_article":"1","is_index":"0","has_video":"1","has_image":"1","word_count":"3197","tags":{"read-later":{"item_id":"229279689","tag":"read-later"}},"authors":[{"item_id":"229279689","author_id":"1","name":"Author","url":"http://www.example.com/a"}],"image":{"item_id":"229279689","src":"http://www.example.com/i.jpg","width":"0","height":"0"},"images":[{"item_id":"229279689","image_id":"1","src":"http://www.example.com/i.jpg","width":"0","height":"0","credit":"","caption":""}],"videos":[{"item_id":"229279689","video_id":"1","src":"http://www.youtube.com/v/x","width":"0","height":"0","type":"1","vid":"x"}]}],"error":null,"search_meta":{"search_type":"normal"},"since":1700000200}
+                """),
         };
 
         public static IEnumerable<TestCaseData> Cases() => Fixtures

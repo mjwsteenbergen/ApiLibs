@@ -429,6 +429,12 @@ namespace ApiLibs.JSONTest
             }
         }
 
+        /// <summary>
+        /// Some services send the current time (Pocket sends DateTime.Now.ToFileTime()), which
+        /// differs between the two runs. Runs of 15 or more digits are treated as equal.
+        /// </summary>
+        private static string WithoutClockTicks(string text) => System.Text.RegularExpressions.Regex.Replace(text, @"\d{15,}", "#");
+
         private static string? CompareRequests(SentRequest oldRequest, SentRequest newRequest)
         {
             if (oldRequest.EndPoint != newRequest.EndPoint)
@@ -439,11 +445,11 @@ namespace ApiLibs.JSONTest
             {
                 return "method";
             }
-            if (oldRequest.Parameters != newRequest.Parameters)
+            if (WithoutClockTicks(oldRequest.Parameters) != WithoutClockTicks(newRequest.Parameters))
             {
                 return "parameters";
             }
-            if (oldRequest.Headers != newRequest.Headers)
+            if (WithoutClockTicks(oldRequest.Headers) != WithoutClockTicks(newRequest.Headers))
             {
                 return "headers";
             }

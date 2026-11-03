@@ -31,6 +31,8 @@ namespace ApiLibs.JSONTest
             fixture.Register(() => new System.Globalization.RegionInfo("NL"));
             // Reddit's "edited" is false or a timestamp; AutoFixture cannot pick between the implicit operators.
             fixture.Register<bool, double, ApiLibs.Reddit.Edited>((flag, stamp) => flag ? stamp : false);
+            // PocketList.ReadingStatus throws unless status is "0", "1" or "2".
+            fixture.Customize<ApiLibs.Pocket.PocketList>(c => c.With(p => p.status, (seed % 3).ToString()));
             return fixture;
         }
 
