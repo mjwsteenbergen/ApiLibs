@@ -155,6 +155,27 @@ namespace Martijn.Extensions.JSONTest
         public List<BoolOrNumber>? Many { get; set; }
     }
 
+    public class Style
+    {
+        public string? Font { get; set; } = "Arial";
+        public int Size { get; set; } = 11;
+    }
+
+    public class Prefilled
+    {
+        public Prefilled()
+        {
+            Main = new Style();
+            Fixed.Add("from constructor");
+        }
+
+        public Style Main { get; private set; }
+        public Style? Missing { get; private set; }
+        public List<string> Fixed { get; } = new();
+        public List<string> Settable { get; set; } = new() { "initial" };
+        public Style Computed => new Style();
+    }
+
     [Category("NoInternet")]
     public class ObjectParityTests
     {
@@ -192,6 +213,9 @@ namespace Martijn.Extensions.JSONTest
             (typeof(BoolOrNumber), "true"),
             (typeof(BoolOrNumber?), "\"\""),
             (typeof(Wrapped), "\"root\""),
+            (typeof(Prefilled), "{\"Main\":{\"Size\":14},\"Missing\":{\"Font\":\"x\"},\"Fixed\":[\"json\"],\"Settable\":[\"json\"],\"Computed\":{\"Size\":1}}"),
+            (typeof(Prefilled), "{\"Main\":null,\"Missing\":null,\"Fixed\":null,\"Settable\":null}"),
+            (typeof(Prefilled), "{\"Fixed\":\"\",\"Settable\":\"\"}"),
             (typeof(WithConstructor), "{\"id\":1,\"name\":\"n\",\"extra\":\"e\"}"),
             (typeof(WithConstructor), "{\"Id\":\"2\",\"Extra\":\"e\"}"),
             (typeof(WithConstructor), "{}"),

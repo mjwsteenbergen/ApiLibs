@@ -430,12 +430,16 @@ namespace ApiLibs.JSONTest
         }
 
         /// <summary>
-        /// Some services send the current time (Pocket sends DateTime.Now.ToFileTime()) or random
-        /// ids (Todoist command uuids), which differ between the two runs. Runs of 15 or more
-        /// digits and uuid-shaped tokens are treated as equal.
+        /// Some services send the current time (Pocket sends DateTime.Now.ToFileTime(), Graph
+        /// sends DateTime.Now as completion time) or random ids (Todoist command uuids), which
+        /// differ between the two runs. Runs of 15 or more digits, ISO timestamps within a day of
+        /// now and uuid-shaped tokens are treated as equal.
         /// </summary>
         private static string WithoutClockTicks(string text)
         {
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?", m =>
+                DateTimeOffset.TryParse(m.Value, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal, out var d)
+                && Math.Abs((d - DateTimeOffset.Now).TotalDays) < 1 ? "#now" : m.Value);
             text = System.Text.RegularExpressions.Regex.Replace(text, @"\b[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}\b", "#uuid");
             return System.Text.RegularExpressions.Regex.Replace(text, @"\d{15,}", "#");
         }
@@ -458,11 +462,13 @@ namespace ApiLibs.JSONTest
             {
                 return "headers";
             }
-            if (oldRequest.Content.StartsWith("json:") && newRequest.Content.StartsWith("json:"))
+            var oldContent = WithoutClockTicks(oldRequest.Content);
+            var newContent = WithoutClockTicks(newRequest.Content);
+            if (oldContent.StartsWith("json:") && newContent.StartsWith("json:"))
             {
-                return JsonTrees.Difference(JsonTrees.Parse(oldRequest.Content.Substring(5)), JsonTrees.Parse(newRequest.Content.Substring(5)), "$");
+                return JsonTrees.Difference(JsonTrees.Parse(oldContent.Substring(5)), JsonTrees.Parse(newContent.Substring(5)), "$");
             }
-            return oldRequest.Content == newRequest.Content ? null : "content";
+            return oldContent == newContent ? null : "content";
         }
     }
 }

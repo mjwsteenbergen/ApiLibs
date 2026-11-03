@@ -34,6 +34,9 @@ namespace Martijn.Extensions.JSON.Compat
                 DefaultIgnoreCondition = ignoreNullValues ? JsonIgnoreCondition.WhenWritingNull : JsonIgnoreCondition.Never,
                 Encoder = NewtonsoftJavaScriptEncoder.Instance,
                 MaxDepth = 64,
+                // Newtonsoft fills an existing object behind a property instead of replacing it
+                // (ObjectCreationHandling.Auto), also when the property has no public setter.
+                PreferredObjectCreationHandling = JsonObjectCreationHandling.Populate,
                 TypeInfoResolver = new DefaultJsonTypeInfoResolver
                 {
                     Modifiers = { CompatTypeInfoModifier.Modify }

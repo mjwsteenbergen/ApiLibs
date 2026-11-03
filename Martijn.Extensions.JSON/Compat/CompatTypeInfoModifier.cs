@@ -34,6 +34,36 @@ namespace Martijn.Extensions.JSON.Compat
             {
                 var member = property.AttributeProvider as MemberInfo;
 
+                bool isCollection = new CompatCollectionConverterFactory().CanConvert(property.PropertyType) && !property.PropertyType.IsArray;
+
+                if (property.Set == null && property.Get != null && !property.PropertyType.IsValueType
+                    && member is PropertyInfo { CanWrite: false } or PropertyInfo { SetMethod.IsPublic: false } && !member.IsDefined(typeof(JsonPropertyNameAttribute), true))
+                {
+                    // Newtonsoft fills an existing object behind a read-only property and skips
+                    // anything else (null, or no existing object). A setter that ignores its value
+                    // gives System.Text.Json the same behaviour in Populate mode. Collections use
+                    // a custom converter, which cannot populate, so their items are merged here.
+                    var get = property.Get;
+                    property.Set = isCollection ? (obj, value) => MergeInto(get(obj), value) : (_, _) => { };
+                    if (!isCollection)
+                    {
+                        continue;
+                    }
+                }
+                else if (isCollection && property.Get != null && property.Set != null)
+                {
+                    // Newtonsoft adds to a collection the object already holds instead of replacing it.
+                    var get = property.Get;
+                    var set = property.Set;
+                    property.Set = (obj, value) =>
+                    {
+                        if (value == null || !MergeInto(get(obj), value))
+                        {
+                            set(obj, value);
+                        }
+                    };
+                }
+
                 if (property.Set == null && member is PropertyInfo pi && pi.IsDefined(typeof(JsonPropertyNameAttribute), true))
                 {
                     var setter = pi.GetSetMethod(nonPublic: true);
@@ -64,6 +94,7 @@ namespace Martijn.Extensions.JSON.Compat
                 {
                     continue;
                 }
+
 
                 var converterType = typeof(CompatPropertyConverter<>).MakeGenericType(property.PropertyType);
                 property.CustomConverter = (JsonConverter)Activator.CreateInstance(converterType, explicitConverter, skipNull, coerceEmptyString, polymorphism, castFromPrimitive)!;
@@ -151,6 +182,33 @@ namespace Martijn.Extensions.JSON.Compat
                 {
                     typeInfo.Properties.Remove(property);
                 }
+            }
+        }
+
+        /// <summary>Adds the items of a freshly read collection to an existing one. False when there is none to add to.</summary>
+        private static bool MergeInto(object? existing, object? value)
+        {
+            if (existing == null || value == null)
+            {
+                return false;
+            }
+
+            switch (existing)
+            {
+                case IDictionary target when !target.IsReadOnly && !target.IsFixedSize && value is IDictionary source:
+                    foreach (DictionaryEntry entry in source)
+                    {
+                        target[entry.Key] = entry.Value;
+                    }
+                    return true;
+                case IList target when !target.IsReadOnly && !target.IsFixedSize && value is IEnumerable source:
+                    foreach (var item in source)
+                    {
+                        target.Add(item);
+                    }
+                    return true;
+                default:
+                    return false;
             }
         }
 
