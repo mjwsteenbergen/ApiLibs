@@ -77,6 +77,16 @@ namespace Martijn.Extensions.JSON.Compat
                 return null;
             }
 
+            if (CastOperators.Has(type))
+            {
+                var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(text), new JsonReaderOptions { AllowTrailingCommas = true, CommentHandling = JsonCommentHandling.Skip });
+                reader.Read();
+                if (CastOperators.IsPrimitiveToken(reader.TokenType))
+                {
+                    return CastOperators.Read(ref reader, type);
+                }
+            }
+
             return JsonSerializer.Deserialize(text, type, Options);
         }
 

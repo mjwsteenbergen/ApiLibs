@@ -58,13 +58,15 @@ namespace Martijn.Extensions.JSON.Compat
                 bool coerceEmptyString = explicitConverter == null && CoercesEmptyString(property.PropertyType);
                 var polymorphism = explicitConverter == null ? GetPolymorphism(property.PropertyType) : Polymorphism.None;
 
-                if (!skipNull && !coerceEmptyString && polymorphism == Polymorphism.None)
+                bool castFromPrimitive = explicitConverter == null && CastOperators.Has(property.PropertyType);
+
+                if (!skipNull && !coerceEmptyString && polymorphism == Polymorphism.None && !castFromPrimitive)
                 {
                     continue;
                 }
 
                 var converterType = typeof(CompatPropertyConverter<>).MakeGenericType(property.PropertyType);
-                property.CustomConverter = (JsonConverter)Activator.CreateInstance(converterType, explicitConverter, skipNull, coerceEmptyString, polymorphism)!;
+                property.CustomConverter = (JsonConverter)Activator.CreateInstance(converterType, explicitConverter, skipNull, coerceEmptyString, polymorphism, castFromPrimitive)!;
 
                 if (skipNull && property.Set != null)
                 {
@@ -152,6 +154,9 @@ namespace Martijn.Extensions.JSON.Compat
             }
         }
 
+        private static bool TypeLevelConverterExists(Type type) => type.GetCustomAttribute<JsonConverterAttribute>(false) != null
+            || type == typeof(DateTime) || type == typeof(DateTimeOffset) || type == typeof(decimal) || type == typeof(Guid) || type == typeof(TimeSpan);
+
         private static JsonConverter? TypeLevelConverter(Type type)
         {
             var attribute = type.GetCustomAttribute<JsonConverterAttribute>(false);
@@ -164,8 +169,13 @@ namespace Martijn.Extensions.JSON.Compat
 
         private static bool CoercesEmptyString(Type type)
         {
-            if (type.IsValueType || type == typeof(string) || type == typeof(object) || type == typeof(Uri))
+            if ((type.IsValueType && Nullable.GetUnderlyingType(type) == null) || type == typeof(string) || type == typeof(object) || type == typeof(Uri))
             {
+                return false;
+            }
+            if (Nullable.GetUnderlyingType(type) is Type underlying && (underlying.IsPrimitive || underlying.IsEnum || TypeLevelConverterExists(underlying)))
+            {
+                // Primitive and enum converters handle empty strings themselves.
                 return false;
             }
             // Collections handle the empty string themselves (CompatCollectionConverterFactory).
@@ -245,8 +255,11 @@ namespace Martijn.Extensions.JSON.Compat
         private readonly bool coerceEmptyString;
         private readonly CompatTypeInfoModifier.Polymorphism polymorphism;
 
-        public CompatPropertyConverter(JsonConverter? explicitConverter, bool skipNull, bool coerceEmptyString, CompatTypeInfoModifier.Polymorphism polymorphism)
+        private readonly bool castFromPrimitive;
+
+        public CompatPropertyConverter(JsonConverter? explicitConverter, bool skipNull, bool coerceEmptyString, CompatTypeInfoModifier.Polymorphism polymorphism, bool castFromPrimitive)
         {
+            this.castFromPrimitive = castFromPrimitive;
             this.explicitConverter = explicitConverter as JsonConverter<T>;
             if (explicitConverter != null && this.explicitConverter == null)
             {
@@ -296,6 +309,11 @@ namespace Martijn.Extensions.JSON.Compat
             if (coerceEmptyString && reader.TokenType == JsonTokenType.String && reader.ValueTextEquals(ReadOnlySpan<byte>.Empty))
             {
                 return default;
+            }
+
+            if (castFromPrimitive && CastOperators.IsPrimitiveToken(reader.TokenType))
+            {
+                return (T?)CastOperators.Read(ref reader, typeof(T));
             }
 
             return Inner(options).Read(ref reader, typeToConvert, options);

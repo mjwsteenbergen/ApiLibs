@@ -73,6 +73,11 @@ namespace Martijn.Extensions.JSON.Compat
                 return default;
             }
 
+            if (CastOperators.IsPrimitiveToken(reader.TokenType) && CastOperators.Has(typeof(TElement)))
+            {
+                return (TElement?)CastOperators.Read(ref reader, typeof(TElement));
+            }
+
             return JsonSerializer.Deserialize<TElement>(ref reader, options);
         }
 

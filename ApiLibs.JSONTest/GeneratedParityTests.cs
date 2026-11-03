@@ -29,6 +29,8 @@ namespace ApiLibs.JSONTest
             fixture.Register<JToken>(() => new JValue("token"));
             fixture.Register<JObject>(() => new JObject { ["key"] = "value" });
             fixture.Register(() => new System.Globalization.RegionInfo("NL"));
+            // Reddit's "edited" is false or a timestamp; AutoFixture cannot pick between the implicit operators.
+            fixture.Register<bool, double, ApiLibs.Reddit.Edited>((flag, stamp) => flag ? stamp : false);
             return fixture;
         }
 

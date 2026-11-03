@@ -131,6 +131,30 @@ namespace Martijn.Extensions.JSONTest
         public void SetSecret(string value) => secret = value;
     }
 
+    public struct BoolOrNumber
+    {
+        public bool? Bool;
+        public double? Double;
+
+        public static implicit operator BoolOrNumber(bool value) => new BoolOrNumber { Bool = value };
+        public static implicit operator BoolOrNumber(double value) => new BoolOrNumber { Double = value };
+    }
+
+    public class Wrapped
+    {
+        public string? Text { get; set; }
+
+        public static explicit operator Wrapped(string value) => new Wrapped { Text = "cast:" + value };
+    }
+
+    public class WithCasts
+    {
+        public BoolOrNumber Edited { get; set; }
+        public BoolOrNumber? MaybeEdited { get; set; }
+        public Wrapped? Wrapped { get; set; }
+        public List<BoolOrNumber>? Many { get; set; }
+    }
+
     [Category("NoInternet")]
     public class ObjectParityTests
     {
@@ -160,6 +184,14 @@ namespace Martijn.Extensions.JSONTest
             (typeof(Zoo), "{\"Shape\":null}"),
             (typeof(PrivateMembers), "{\"tags\":[\"a\"],\"computed\":5,\"secret\":\"s\"}"),
             (typeof(PrivateMembers), "{\"TAGS\":null,\"Secret\":\"public name\"}"),
+            (typeof(WithCasts), "{\"Edited\":false,\"MaybeEdited\":1700000000.5,\"Wrapped\":\"w\",\"Many\":[true,2.5,{\"Bool\":true}]}"),
+            (typeof(WithCasts), "{\"Edited\":1700000000,\"MaybeEdited\":null}"),
+            (typeof(WithCasts), "{\"Edited\":\"text\"}"),
+            (typeof(WithCasts), "{\"Edited\":{\"Bool\":true,\"Double\":null},\"MaybeEdited\":\"\",\"Wrapped\":{\"Text\":\"t\"}}"),
+            (typeof(WithCasts), "{\"Edited\":null}"),
+            (typeof(BoolOrNumber), "true"),
+            (typeof(BoolOrNumber?), "\"\""),
+            (typeof(Wrapped), "\"root\""),
             (typeof(WithConstructor), "{\"id\":1,\"name\":\"n\",\"extra\":\"e\"}"),
             (typeof(WithConstructor), "{\"Id\":\"2\",\"Extra\":\"e\"}"),
             (typeof(WithConstructor), "{}"),
