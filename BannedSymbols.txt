@@ -1,0 +1,4 @@
+N:Newtonsoft.Json;Newtonsoft.Json is not allowed in the System.Text.Json projects
+N:Newtonsoft.Json.Linq;Newtonsoft.Json is not allowed in the System.Text.Json projects
+N:Newtonsoft.Json.Converters;Newtonsoft.Json is not allowed in the System.Text.Json projects
+N:Newtonsoft.Json.Serialization;Newtonsoft.Json is not allowed in the System.Text.Json projects

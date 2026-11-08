@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    System.Text.Json version of ApiLibs. Same public API as ../ApiLibs (enforced by
+    ApiLibs.JSONTest), with every namespace moved under ApiLibs.JSON. Passwords stays in
+    ApiLibs: no service uses it. When every service is ported, ApiLibs is deleted and this
+    project is renamed to ApiLibs.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>ApiLibs.JSON</RootNamespace>
+    <Description>An easily extendable restclient library for csharp</Description>
+    <Authors>Martijn Steenbergen</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RestSharp" Version="114.0.0" />
+    <PackageReference Include="HttpMultipartParser" Version="10.0.0" />
+    <PackageReference Include="OneOf" Version="3.0.271" />
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Martijn.Extensions.JSON\Martijn.Extensions.JSON.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\BannedSymbols.txt" />
+    <InternalsVisibleTo Include="ApiLibs.JSONTest" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Using anything from Newtonsoft.Json in this project is a build error. -->
+    <WarningsAsErrors>$(WarningsAsErrors);RS0030</WarningsAsErrors>
+  </PropertyGroup>
+
+</Project>
