@@ -12,11 +12,11 @@ namespace ApiLibs.JSON.Ntfy
 
         /// <param name="baseUrl">The server, e.g. https://ntfy.sh/. Keep the trailing slash if it has a path.</param>
         /// <param name="topic">Every message goes to this topic.</param>
-        /// <param name="accessToken">Sent as a bearer token. Leave null for an open topic.</param>
+        /// <param name="accessToken">Sent as a bearer token. Leave null or blank for an open topic.</param>
         public NtfyService(string baseUrl, string topic, string accessToken = null) : base(baseUrl)
         {
             this.topic = topic;
-            if (accessToken != null)
+            if (!string.IsNullOrWhiteSpace(accessToken))
             {
                 AddStandardHeader("Authorization", "Bearer " + accessToken);
             }
