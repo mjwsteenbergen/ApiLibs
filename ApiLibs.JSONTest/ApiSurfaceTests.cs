@@ -15,9 +15,10 @@ namespace ApiLibs.JSONTest
             typeof(ApiLibs.General.Passwords),
         };
 
-        /// <summary>Services written for ApiLibs.JSON that have no ApiLibs version to match.</summary>
-        private static readonly string[] OnlyInNew =
+        /// <summary>Namespaces written for ApiLibs.JSON directly, with no Newtonsoft original to match.</summary>
+        private static readonly string[] OnlyInJson =
         {
+            "ApiLibs.JSON.Ntfy",
             "ApiLibs.JSON.Yamtrack",
         };
 
@@ -28,7 +29,7 @@ namespace ApiLibs.JSONTest
         {
             var diff = ApiSurface.Diff(Apis.Old, Apis.New,
                 includeExpected: t => Apis.IsPorted(Outermost(t)) && !NotPorted.Contains(Outermost(t)),
-                includeActual: t => !OnlyInNew.Contains(Outermost(t).Namespace));
+                includeActual: t => !OnlyInJson.Contains(Outermost(t).Namespace));
             Assert.That(diff, Is.Empty, "Public API differs:\n" + string.Join("\n", diff));
         }
 
