@@ -29,6 +29,11 @@ namespace ApiLibs.JSON.Yamtrack
             new OParam("offset", offset?.ToString()),
         });
 
+        /// <summary>Lists every tracked media item that matches, fetching all pages.</summary>
+        /// <param name="sort">A field with an optional direction, for example <c>score_desc</c> or <c>title</c></param>
+        public Task<List<YamtrackMedia>> GetAllMedia(YamtrackMediaType? mediaType = null, YamtrackStatus? status = null, string search = null, string sort = null, IEnumerable<YamtrackMediaType> exclude = null)
+            => YamtrackService.AllPages((limit, offset) => GetMedia(mediaType, status, search, sort, exclude, limit, offset));
+
         /// <summary>
         /// Starts tracking a media item. Set <see cref="YamtrackTrackRequest.Source"/> and <see cref="YamtrackTrackRequest.MediaId"/>
         /// to add an item from a provider, or use <see cref="YamtrackSource.Manual"/> to create one by hand.

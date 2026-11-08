@@ -38,6 +38,12 @@ namespace ApiLibs.JSON.Yamtrack
 
         public Task<YamtrackPaginated<YamtrackMedia>> GetItems(int listId, string search = null, string sort = null, int? limit = null, int? offset = null) => MakeRequest<YamtrackPaginated<YamtrackMedia>>($"{listId}/items/", parameters: ItemParameters(search, sort, limit, offset));
 
+        public Task<List<YamtrackMedia>> GetAllItems(int listId, string search = null, string sort = null)
+            => YamtrackService.AllPages((limit, offset) => GetItems(listId, search, sort, limit, offset));
+
+        public Task<List<YamtrackListSummary>> GetAllLists(string search = null, string sort = null)
+            => YamtrackService.AllPages((limit, offset) => GetLists(search, sort, limit, offset));
+
         /// <param name="listItemId">The <see cref="YamtrackListMembership.ListItemId"/> of the item</param>
         public Task<YamtrackCompleteMedia> GetItem(int listId, int listItemId) => MakeRequest<YamtrackCompleteMedia>($"{listId}/items/{listItemId}/");
 

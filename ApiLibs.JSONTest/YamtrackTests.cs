@@ -207,5 +207,41 @@ namespace ApiLibs.JSONTest
             Assert.That(http.Last!.EndPoint, Is.EqualTo("health/"));
             Assert.That(health.Checks["database"].Error, Is.EqualTo("connection refused"));
         }
+
+        [Test]
+        public async Task SeasonsAndDetailsOfAShow()
+        {
+            http.Response = """
+                {"id": null, "media_id": "1396", "source": "tmdb", "media_type": "tv", "title": "Breaking Bad", "max_progress": 62, "details": {"status": "Ended", "tvdb_id": 81189, "first_air_date": "2008-01-20"}, "related": {"seasons": [{"id": null, "item": {"media_id": "1396", "source": "tmdb", "media_type": "season", "title": "Season 1", "image": "x", "season_number": 1, "episode_number": null}, "item_id": "tv/tmdb/1396/1", "parent_id": "tv/tmdb/1396", "tracked": false, "status": null, "lists": []}], "recommendations": []}, "item_id": "tv/tmdb/1396", "tracked": false, "consumptions_number": 0, "consumptions": [], "lists": []}
+                """;
+
+            var show = await yamtrack.MediaService.GetItem("tv/tmdb/1396");
+
+            Assert.That(show.Seasons.Single().Item.SeasonNumber, Is.EqualTo(1));
+            Assert.That(show.Episodes, Is.Empty);
+            Assert.That(show.GetDetail<long?>("tvdb_id"), Is.EqualTo(81189));
+            Assert.That(show.GetDetail<string>("status"), Is.EqualTo("Ended"));
+            Assert.That(show.GetDetail<DateTime?>("first_air_date"), Is.EqualTo(new DateTime(2008, 1, 20)));
+            Assert.That(show.GetDetail<string>("missing"), Is.Null);
+        }
+
+        [Test]
+        public async Task AllPagesReadsUntilThereIsNoNextPage()
+        {
+            var offsets = new List<int>();
+            var all = await YamtrackService.AllPages((limit, offset) =>
+            {
+                offsets.Add(offset);
+                var results = Enumerable.Range(offset, offset < 400 ? limit : 5).ToList();
+                return Task.FromResult(new YamtrackPaginated<int>
+                {
+                    Pagination = new YamtrackPagination { Next = offset < 400 ? "next" : null },
+                    Results = results,
+                });
+            });
+
+            Assert.That(offsets, Is.EqualTo(new[] { 0, 200, 400 }));
+            Assert.That(all.Count, Is.EqualTo(405));
+        }
     }
 }

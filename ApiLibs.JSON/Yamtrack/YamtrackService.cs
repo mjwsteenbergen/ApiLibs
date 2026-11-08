@@ -89,6 +89,24 @@ namespace ApiLibs.JSON.Yamtrack
 
         public Task DeleteChange(YamtrackMediaType mediaType, int historyId) => MakeRequest($"changes_history/{ToApiString(mediaType)}/{historyId}/", Call.DELETE, statusCode: HttpStatusCode.NoContent);
 
+        /// <summary>The largest page Yamtrack serves.</summary>
+        public const int MaxPageSize = 200;
+
+        /// <summary>Calls <paramref name="getPage"/> with a limit and offset until every result has been read.</summary>
+        public static async Task<List<T>> AllPages<T>(Func<int, int, Task<YamtrackPaginated<T>>> getPage)
+        {
+            var all = new List<T>();
+            while (true)
+            {
+                var page = await getPage(MaxPageSize, all.Count);
+                all.AddRange(page.Results ?? new List<T>());
+                if (page.Pagination?.Next == null || page.Results == null || page.Results.Count == 0)
+                {
+                    return all;
+                }
+            }
+        }
+
         internal static string ToApiString(YamtrackMediaType mediaType) => mediaType.ToString().ToLowerInvariant();
 
         internal static string ToApiString(YamtrackSource source) => source.ToString().ToLowerInvariant();

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Martijn.Extensions.JSON.Compat;
 
 namespace ApiLibs.JSON.Yamtrack
 {
@@ -308,6 +309,19 @@ namespace ApiLibs.JSON.Yamtrack
 
         [JsonPropertyName("lists")]
         public List<YamtrackListMembership> Lists { get; set; }
+
+        /// <summary>The seasons of a tv show, from <see cref="Related"/>. Empty for anything else.</summary>
+        [JsonIgnore]
+        public List<YamtrackMedia> Seasons => GetRelated<YamtrackMedia>("seasons");
+
+        /// <summary>The episodes of a season, from <see cref="Related"/>. Empty for anything else.</summary>
+        [JsonIgnore]
+        public List<YamtrackMedia> Episodes => GetRelated<YamtrackMedia>("episodes");
+
+        /// <summary>Reads one entry of <see cref="Related"/> as a list of <typeparamref name="T"/>.</summary>
+        public List<T> GetRelated<T>(string key) => Related != null && Related.TryGetValue(key, out var value) && value is JsonElement { ValueKind: JsonValueKind.Array } element
+            ? NewtonsoftCompat.Deserialize<List<T>>(element.GetRawText())
+            : new List<T>();
     }
 
     /// <summary>A media item or season with its metadata and all its consumptions.</summary>
@@ -316,6 +330,22 @@ namespace ApiLibs.JSON.Yamtrack
         /// <summary>Provider specific metadata, such as the release date, runtime or studios.</summary>
         [JsonPropertyName("details")]
         public Dictionary<string, object> Details { get; set; }
+
+        /// <summary>
+        /// Reads one entry of <see cref="Details"/>, for example <c>status</c> (<c>Released</c> for a released
+        /// TMDB movie), <c>release_date</c> or <c>tvdb_id</c>. Returns the default when it is missing or null.
+        /// </summary>
+        public T GetDetail<T>(string key)
+        {
+            if (Details == null || !Details.TryGetValue(key, out var value) || value == null)
+            {
+                return default;
+            }
+
+            // Objects and arrays arrive as JsonElement, numbers, text and dates as plain values.
+            var json = value is JsonElement element ? element.GetRawText() : NewtonsoftCompat.Serialize(value);
+            return NewtonsoftCompat.Deserialize<T>(json);
+        }
     }
 
     public class YamtrackCompleteEpisode : YamtrackCompleteMediaBase
