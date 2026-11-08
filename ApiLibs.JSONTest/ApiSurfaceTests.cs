@@ -15,13 +15,20 @@ namespace ApiLibs.JSONTest
             typeof(ApiLibs.General.Passwords),
         };
 
+        /// <summary>Services written for ApiLibs.JSON that have no ApiLibs version to match.</summary>
+        private static readonly string[] OnlyInNew =
+        {
+            "ApiLibs.JSON.Yamtrack",
+        };
+
         private static Type Outermost(Type t) => t.DeclaringType == null ? t : Outermost(t.DeclaringType);
 
         [Test]
         public void PublicApiIsIdentical()
         {
             var diff = ApiSurface.Diff(Apis.Old, Apis.New,
-                includeExpected: t => Apis.IsPorted(Outermost(t)) && !NotPorted.Contains(Outermost(t)));
+                includeExpected: t => Apis.IsPorted(Outermost(t)) && !NotPorted.Contains(Outermost(t)),
+                includeActual: t => !OnlyInNew.Contains(Outermost(t).Namespace));
             Assert.That(diff, Is.Empty, "Public API differs:\n" + string.Join("\n", diff));
         }
 
