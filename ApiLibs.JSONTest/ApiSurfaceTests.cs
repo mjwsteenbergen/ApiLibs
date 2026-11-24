@@ -19,6 +19,7 @@ namespace ApiLibs.JSONTest
         private static readonly string[] OnlyInJson =
         {
             "ApiLibs.JSON.Ntfy",
+            "ApiLibs.JSON.Yamtrack",
         };
 
         private static Type Outermost(Type t) => t.DeclaringType == null ? t : Outermost(t.DeclaringType);
