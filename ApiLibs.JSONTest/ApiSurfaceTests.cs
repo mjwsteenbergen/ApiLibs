@@ -19,6 +19,7 @@ namespace ApiLibs.JSONTest
         private static readonly string[] OnlyInJson =
         {
             "ApiLibs.JSON.Ntfy",
+            "ApiLibs.JSON.Serialization",
             "ApiLibs.JSON.Yamtrack",
         };
 
