@@ -90,7 +90,15 @@ namespace ApiLibs.JSONTest
                 var newValue = Parsing.New(json, Apis.NewTypeFor(oldType)!);
                 var (oldText, oldWriteError) = Parsing.Try(() => new ApiLibs.Param("p", oldValue).Value);
                 var (newText, newWriteError) = Parsing.Try(() => new ApiLibs.JSON.Param("p", newValue).Value);
-                if (oldWriteError != null || newWriteError != null)
+                // Newtonsoft's NotionImage bug (QUIRKS.md): image blocks were read without their Value, so
+                // writing them back threw. ApiLibs.JSON reads them as themselves and can write them.
+                bool imageBlockFixed = oldType == typeof(ApiLibs.NotionRest.NotionList<ApiLibs.NotionRest.NotionBlockWrapper>)
+                                       && oldWriteError is NullReferenceException && newWriteError == null;
+                if (imageBlockFixed)
+                {
+                    TestContext.WriteLine("Newtonsoft's image-block write bug is fixed here");
+                }
+                else if (oldWriteError != null || newWriteError != null)
                 {
                     if (oldWriteError == null || newWriteError == null)
                     {
