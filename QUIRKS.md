@@ -45,4 +45,11 @@ They behave the same in `ApiLibs` and `ApiLibs.JSON`.
 | A Notion date property whose `start` includes a time (`2023-03-05T09:30:00.000+01:00`) makes the whole page fail with `FormatException`. Newtonsoft has already turned the string into a `DateTime`, `DateTimeConverter` gets it back as `"03/05/2023 09:30:00"`, and its `yyyy-MM-dd` regex does not match. Date-only values work. | `NotionRest.Page (date property with a time ...)` |
 | A Notion relation property on a page (an array of ids) cannot be read: `Relation` expects the database-schema shape (an object), so the whole page fails. | `NotionRest.Page (relation values as an array)` |
 | A page or database property of a type the converter does not know (`people`, `formula`, `rollup`, `created_by`, ...) makes the whole page fail with `ArgumentOutOfRangeException`. The same goes for unknown block types (`synced_block`, `table`, ...). | `NotionRest.Page (unknown property type)`, `NotionRest.NotionList<NotionBlockWrapper> (unknown block type)` |
-| Image, video and pdf blocks (`NotionImage`, which derives from `NotionFileWrapper`) never get their `Value` filled when read, so writing them back throws `NullReferenceException`. | `NotionRest.NotionList<NotionBlockWrapper> (block children with every block type)` |
+
+## Not reproduced on purpose
+
+| Newtonsoft behaviour | ApiLibs.JSON | Tests |
+|---|---|---|
+| A `[JsonConverter]` on a base class also handles every subclass. | Only the type that declares it, as in System.Text.Json. A converter that picks a subclass can then read it with `JsonSerializer` without being called again. | `GeneratedParityTests.Read` accepts "Newtonsoft throws, new returns a value" for such subclasses |
+| Reading a Notion subclass as itself (`TitleProperty`, `NumberDatabaseProperty`, ...) went through its base class's converter, which threw `ArgumentOutOfRangeException` unless the JSON named that same subclass, and `NotionImage` threw `InvalidCastException`. | Read member by member. Reading through the base types (`NotionProperty`, `Dictionary<string, NotionProperty>`, ...) is unchanged, and so is what create and update requests send. | Same |
+| Image, video and pdf blocks (`NotionImage`, which derives from `NotionFileWrapper`) never got their `Value` filled when read, so writing them back threw `NullReferenceException`. | Filled, so they can be written back. | `NotionRest.NotionList<NotionBlockWrapper> (block children with every block type)` |

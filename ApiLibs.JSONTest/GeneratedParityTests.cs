@@ -87,13 +87,14 @@ namespace ApiLibs.JSONTest
                 Assert.Fail($"No generated fixture: {problem}. Add a hand-written fixture instead.");
             }
 
+            var inheritsConverter = InheritsConverter(oldType);
             var failures = new List<string>();
             foreach (var blob in blobs)
             {
                 foreach (var (name, json) in Mutations.Of(blob))
                 {
                     var difference = Parsing.Compare(json, oldType);
-                    if (difference != null)
+                    if (difference != null && !(inheritsConverter && difference.StartsWith("Newtonsoft throws") && difference.EndsWith("new returns a value")))
                     {
                         failures.Add($"[{name}] {difference}\n      {Truncate(json)}");
                     }
@@ -138,6 +139,17 @@ namespace ApiLibs.JSONTest
 
             Assert.That(failures, Is.Empty, string.Join("\n", failures.Take(10)));
         }
+
+        /// <summary>
+        /// Newtonsoft applies a converter declared on a base class to subclasses too; System.Text.Json
+        /// does not. Read as itself, such a subclass (TitleProperty, NotionImage, ...) went through its
+        /// base class's converter in Newtonsoft, which threw unless the JSON named that same subclass.
+        /// ApiLibs.JSON reads it member by member instead, so where Newtonsoft threw it returns a
+        /// value. Any other difference still fails. See QUIRKS.md.
+        /// </summary>
+        private static bool InheritsConverter(Type oldType) =>
+            oldType.GetCustomAttributes(typeof(Newtonsoft.Json.JsonConverterAttribute), false).Length == 0
+            && oldType.GetCustomAttributes(typeof(Newtonsoft.Json.JsonConverterAttribute), true).Length > 0;
 
         private static string Truncate(string s) => s.Length > 400 ? s.Substring(0, 400) + "…" : s;
     }

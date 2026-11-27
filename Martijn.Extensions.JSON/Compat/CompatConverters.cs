@@ -34,7 +34,6 @@ namespace Martijn.Extensions.JSON.Compat
                 new CompatUriConverter(),
                 new CompatEnumConverterFactory(),
                 new CompatCollectionConverterFactory(),
-                new InheritedConverterFactory(),
             };
 
             if (tokenReaderMode)
