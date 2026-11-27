@@ -1,0 +1,485 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using ApiLibs.JSON.General;
+using Martijn.Extensions.JSON.AsyncLinq;
+using System.Text.Json.Serialization;
+using Martijn.Extensions.JSON.Compat;
+
+namespace ApiLibs.JSON.Todoist.Future
+{
+    public class TodoistFutureService : RestSharpService
+    {
+        private readonly string clientId;
+        private readonly string clientSecret;
+
+        public TodoistFutureLabelService Labels { get; private set; }
+        public TodoistFutureSectionService Sections { get; private set; }
+        public TodoistFutureProjectService Projects { get; private set; }
+        public TodoistFutureTaskService Tasks { get; private set; }
+        public TodoistFutureSyncService Sync { get; private set; }
+
+        public TodoistFutureService(string clientId, string clientSecret) : base("https://api.todoist.com/api/v1/")
+        {
+            this.clientId = clientId;
+            this.clientSecret = clientSecret;
+            AddRetryMiddleware();
+        }
+
+        public TodoistFutureService(string accessToken) : base("https://api.todoist.com/api/v1/")
+        {
+            AddStandardHeader("Authorization", $"Bearer {accessToken}");
+            Labels = new TodoistFutureLabelService(this);
+            Sections = new TodoistFutureSectionService(this);
+            Projects = new TodoistFutureProjectService(this);
+            Tasks = new TodoistFutureTaskService(this);
+            Sync = new TodoistFutureSyncService(this);
+            AddRetryMiddleware();
+        }
+
+        /// <summary>
+        /// The delays used in between retries of a transient failure. Its length also
+        /// determines the amount of retries; it has to stay at or below <see cref="Service.MaxRetries"/>,
+        /// as exceeding that makes <c>HandleRequest</c> throw a
+        /// <see cref="TooManyRetriesException"/> instead of surfacing the real error.
+        /// </summary>
+        private static readonly TimeSpan[] RetryDelays = new[]
+        {
+            TimeSpan.FromSeconds(2),
+            TimeSpan.FromSeconds(5),
+            TimeSpan.FromSeconds(10),
+        };
+
+        /// <summary>
+        /// Todoist regularly answers with a timeout or a 5xx, especially on the bigger paginated
+        /// calls like <c>projects?limit=200</c>. Retry those transparently, so a single hiccup does
+        /// not fail the entire call.
+        /// </summary>
+        /// <remarks>
+        /// Only GETs are retried. A POST/PUT/DELETE that did reach Todoist but timed out while
+        /// returning its response would be duplicated by a replay. Retrying those would require
+        /// the <c>X-Request-Id</c> idempotency header.
+        /// </remarks>
+        private void AddRetryMiddleware()
+        {
+            RequestResponseMiddleware.Add(async (resp) =>
+            {
+                var request = resp.Request;
+
+                if (request == null || request.Method != Call.GET || !IsTransient(resp.StatusCode))
+                {
+                    return resp;
+                }
+
+                if (request.Retried >= RetryDelays.Length)
+                {
+                    // Out of retries. Return the response rather than retrying into a
+                    // TooManyRetriesException, so the caller gets the actual status code.
+                    return resp;
+                }
+
+                await Task.Delay(RetryDelays[request.Retried]);
+                request.Retried++;
+
+                // Re-runs this middleware as well, so a next failure delays again.
+                return await base.HandleRequest(request);
+            });
+        }
+
+        /// <summary>
+        /// Statuses worth retrying. Note that <see cref="ICallImplementation"/> turns a
+        /// <see cref="TaskCanceledException"/> into a 408 and an <c>HttpRequestException</c> into a
+        /// response without a status code at all, which is why 0 and 408 are in here.
+        /// </summary>
+        private static bool IsTransient(HttpStatusCode status) => (int)status switch
+        {
+            0 => true,
+            408 => true,
+            429 => true,
+            >= 500 and <= 599 => true,
+            _ => false,
+        };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="_authenticator"></param>
+        /// <param name="scopes"></param>
+        /// <param name="secret">A random string of text</param>
+        public void Connect(IOAuth _authenticator, List<TodoistScope> scopes, string secret)
+        {
+            static string MapToString(TodoistScope token)
+            {
+                return token switch
+                {
+                    TodoistScope.TaskAdd => "task:add",
+                    TodoistScope.DataRead => "data:read",
+                    TodoistScope.DataReadWrite => "data:read_write",
+                    TodoistScope.DataDelete => "data:delete",
+                    TodoistScope.ProjectDelete => "project:delete",
+                    TodoistScope.BackupsRead => "backups:read",
+                    _ => throw new KeyNotFoundException(token.ToString()),
+                };
+            }
+
+
+            var url = $"https://todoist.com/oauth/authorize?client_id={clientId}&scope={string.Join(",", scopes.Select(MapToString))}&state={secret}";
+            _authenticator.ActivateOAuth(new Uri(url));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="secret">A random string of text you passed at <see cref="Connect"/></param>
+        /// <returns></returns>
+        public async Task<TodoistFutureTokenResponse> Exchange(string secret)
+        {
+            List<Param> parameters = new List<Param>
+            {
+                new Param("client_id",clientId),
+                new Param("client_secret", clientSecret),
+                new Param("code", secret)
+            };
+
+            var returns = await new BlandService().MakeRequest<TodoistFutureTokenResponse>("https://todoist.com/oauth/access_token", Call.POST, parameters);
+            AddStandardHeader("Authorization", "Bearer " + returns.AccessToken);
+            return returns;
+        }
+
+        internal async IAsyncEnumerable<T> UsePagination<T>(string endpoint, List<Param> @params = null)
+        {
+            string cursor = null;
+            do
+            {
+                var results = await MakeRequest<TodoistFuturePaginatedResponse<T>>(endpoint, parameters: (@params ?? new List<Param>()).Concat(new List<Param>() { new OParam("cursor", cursor), new("limit", 200) }).ToList());
+                cursor = results.NextCursor;
+                foreach (var item in results.Results)
+                {
+                    yield return item;
+                }
+            } while (cursor != null);
+        }
+    }
+
+    public class TodoistFutureProjectService : SubService<TodoistFutureService>
+    {
+        public TodoistFutureProjectService(TodoistFutureService service) : base(service, "projects")
+        {
+        }
+
+        public IAsyncEnumerable<TodoistProjectSummary> GetProjects() => Service.UsePagination<TodoistProjectSummary>("projects");
+        public Task<TodoistProject> GetProject(string projectId) => MakeRequest<TodoistProject>(projectId);
+        public Task<TodoistProject> CreateProject(TodoistFutureProjectEdit request) => MakeRequest<TodoistProject>("", Call.POST, content: request);
+        public Task<TodoistProject> EditProject(string projectId, TodoistFutureProjectEdit request) => MakeRequest<TodoistProject>(projectId, Call.POST, content: request);
+        public Task DeleteProject(string projectId) => MakeRequest(projectId, Call.DELETE);
+
+        public async Task<TodoistProject> GetProjectByName(string name)
+        {
+            var project = await GetProjects().First(i => i.Name == name);
+            return await GetProject(project.Id);
+        }
+    }
+
+    public class TodoistFutureProjectEdit
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
+
+        [JsonPropertyName("parent_id")]
+        public string ParentId { get; set; }
+
+        [JsonPropertyName("color")]
+        public string Color { get; set; }
+
+        [JsonPropertyName("is_favorite")]
+        public bool IsFavorite { get; set; }
+
+        [JsonPropertyName("view_style")]
+        public string ViewStyle { get; set; }
+    }
+
+    public class TodoistFutureSectionService : SubService<TodoistFutureService>
+    {
+        public TodoistFutureSectionService(TodoistFutureService service) : base(service, "sections")
+        {
+        }
+
+        public IAsyncEnumerable<TodoistSection> GetSections(string projectId) => Service.UsePagination<TodoistSection>("sections", new List<Param>() { new("project_id", projectId) });
+        public Task<TodoistSection> GetSection(string sectionId) => MakeRequest<TodoistSection>(sectionId);
+        public Task<TodoistSection> CreateSection(TodoistFutureSectionEdit request) => MakeRequest<TodoistSection>("", Call.POST, content: request);
+        public Task<TodoistSection> EditSection(string sectionId, TodoistFutureSectionEdit request) => MakeRequest<TodoistSection>(sectionId, Call.POST, content: request);
+        public Task DeleteSection(string sectionId) => MakeRequest(sectionId, Call.DELETE);
+    }
+
+    public class TodoistFutureSectionEdit
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("project_id")]
+        public string ProjectId { get; set; }
+
+        [JsonPropertyName("order")]
+        public long Order { get; set; }
+    }
+
+    public class TodoistFutureTaskService : SubService<TodoistFutureService>
+    {
+        public TodoistFutureTaskService(TodoistFutureService service) : base(service, "tasks")
+        {
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="sectionId"></param>
+        /// <param name="parentId"></param>
+        /// <param name="label">The name of the label</param>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        public IAsyncEnumerable<TodoistTask> GetTasks(string projectId = null, string sectionId = null, string parentId = null, string label = null, string ids = null) => Service.UsePagination<TodoistTask>("tasks", new List<Param>() {
+            new OParam("project_id", projectId),
+            new OParam("section_id", sectionId),
+            new OParam("parent_id", parentId),
+            new OParam("label", label),
+            new OParam("ids", ids),
+        });
+
+        public IAsyncEnumerable<TodoistTask> GetTasksByFilter(string query = null, string lang = null) => Service.UsePagination<TodoistTask>("", new List<Param>() {
+            new Param("query", query),
+            new OParam("lang", lang),
+        });
+        public Task<TodoistTask> GetTask(string taskId) => MakeRequest<TodoistTask>(taskId);
+        public Task<TodoistTask> CreateTask(TodoistFutureTaskCreate request) => MakeRequest<TodoistTask>("", Call.POST, content: request);
+        public Task<TodoistTask> QuickCreateTask(TodoistFutureTaskQuickCreate request) => MakeRequest<TodoistTask>("quick", Call.POST, content: request);
+        public Task<TodoistTask> EditTask(string taskId, TodoistFutureTaskEdit request) => MakeRequest<TodoistTask>(taskId, Call.POST, content: request);
+        public Task<TodoistTask> ReopenTask(string taskId) => MakeRequest<TodoistTask>($"{taskId}/reopen", Call.POST);
+        public Task<TodoistTask> CloseTask(string taskId) => MakeRequest<TodoistTask>($"{taskId}/close", Call.POST, statusCode: HttpStatusCode.NoContent);
+        public Task<TodoistTask> CloseTask(TodoistTask task) => CloseTask(task.Id);
+        public Task<TodoistTask> MoveTask(string taskId, TodoistFutureTaskMove move) => MakeRequest<TodoistTask>($"{taskId}/move", Call.POST, content: move);
+        public Task DeleteTask(string taskId) => MakeRequest(taskId, Call.DELETE);
+    }
+
+    public class TodoistFutureTaskMove
+    {
+        [JsonPropertyName("project_id")]
+        public string ProjectId { get; set; }
+
+        [JsonPropertyName("section_id")]
+        public string SectionId { get; set; }
+
+        [JsonPropertyName("parent_id")]
+        public string ParentId { get; set; }
+    }
+
+    public class TodoistFutureTaskQuickCreate
+    {
+        /// <summary>
+        /// The text of the task that is parsed. It can include a due date in free form text, a project name starting with the # character (without spaces), a label starting with the @ character, an assignee starting with the + character, a priority (e.g., p1), a deadline between {} (e.g. {in 3 days}), or a description starting from // until the end of the text.
+        /// </summary>
+        [JsonPropertyName("text")]
+        public string Text { get; set; }
+
+        [JsonPropertyName("note")]
+        public string Note { get; set; }
+
+        [JsonPropertyName("reminder")]
+        public string Reminder { get; set; }
+
+        /// <summary>
+        /// When this option is enabled, the default reminder will be added to the new item if it has a due date with time set. See also the auto_reminder user option for more info about the default reminder.
+        /// </summary>
+        [JsonPropertyName("auto_reminder")]
+        public bool? AutoReminder { get; set; }
+
+        [JsonPropertyName("meta")]
+        public bool? Meta { get; set; }
+    }
+
+    public class TodoistFutureTaskCreate : TodoistFutureTaskEdit
+    {
+        [JsonPropertyName("project_id")]
+        public string ProjectId { get; set; }
+
+        [JsonPropertyName("section_id")]
+        public string SectionId { get; set; }
+
+        [JsonPropertyName("parent_id")]
+        public string ParentId { get; set; }
+
+        [JsonPropertyName("order")]
+        public long Order { get; set; }
+    }
+
+    public partial class TodoistFutureTaskEdit
+    {
+        [JsonPropertyName("content")]
+        public string Content { get; set; }
+
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
+
+        [JsonPropertyName("labels")]
+        public List<string> Labels { get; set; }
+
+        [JsonPropertyName("priority")]
+        public long? Priority { get; set; }
+
+        [JsonPropertyName("assignee_id")]
+        public long? AssigneeId { get; set; }
+
+        [JsonPropertyName("due_string")]
+        public string DueString { get; set; }
+
+        [JsonPropertyName("due_date")]
+        [JsonConverter(typeof(DateConverter))]
+        public DateTimeOffset? DueDate { get; set; }
+
+        [JsonPropertyName("due_datetime")]
+        [JsonConverter(typeof(DateTimeConverter))]
+        public DateTimeOffset? DueDatetime { get; set; }
+
+        [JsonPropertyName("due_lang")]
+        public string DueLang { get; set; }
+
+        [JsonPropertyName("duration")]
+        public long? Duration { get; set; }
+
+        [JsonPropertyName("duration_unit")]
+        public string DurationUnit { get; set; }
+
+        [JsonPropertyName("deadline_date")]
+        public string DeadlineDate { get; set; }
+
+        [JsonPropertyName("deadline_lang")]
+        public string DeadlineLang { get; set; }
+    }
+
+    public class TodoistFutureLabelService : SubService<TodoistFutureService>
+    {
+        public TodoistFutureLabelService(TodoistFutureService service) : base(service, "labels")
+        {
+        }
+
+        public IAsyncEnumerable<TodoistLabel> GetLabels() => Service.UsePagination<TodoistLabel>("labels");
+        public Task<TodoistLabel> GetLabel(string labelId) => MakeRequest<TodoistLabel>(labelId);
+        public Task<TodoistLabel> CreateLabel(TodoistFutureLabelEdit request) => MakeRequest<TodoistLabel>("", Call.POST, content: request);
+        public Task<TodoistLabel> EditLabel(string labelId, TodoistFutureLabelEdit request) => MakeRequest<TodoistLabel>(labelId, Call.POST, content: request);
+        public Task DeleteLabel(string labelId) => MakeRequest(labelId, Call.DELETE);
+    }
+
+    public class TodoistFutureLabelEdit
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("order")]
+        public long Order { get; set; }
+
+        [JsonPropertyName("color")]
+        public string Color { get; set; }
+
+        [JsonPropertyName("is_favorite")]
+        public bool IsFavorite { get; set; }
+    }
+
+    public class TodoistFutureSyncService : SubService<TodoistFutureService>
+    {
+        private string syncToken = "*";
+        public TodoistFutureSyncService(TodoistFutureService service) : base(service)
+        {
+        }
+
+        public async Task<SyncResponse> Sync(List<TodoistFutureCommand> commands)
+        {
+            var response = await MakeRequest<SyncResponse>("sync", Call.POST, parameters: new List<Param>
+            {
+                new Param("commands", NewtonsoftCompat.Serialize(commands))
+            });
+
+            return response;
+        }
+    }
+
+    public class TodoistFutureCommand
+    {
+        public TodoistFutureCommand()
+        {
+            UUID = $"{RandomString(8)}-{RandomString(4)}-{RandomString(4)}-{RandomString(4)}-{RandomString(12)}";
+            TempId = $"{RandomString(8)}-{RandomString(4)}-{RandomString(4)}-{RandomString(4)}-{RandomString(12)}";
+        }
+
+        private static Random random = new Random((int)DateTime.Now.Ticks);
+        private static string RandomString(int length)
+        {
+            const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
+
+        [JsonPropertyName("temp_id")]
+        public string TempId { get; set; }
+
+        [JsonPropertyName("uuid")]
+        public string UUID { get; set; }
+
+        [JsonPropertyName("args")]
+        public TodoistFutureCommandArgs Argument { get; set; }
+    }
+
+    public abstract class TodoistFutureCommandArgs
+    {
+        [JsonIgnore]
+        public string TodoistCommandType { get; set; }
+
+        public TodoistFutureCommand ToCommand()
+        {
+            return new TodoistFutureCommand
+            {
+                Argument = this,
+                Type = TodoistCommandType
+            };
+        }
+
+    }
+
+    public class LocationReminderFutureCommand : TodoistFutureCommandArgs
+    {
+        public LocationReminderFutureCommand()
+        {
+            TodoistCommandType = "reminder_add";
+            Type = "location";
+        }
+
+        [JsonPropertyName("item_id")]
+        public string ItemId { get; set; }
+
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("loc_lat")]
+        public string LocLat { get; set; }
+
+        [JsonPropertyName("loc_long")]
+        public string LocLong { get; set; }
+
+        [JsonPropertyName("loc_trigger")]
+        public string LocTrigger { get; set; }
+
+        [JsonPropertyName("radius")]
+        public long Radius { get; set; }
+    }
+
+}
